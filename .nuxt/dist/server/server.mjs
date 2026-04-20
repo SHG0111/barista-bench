@@ -1,0 +1,1 @@
+export { default } from "file:///C:/Users/Dell/nuxt%20projects/barista-bench/node_modules/@nuxt/vite-builder/dist/vite-node-entry.mjs"
