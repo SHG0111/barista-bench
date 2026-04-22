@@ -7,7 +7,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: "/auth/login",
       callback: "/auth/confirm",
-      exclude: ["/", "/shop*", "/product*", "/bundle*"],
+      exclude: ["/", "/shop*", "/product*", "/bundle*", "/terms", "/privacy"],
     },
   },
   css: ["~/assets/css/main.css"],
@@ -36,10 +36,15 @@ export default defineNuxtConfig({
       ],
     },
   },
+  routeRules: {
+    "/orders": { redirect: "/account?tab=orders" },
+  },
   runtimeConfig: {
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY,
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY,
+      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
     },
   },
 });

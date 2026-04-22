@@ -32,8 +32,21 @@
           <IconSearch />
         </button>
 
-        <NuxtLink to="/account" class="nav-icon-btn" aria-label="Account">
-          <IconUser />
+        <NuxtLink
+          to="/account"
+          class="nav-icon-btn nav-profile-link"
+          aria-label="Account"
+        >
+          <img
+            v-if="user && userAvatar"
+            :src="userAvatar"
+            class="nav-avatar"
+            referrerpolicy="no-referrer"
+          />
+          <IconUser v-else />
+          <span v-if="user && userFirstName" class="nav-user-name">{{
+            userFirstName
+          }}</span>
         </NuxtLink>
 
         <NuxtLink to="/cart" class="nav-icon-btn cart-btn" aria-label="Cart">
@@ -72,6 +85,7 @@
 </template>
 
 <script setup lang="ts">
+import { watch, nextTick } from "vue";
 const { count: cartCount, fetchCart } = useCart();
 const router = useRouter();
 const searchOpen = ref(false);
@@ -79,7 +93,6 @@ const searchQuery = ref("");
 const searchInput = ref<HTMLInputElement>();
 
 const user = useSupabaseUser();
-import { watch } from "vue";
 
 watch(
   user,
@@ -104,6 +117,19 @@ function doSearch() {
   searchOpen.value = false;
   searchQuery.value = "";
 }
+
+const userFirstName = computed(() => {
+  const name = user.value?.user_metadata?.full_name || user.value?.user_metadata?.name;
+  return name?.split(" ")[0] || "";
+});
+
+const userAvatar = computed(() => {
+  return (
+    user.value?.user_metadata?.avatar_url ||
+    user.value?.user_metadata?.picture ||
+    user.value?.user_metadata?.avatar
+  );
+});
 </script>
 
 <style scoped>
@@ -195,6 +221,27 @@ function doSearch() {
 .nav-icon-btn:hover {
   background: var(--surface-2);
   color: var(--text);
+}
+.nav-profile-link {
+  width: auto !important;
+  gap: 8px;
+  padding: 0 10px;
+}
+.nav-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--border);
+}
+.nav-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .cart-badge {
   position: absolute;

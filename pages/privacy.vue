@@ -1,199 +1,137 @@
 <template>
-  <div class="shipping-landing">
+  <div class="legal-landing">
     <div class="container">
       <!-- 1. Hero Section -->
       <div class="hero-section">
         <div class="hero-left">
-          <div class="hero-label">LOGISTICS &amp; DELIVERY</div>
+          <div class="hero-label">DISCRETION &amp; DATA</div>
           <h1 class="hero-title">
-            Shipping &amp;<br />
-            <span class="hero-italic">Handling</span>
+            Privacy<br />
+            <span class="hero-italic">Policy</span>
           </h1>
           <p class="hero-desc">
-            Precision tools delivered with care. We partner with the world's
-            leading logistics providers to ensure your equipment arrives safely
-            and efficiently.
+            Your privacy is as vital as your morning ritual. We prioritize the security 
+            and discretion of your personal data at every step.
           </p>
-        </div>
-        <div class="hero-right">
-          <NuxtImg
-            src="/shipping_hero.png"
-            alt="Premium Shipping Box"
-            class="hero-img"
-          />
         </div>
       </div>
 
       <!-- 2. Grid Sections -->
       <div class="details-grid">
-        <!-- Methods -->
+        <!-- Section 1: Collection -->
         <div class="detail-card card-guarantee">
           <div class="guarantee-bg-icon">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              class="bg-icon-svg"
-              stroke="currentColor"
-              stroke-width="0.5"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <path
-                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
-              ></path>
-              <path d="M2 12h20"></path>
-            </svg>
+             <svg viewBox="0 0 24 24" fill="none" class="bg-icon-svg" stroke="currentColor" stroke-width="0.5">
+               <circle cx="12" cy="12" r="3"></circle>
+               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+             </svg>
           </div>
           <div class="badge-wrap">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="var(--accent-gold)"
-            >
-              <path
-                d="M22 12A10 10 0 1 1 12 2a10 10 0 0 1 10 10zM12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8zm-2 11.5l-3.5-3.5 1.4-1.4 2.1 2.1 5.3-5.3 1.4 1.4z"
-              />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent-gold)">
+              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.67-3.13 8.75-7 9.89-3.87-1.14-7-5.22-7-9.89V6.3l7-3.12z" />
             </svg>
           </div>
-          <h2>Global Delivery Methods</h2>
+          <h2>Data Collection</h2>
           <p>
-            We offer complimentary express shipping globally. Your tools are
-            packed with the same meticulous precision you expect in your craft,
-            ensuring they travel safely across borders. Tracking is provided to
-            you for every single order.
+            We collect essential information to facilitate your brewing experience. This includes identity details provided durante sign-up and shipping logistics. Our collection is limited to the bare minimum required to ensure your precision tools reach your bench safely and that your profile remains secure.
           </p>
           <div class="guarantee-meta">
             <div class="meta-box">
-              <div class="meta-label">DISPATCH</div>
-              <div class="meta-value">1–2 Business Days</div>
+              <div class="meta-label">DATA STORAGE</div>
+              <div class="meta-value">ENCRYPTED CLOUD</div>
             </div>
             <div class="meta-box">
-              <div class="meta-label">EXPRESS DELIVERY</div>
-              <div class="meta-value">3–7 Transit Days</div>
+              <div class="meta-label">RETENTION</div>
+              <div class="meta-value">AS REQUIRED</div>
             </div>
           </div>
         </div>
 
-        <!-- Timeline -->
+        <!-- Section 2: Usage Journey -->
         <div class="detail-card card-timeline">
-          <h2>The Journey</h2>
+          <h2>The Journey of Data</h2>
           <div class="timeline-list">
             <div class="tl-item">
               <div class="tl-num">1</div>
               <div>
-                <div class="tl-title">Processing</div>
-                <div class="tl-desc">Checked and packed within 1-2 days.</div>
+                <div class="tl-title">Capture</div>
+                <div class="tl-desc">Securely received during account creation.</div>
               </div>
             </div>
             <div class="tl-item">
               <div class="tl-num">2</div>
               <div>
-                <div class="tl-title">Dispatch</div>
-                <div class="tl-desc">
-                  Handed directly to our premier couriers.
-                </div>
+                <div class="tl-title">Processing</div>
+                <div class="tl-desc">Anonymous telemetry to improve our tools.</div>
               </div>
             </div>
             <div class="tl-item">
               <div class="tl-num">3</div>
               <div>
-                <div class="tl-title">Transit</div>
-                <div class="tl-desc">
-                  Global shipping in just 3-7 business days.
-                </div>
+                <div class="tl-title">Optimization</div>
+                <div class="tl-desc">Used solely to enhance the artisan experience.</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Restrictions (Conditions Style) -->
+        <!-- Section 3: Third Party Safety -->
         <div class="detail-card card-conditions">
-          <h2>Shipping Restrictions</h2>
+          <h2>Logistical Partnerships</h2>
           <div class="conditions-list">
             <div class="cond-item">
-              <div class="cond-icon">🚫</div>
-              <div class="cond-text">
-                We cannot deliver to P.O. Box addresses.
-              </div>
+              <div class="cond-icon">💳</div>
+              <div class="cond-text">Stripe: End-to-end encrypted payments.</div>
             </div>
             <div class="cond-item">
-              <div class="cond-icon">🗺️</div>
-              <div class="cond-text">
-                Restricted handling required for select regions.
-              </div>
+              <div class="cond-icon">🌩️</div>
+              <div class="cond-text">Supabase: Secure database architecture.</div>
             </div>
             <div class="cond-item">
-              <div class="cond-icon">🛂</div>
-              <div class="cond-text">
-                No delivery to: Russia, Belarus, North Korea, Syria, Cuba.
-              </div>
+              <div class="cond-icon">🚚</div>
+              <div class="cond-text">DHL/FedEx: Verified shipping logistics.</div>
             </div>
           </div>
         </div>
 
-        <!-- Path -->
+        <!-- Section 4: Security Protocols -->
         <div class="detail-card card-path">
           <div class="path-info">
-            <h2>Logistics Partners</h2>
+            <h2>Artisan Privacy Rights</h2>
             <p>
-              We partner with leading global logistics providers to ensure your
-              equipment arrives safely and efficiently. Our established networks
-              offer unmatched reliability.
+              Under global data privacy standards, you hold full authority over your data. You may request deletion or extraction of your ritual history at any time. We utilize advanced encryption to ensure your bench remains your own.
             </p>
-            <div
-              class="couriers"
-              style="display: flex; gap: 16px; margin-top: 20px"
-            >
-              <span style="font-weight: 700; color: #fff; font-size: 18px"
-                >DHL</span
-              >
-              <span style="font-weight: 700; color: #fff; font-size: 18px"
-                >FEDEX</span
-              >
-              <span style="font-weight: 700; color: #fff; font-size: 18px"
-                >UPS</span
-              >
-            </div>
+            <NuxtLink to="/terms" class="view-labs">VIEW TERMS OF SERVICE <span class="arrow">→</span></NuxtLink>
           </div>
           <div class="path-widget">
             <div class="pw-header">
-              <span class="pw-status">IN TRANSIT</span>
-              <span class="pw-id">TRACKING PREVIEW</span>
+              <span class="pw-status">PRIVACY RATING</span>
+              <span class="pw-id">GRADE A++</span>
             </div>
             <div class="pw-bar-track">
               <div class="pw-bar-fill"></div>
             </div>
             <div class="pw-item">
               <div class="pw-pkg-icon">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                  <line x1="8" y1="21" x2="16" y2="21"></line>
-                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
               </div>
               <div>
-                <div class="pw-title">Local Distribution Center</div>
-                <div class="pw-desc">Departed Facility</div>
+                <div class="pw-title">Privacy Shield</div>
+                <div class="pw-desc">Global Compliance Active</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 3. Exceptions Note -->
+      <!-- 3. Final Note -->
       <div class="exceptions-note">
-        <h3>Customs and Duties</h3>
+        <h3>Transparency Commitment</h3>
         <p>
-          International orders may be subject to customs duties and taxes levied
-          by the destination country upon arrival. <br />These mandatory charges
-          are the sole responsibility of the customer.
+          We will notify you immediately if our craftsmanship in data handling 
+          undergoes any significant evolution. Contact <strong>privacy@baristabench.com</strong>.
         </p>
       </div>
     </div>
@@ -205,15 +143,14 @@ definePageMeta({ layout: "default" });
 </script>
 
 <style scoped>
-/* Copied exact aesthetics from the Returns & Refunds template */
-.shipping-landing {
-  background-color: #1a1918;
-  color: #f7f5f2;
+.legal-landing {
+  background-color: #f7f5f2;
+  color: #1a1918;
   min-height: 100vh;
   padding: 80px 0 100px;
-  --accent-gold: #e2b382;
-  --card-bg: #272524;
-  --text-muted: #aca9a4;
+  --accent-gold: #b38a5d;
+  --card-bg: #ffffff;
+  --text-muted: #666461;
   font-family: var(--font-body);
 }
 
@@ -249,7 +186,7 @@ definePageMeta({ layout: "default" });
   font-size: 82px;
   line-height: 1.05;
   margin-bottom: 24px;
-  color: #fff;
+  color: #1a1918;
   font-weight: 600;
 }
 
@@ -288,34 +225,23 @@ definePageMeta({ layout: "default" });
 }
 
 .btn-primary-alt {
-  background-color: var(--accent-gold);
-  color: #1a1918;
+  background-color: #1a1918;
+  color: #fff;
 }
 
 .btn-primary-alt:hover {
-  background-color: #f1bf8b;
+  background-color: #333;
   transform: translateY(-2px);
 }
 
 .btn-secondary-alt {
-  background-color: #383633;
-  color: #fff;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #1a1918;
 }
 
 .btn-secondary-alt:hover {
-  background-color: #4a4845;
-}
-
-.hero-right {
-  flex: 1;
-}
-
-.hero-img {
-  width: 100%;
-  max-height: 600px;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  background-color: #faf9f8;
 }
 
 /* 2. Grid System */
@@ -333,6 +259,8 @@ definePageMeta({ layout: "default" });
   padding: 40px;
   position: relative;
   overflow: hidden;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
 }
 
 .detail-card h2 {
@@ -340,7 +268,7 @@ definePageMeta({ layout: "default" });
   font-size: 26px;
   font-weight: 500;
   margin-bottom: 20px;
-  color: #fff;
+  color: #1a1918;
 }
 
 .detail-card p {
@@ -367,7 +295,7 @@ definePageMeta({ layout: "default" });
   right: -40px;
   top: 40px;
   opacity: 0.05;
-  color: #fff;
+  color: #1a1918;
   width: 250px;
   height: 250px;
   pointer-events: none;
@@ -386,6 +314,7 @@ definePageMeta({ layout: "default" });
   display: flex;
   padding: 40px;
   gap: 64px;
+  border-top: 1px solid #f9f9f9;
 }
 
 .meta-label {
@@ -399,7 +328,8 @@ definePageMeta({ layout: "default" });
 
 .meta-value {
   font-size: 14px;
-  color: #fff;
+  color: #1a1918;
+  font-weight: 600;
 }
 
 /* Timeline Card */
@@ -419,7 +349,7 @@ definePageMeta({ layout: "default" });
 .tl-num {
   width: 28px;
   height: 28px;
-  background-color: #3b3732;
+  background-color: #f9f8f6;
   color: var(--accent-gold);
   border-radius: 50%;
   display: flex;
@@ -433,7 +363,7 @@ definePageMeta({ layout: "default" });
 .tl-title {
   font-size: 13.5px;
   font-weight: 600;
-  color: #fff;
+  color: #1a1918;
   margin-bottom: 4px;
 }
 
@@ -457,7 +387,7 @@ definePageMeta({ layout: "default" });
 }
 
 .cond-icon {
-  background-color: #3b3732;
+  background-color: #f9f8f6;
   width: 32px;
   height: 32px;
   border-radius: 6px;
@@ -520,12 +450,12 @@ definePageMeta({ layout: "default" });
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: var(--text-muted);
+  color: #888;
 }
 
 .pw-id {
   font-size: 10px;
-  color: #666;
+  color: #555;
 }
 
 .pw-bar-track {
@@ -542,7 +472,7 @@ definePageMeta({ layout: "default" });
   left: 0;
   top: 0;
   height: 100%;
-  width: 25%;
+  width: 100%;
   background-color: var(--accent-gold);
   border-radius: 2px;
 }
@@ -573,7 +503,7 @@ definePageMeta({ layout: "default" });
 
 .pw-desc {
   font-size: 11px;
-  color: var(--text-muted);
+  color: #888;
 }
 
 /* 3. Exceptions */
@@ -583,12 +513,10 @@ definePageMeta({ layout: "default" });
   margin: 0 auto;
 }
 
-.exceptions-title {
+.exceptions-note h3 {
   font-family: var(--font-display, "Playfair Display", serif);
-  font-style: italic;
-  font-weight: 500;
   font-size: 24px;
-  color: #fff;
+  color: #1a1918;
   margin-bottom: 16px;
 }
 

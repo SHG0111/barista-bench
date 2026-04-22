@@ -57,8 +57,8 @@
           meticulous rituals.</span
         >
         <div class="footer-bottom-links">
-          <NuxtLink to="/shippingPolicy">Shipping Policy</NuxtLink>
-          <NuxtLink to="/termsAndConditions">Terms &amp; Conditions</NuxtLink>
+          <NuxtLink to="/terms">Terms of Service</NuxtLink>
+          <NuxtLink to="/privacy">Privacy Policy</NuxtLink>
         </div>
       </div>
     </div>

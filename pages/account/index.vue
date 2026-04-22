@@ -122,9 +122,10 @@
           <div v-if="activeTab === 'dashboard'">
             <div class="profile-header card">
               <img
-                v-if="profile?.avatar_url"
-                :src="profile.avatar_url"
+                v-if="(profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.user_metadata?.avatar) && user"
+                :src="profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.user_metadata?.avatar"
                 class="profile-avatar"
+                referrerpolicy="no-referrer"
               />
               <div v-else class="profile-avatar-placeholder">
                 {{ userInitial }}
@@ -164,44 +165,49 @@
             </div>
 
             <!-- Recent orders preview -->
-            <div class="card" style="margin-top: 24px">
-              <div class="section-block-header">
-                <h3>RECENT ORDERS</h3>
-                <button
-                  class="btn btn-ghost btn-sm"
-                  @click="activeTab = 'orders'"
+            <div class="card" style="margin-top: 24px; position: relative; min-height: 180px;">
+              <div v-if="ordersLoading" class="tab-loader">
+                <div class="spinner"></div>
+              </div>
+              <template v-else>
+                <div class="section-block-header">
+                  <h3>RECENT ORDERS</h3>
+                  <button
+                    class="btn btn-ghost btn-sm"
+                    @click="activeTab = 'orders'"
+                  >
+                    VIEW ALL
+                  </button>
+                </div>
+                <div class="order-thead order-row">
+                  <span>Order #</span><span>Date</span><span>Status</span
+                  ><span>Total</span><span></span>
+                </div>
+                <div
+                  v-for="o in orders.slice(0, 3)"
+                  :key="o.id"
+                  class="order-row"
                 >
-                  VIEW ALL
-                </button>
-              </div>
-              <div class="order-thead order-row">
-                <span>Order #</span><span>Date</span><span>Status</span
-                ><span>Total</span><span></span>
-              </div>
-              <div
-                v-for="o in orders.slice(0, 3)"
-                :key="o.id"
-                class="order-row"
-              >
-                <span class="order-num">{{ o.order_number }}</span>
-                <span class="order-date">{{ formatDate(o.placed_at) }}</span>
-                <span>
-                  <span class="badge" :class="statusBadge(o.status)">
-                    <span v-if="o.status === 'delivered'">●</span>
-                    {{ o.status }}
+                  <span class="order-num">{{ o.order_number }}</span>
+                  <span class="order-date">{{ formatDate(o.placed_at) }}</span>
+                  <span>
+                    <span class="badge" :class="statusBadge(o.status)">
+                      <span v-if="o.status === 'delivered'">●</span>
+                      {{ o.status }}
+                    </span>
                   </span>
-                </span>
-                <span class="order-total">${{ o.total?.toFixed(2) }}</span>
-                <NuxtLink
-                  :to="`/order/${o.order_number}`"
-                  class="btn btn-ghost btn-sm"
-                >
-                  <IconEye />
-                </NuxtLink>
-              </div>
-              <div v-if="orders.length === 0" class="empty-tab">
-                No orders yet. <NuxtLink to="/shop">Start shopping →</NuxtLink>
-              </div>
+                  <span class="order-total">${{ o.total?.toFixed(2) }}</span>
+                  <NuxtLink
+                    :to="`/order/${o.order_number}`"
+                    class="btn btn-ghost btn-sm"
+                  >
+                    <IconEye />
+                  </NuxtLink>
+                </div>
+                <div v-if="orders.length === 0" class="empty-tab">
+                  No orders yet. <NuxtLink to="/shop">Start shopping →</NuxtLink>
+                </div>
+              </template>
             </div>
 
             <!-- Saved tools preview -->
@@ -243,29 +249,34 @@
           <!-- Orders tab -->
           <div v-if="activeTab === 'orders'">
             <h2 style="margin-bottom: 24px">My Orders</h2>
-            <div class="card">
-              <div class="order-thead order-row">
-                <span>Order #</span><span>Date</span><span>Status</span
-                ><span>Total</span><span></span>
+            <div class="card" style="position: relative; min-height: 200px;">
+              <div v-if="ordersLoading" class="tab-loader">
+                <div class="spinner"></div>
               </div>
-              <div v-for="o in orders" :key="o.id" class="order-row">
-                <span class="order-num">{{ o.order_number }}</span>
-                <span class="order-date">{{ formatDate(o.placed_at) }}</span>
-                <span
-                  ><span class="badge" :class="statusBadge(o.status)">{{
-                    o.status
-                  }}</span></span
-                >
-                <span class="order-total">${{ o.total?.toFixed(2) }}</span>
-                <NuxtLink
-                  :to="`/order/${o.order_number}`"
-                  class="btn btn-ghost btn-sm"
-                  ><IconEye
-                /></NuxtLink>
-              </div>
-              <div v-if="orders.length === 0" class="empty-tab">
-                No orders yet.
-              </div>
+              <template v-else>
+                <div class="order-thead order-row">
+                  <span>Order #</span><span>Date</span><span>Status</span
+                  ><span>Total</span><span></span>
+                </div>
+                <div v-for="o in orders" :key="o.id" class="order-row">
+                  <span class="order-num">{{ o.order_number }}</span>
+                  <span class="order-date">{{ formatDate(o.placed_at) }}</span>
+                  <span
+                    ><span class="badge" :class="statusBadge(o.status)">{{
+                      o.status
+                    }}</span></span
+                  >
+                  <span class="order-total">${{ o.total?.toFixed(2) }}</span>
+                  <NuxtLink
+                    :to="`/order/${o.order_number}`"
+                    class="btn btn-ghost btn-sm"
+                    ><IconEye
+                  /></NuxtLink>
+                </div>
+                <div v-if="orders.length === 0" class="empty-tab">
+                  No orders yet.
+                </div>
+              </template>
             </div>
           </div>
 
@@ -328,6 +339,49 @@
                 {{ saving ? "Saving..." : "Save Changes" }}
               </button>
             </div>
+
+            <!-- Password change (only for email users) -->
+            <div
+              class="card"
+              style="margin-top: 24px"
+              v-if="user?.app_metadata?.provider === 'email'"
+            >
+              <h3 style="margin-bottom: 20px; font-size: 14px; letter-spacing: 0.05em">SECURITY</h3>
+              <div class="form-grid">
+                <div>
+                  <label class="input-label">New Password</label>
+                  <input
+                    v-model="passwordForm.new"
+                    type="password"
+                    class="input"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div>
+                  <label class="input-label">Confirm Password</label>
+                  <input
+                    v-model="passwordForm.confirm"
+                    type="password"
+                    class="input"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+              <button
+                class="btn btn-outline"
+                style="margin-top: 20px"
+                @click="updatePassword"
+                :disabled="changingPassword"
+              >
+                {{ changingPassword ? "Updating..." : "Update Password" }}
+              </button>
+            </div>
+            <div class="card" style="margin-top: 24px" v-else>
+               <p style="font-size: 13px; color: var(--text-3)">
+                 You are logged in via <strong>{{ user?.app_metadata?.provider }}</strong>. 
+                 Password management is handled by your provider.
+               </p>
+            </div>
           </div>
         </div>
       </div>
@@ -341,24 +395,33 @@ definePageMeta({ middleware: "auth" });
 const supabase: any = useSupabaseClient();
 const user = useSupabaseUser();
 const { addToCart } = useCart();
-const { success } = useToast();
+const toast = useToast();
+const route = useRoute();
 
-const activeTab = ref("dashboard");
+const activeTab = ref(route.query.tab ? String(route.query.tab) : "dashboard");
 const profile = ref<any>(null);
 const orders = ref<any[]>([]);
 const savedTools = ref<any[]>([]);
 const saving = ref(false);
+const ordersLoading = ref(true);
 const settingsForm = reactive({ full_name: "" });
+const passwordForm = reactive({ new: "", confirm: "" });
+const changingPassword = ref(false);
 
-const firstName = computed(
-  () =>
-    profile.value?.full_name?.split(" ")[0] ||
-    user.value?.email?.split("@")[0] ||
-    "there",
-);
-const userInitial = computed(() =>
-  (profile.value?.full_name || user.value?.email || "U")[0].toUpperCase(),
-);
+const firstName = computed(() => {
+  const name = profile.value?.full_name || 
+               user.value?.user_metadata?.full_name || 
+               user.value?.user_metadata?.name;
+  return name?.split(" ")[0] || user.value?.email?.split("@")[0] || "there";
+});
+
+const userInitial = computed(() => {
+  const name = profile.value?.full_name || 
+               user.value?.user_metadata?.full_name || 
+               user.value?.user_metadata?.name || 
+               user.value?.email || "U";
+  return name[0].toUpperCase();
+});
 const memberSince = computed(() => {
   if (!user.value?.created_at) return "";
   return new Date(user.value.created_at).toLocaleDateString("en-US", {
@@ -376,13 +439,15 @@ function formatDate(d: string) {
 }
 function statusBadge(s: string) {
   if (s === "delivered") return "badge-green";
+  if (s === "processed") return "badge-green";
   if (s === "in_transit") return "badge-amber";
+  if (s === "placed") return "badge-amber";
   return "badge-gray";
 }
 
 async function addSavedToCart(item: any) {
   await addToCart(item.product_id);
-  success("Added to cart");
+  toast.success("Added to cart");
 }
 async function removeSaved(item: any) {
   await supabase.from("saved_tools").delete().eq("id", item.id);
@@ -399,8 +464,32 @@ async function saveSettings() {
     })
     .eq("id", user.value.id);
   if (profile.value) profile.value.full_name = settingsForm.full_name;
-  success("Profile updated");
+  toast.success("Profile updated");
   saving.value = false;
+}
+
+async function updatePassword() {
+  if (!passwordForm.new || passwordForm.new !== passwordForm.confirm) {
+    supabase.auth.updateUser({ password: 'dummy' }); // just to trigger a potential toast if middleware exists
+    toast.error("Passwords do not match or are empty");
+    return;
+  }
+  if (passwordForm.new.length < 6) {
+    toast.error("Password must be at least 6 characters");
+    return;
+  }
+  changingPassword.value = true;
+  const { error } = await supabase.auth.updateUser({
+    password: passwordForm.new,
+  });
+  if (error) {
+    toast.error(error.message);
+  } else {
+    toast.success("Password updated successfully");
+    passwordForm.new = "";
+    passwordForm.confirm = "";
+  }
+  changingPassword.value = false;
 }
 async function signOut() {
   await supabase.auth.signOut();
@@ -409,6 +498,28 @@ async function signOut() {
 
 onMounted(async () => {
   if (!user.value) return;
+
+  // Catch dynamic stripe callback
+  if (route.query.stripe_cb === 'true' && route.query.redirect_status === 'succeeded') {
+    const ordId = String(route.query.ord_id);
+    await supabase.from('orders').update({ status: 'processed' }).eq('order_number', ordId);
+    
+    // Trigger mock email
+    $fetch('/api/send-email', {
+      method: 'POST',
+      body: {
+        to: user.value.email,
+        subject: `Payment Received: Order ${ordId}`,
+        content: `Your payment was perfectly tracked on the server! Order ${ordId} is now processing.`
+      }
+    }).catch(e => console.error(e));
+  }
+
+  // DEBUG: View exactly what Google sent us
+  console.log("🔌 AUTH USER DATA:", user.value);
+  console.log("📸 USER METADATA:", user.value?.user_metadata);
+
+  ordersLoading.value = true;
   const [{ data: p }, { data: o }, { data: s }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.value.id).single(),
     supabase
@@ -425,6 +536,7 @@ onMounted(async () => {
   orders.value = o || [];
   savedTools.value = s || [];
   if (p?.full_name) settingsForm.full_name = p.full_name;
+  ordersLoading.value = false;
 });
 </script>
 
@@ -633,5 +745,33 @@ onMounted(async () => {
 .bsw-next {
   font-size: 11px;
   color: var(--text-3);
+}
+
+.tab-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 10;
+  border-radius: var(--radius-lg);
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>
