@@ -1,22 +1,22 @@
 <template>
-  <div class="product-card" @click="navigate">
-    <div class="product-img-wrap">
-      <div class="product-img-bg">
-        <div class="product-img-mock">
-          <div class="mock-shape" :style="mockStyle"></div>
+  <div class="bg-surface rounded-lg overflow-hidden cursor-pointer transition-all duration-180 ease-default hover:shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-[3px]" @click="navigate">
+    <div class="relative">
+      <div class="aspect-square bg-surface-2 flex items-center justify-center overflow-hidden">
+        <div class="w-[65%] h-[65%] flex items-center justify-center">
+          <div class="w-full h-full rounded-xl" :style="mockStyle"></div>
         </div>
       </div>
-      <span v-if="product.is_bestseller" class="bestseller-badge">BEST SELLER</span>
-      <button class="add-btn" @click.stop="$emit('addToCart', product.id)" title="Add to cart">+</button>
+      <span v-if="product.is_bestseller" class="absolute top-3 left-3 bg-accent text-white text-[9px] font-bold tracking-[0.1em] px-2.5 py-1 rounded-full">BEST SELLER</span>
+      <button class="absolute bottom-3 right-3 w-[30px] h-[30px] rounded-full bg-text text-white border-none text-[20px] flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-150 cursor-pointer" @click.stop="$emit('addToCart', product.id)" title="Add to cart">+</button>
     </div>
-    <div class="product-info">
-      <p class="product-series">{{ product.series || product.category_name }}</p>
-      <h3 class="product-name">{{ product.name }}</h3>
-      <p class="product-sub">{{ product.tagline }}</p>
-      <div class="product-footer">
-        <span class="product-price">${{ product.price }}</span>
-        <div v-if="product.tags?.length" class="product-tags">
-          <span v-for="tag in product.tags.slice(0,2)" :key="tag" class="tag">{{ tag }}</span>
+    <div class="p-4 pt-4 pb-[18px]">
+      <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-accent mb-1">{{ product.series || product.category_name }}</p>
+      <h3 class="text-[15px] font-semibold mb-1 leading-tight text-text">{{ product.name }}</h3>
+      <p class="text-[12px] text-text-2 leading-[1.5] mb-3">{{ product.tagline }}</p>
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <span class="text-[16px] font-bold text-text">${{ product.price }}</span>
+        <div v-if="product.tags?.length" class="flex gap-[5px]">
+          <span v-for="tag in product.tags.slice(0,2)" :key="tag" class="inline-block px-2.5 py-0.5 bg-surface-2 rounded-full text-[11px] font-medium text-text-2 uppercase tracking-wide">{{ tag }}</span>
         </div>
       </div>
     </div>
@@ -45,42 +45,8 @@ const mockStyle = computed(() => {
 </script>
 
 <style scoped>
-.product-card {
-  background: var(--surface);
-  border-radius: var(--radius-lg); overflow: hidden;
-  cursor: pointer; transition: all 0.18s;
-}
-.product-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-3px);
-}
-.product-img-wrap { position: relative; }
-.product-img-bg {
-  aspect-ratio: 1; background: var(--surface-2);
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
-}
-.product-img-mock { width: 65%; height: 65%; display: flex; align-items: center; justify-content: center; }
-.mock-shape { width: 100%; height: 100%; border-radius: 12px; }
-.bestseller-badge {
-  position: absolute; top: 12px; left: 12px;
-  background: var(--accent); color: white;
-  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
-  padding: 4px 9px; border-radius: 100px;
-}
-.add-btn {
-  position: absolute; bottom: 12px; right: 12px;
-  width: 30px; height: 30px; border-radius: 50%;
-  background: var(--text); color: white; border: none;
-  font-size: 20px; line-height: 1; cursor: pointer;
-  opacity: 0; transition: opacity 0.15s;
-  display: flex; align-items: center; justify-content: center;
-}
-.product-card:hover .add-btn { opacity: 1; }
-.product-info { padding: 16px 16px 18px; }
-.product-series { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
-.product-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-.product-sub { font-size: 12px; color: var(--text-2); line-height: 1.5; margin-bottom: 12px; }
-.product-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-.product-price { font-size: 16px; font-weight: 700; }
-.product-tags { display: flex; gap: 5px; }
+/* 
+Note: Added 'group' to the root div to trigger hover effects on child elements.
+Updating the template above to use 'group' class.
+*/
 </style>

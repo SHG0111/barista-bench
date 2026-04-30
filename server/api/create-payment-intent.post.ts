@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const stripe = new Stripe(config.stripeSecretKey as string, { apiVersion: '2026-03-25.dahlia' });
+  const stripe = new Stripe(config.stripeSecretKey as string);
 
   try {
     const body = await readBody(event);

@@ -1,83 +1,169 @@
 <template>
-  <nav class="app-nav">
-    <div class="nav-inner">
+  <nav
+    class="fixed top-0 left-0 right-0 z-[200] bg-bg/94 backdrop-blur-2xl border-b border-border"
+  >
+    <div
+      class="h-nav-h flex items-center justify-between px-8 max-w-[1440px] mx-auto relative"
+    >
       <!-- Logo -->
-      <NuxtLink to="/" class="nav-logo">
-        <div class="logo-box">
-          <span>BB</span>
+      <NuxtLink
+        to="/"
+        class="flex items-center gap-[9px] no-underline text-text"
+      >
+        <div
+          class="w-7 h-7 bg-text rounded-[5px] flex items-center justify-center"
+        >
+          <span class="text-white text-[9px] font-extrabold tracking-wider"
+            >BB</span
+          >
         </div>
-        <span class="logo-text">BARISTA BENCH</span>
+        <span class="text-[12.5px] font-semibold tracking-[0.1em]"
+          >BARISTA BENCH</span
+        >
       </NuxtLink>
 
       <!-- Center links -->
-      <div class="nav-links">
-        <NuxtLink to="/shop" class="nav-link">Shop All</NuxtLink>
-        <NuxtLink to="/shop?category=manual-grinders" class="nav-link"
+      <div
+        class="hidden lg:flex gap-6 absolute left-1/2 -translate-x-1/2 items-center"
+      >
+        <NuxtLink
+          to="/shop"
+          class="text-[13.5px] text-text-2 no-underline font-[450] hover:text-text transition-colors duration-default ease-default [&.router-link-active]:text-text"
+          >Shop All</NuxtLink
+        >
+        <NuxtLink
+          to="/shop?category=manual-grinders"
+          class="text-[13.5px] text-text-2 no-underline font-[450] hover:text-text transition-colors duration-default ease-default [&.router-link-active]:text-text"
           >Grinders</NuxtLink
         >
-        <NuxtLink to="/shop?category=portafilters" class="nav-link"
+        <NuxtLink
+          to="/shop?category=portafilters"
+          class="text-[13.5px] text-text-2 no-underline font-[450] hover:text-text transition-colors duration-default ease-default [&.router-link-active]:text-text"
           >Portafilters</NuxtLink
         >
-        <NuxtLink to="/shop?category=distribution-tools" class="nav-link"
+        <NuxtLink
+          to="/shop?category=distribution-tools"
+          class="text-[13.5px] text-text-2 no-underline font-[450] hover:text-text transition-colors duration-default ease-default [&.router-link-active]:text-text"
           >Tools</NuxtLink
         >
-        <NuxtLink to="/bundle" class="btn btn-primary btn-sm"
+        <NuxtLink
+          to="/bundle"
+          class="bg-text text-white px-[22px] py-[10px] rounded-[var(--radius)] font-body text-[12px] font-semibold tracking-wide hover:bg-[#333] transition-all duration-default ease-default"
           >Bundle Builder</NuxtLink
         >
       </div>
 
-      <!-- Right icons -->
-      <div class="nav-actions">
-        <button class="nav-icon-btn" @click="toggleSearch" aria-label="Search">
+<!-- Right icons -->
+      <div class="flex items-center gap-1">
+        <button
+          class="w-9 h-9 flex items-center justify-center rounded-lg text-text-2 hover:bg-surface-2 hover:text-text transition-all duration-default ease-default"
+          @click="toggleSearch"
+          aria-label="Search"
+        >
           <IconSearch />
         </button>
 
+        <!-- Admin Dashboard (only for admins) -->
         <NuxtLink
+          v-if="isAdmin"
+          to="/admin"
+          class="w-auto h-9 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-brand transition-all gap-2 px-2.5"
+          title="Admin Dashboard"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            width="20"
+            height="20"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+          <span class="text-[13px] font-semibold text-text">Admin</span>
+        </NuxtLink>
+
+        <!-- Account (hidden for admin) -->
+        <NuxtLink
+          v-if="!isAdmin"
           to="/account"
-          class="nav-icon-btn nav-profile-link"
+          class="w-auto h-9 flex items-center justify-center rounded-lg text-text-2 hover:bg-surface-2 hover:text-text transition-all duration-default ease-default gap-2 px-2.5"
           aria-label="Account"
         >
           <img
             v-if="user && userAvatar"
             :src="userAvatar"
-            class="nav-avatar"
+            class="w-6 h-6 rounded-full object-cover border-[1.5px] border-border"
             referrerpolicy="no-referrer"
           />
           <IconUser v-else />
-          <span v-if="user && userFirstName" class="nav-user-name">{{
-            userFirstName
-          }}</span>
+          <span
+            v-if="user && userFirstName"
+            class="text-[13px] font-semibold text-text max-w-[80px] overflow-hidden text-ellipsis whitespace-nowrap"
+            >{{ userFirstName }}</span>
         </NuxtLink>
 
-        <NuxtLink to="/cart" class="nav-icon-btn cart-btn" aria-label="Cart">
+        <!-- Cart Link (Hidden for Admin) -->
+        <NuxtLink
+          v-if="!isAdmin"
+          to="/cart"
+          class="w-9 h-9 flex items-center justify-center rounded-lg text-text-2 hover:bg-surface-2 hover:text-text transition-all duration-default ease-default relative"
+          aria-label="Cart"
+        >
           <IconCart />
-          <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+          <span
+            v-if="cartCount > 0"
+            class="absolute top-1 right-1 w-4 h-4 bg-accent rounded-full text-[9px] font-bold text-white flex items-center justify-center"
+            >{{ cartCount }}</span>
         </NuxtLink>
       </div>
     </div>
 
-    <!-- Mobile sub-links (visible below nav-inner on mobile) -->
-    <div class="mobile-links">
-      <NuxtLink to="/shop?category=manual-grinders" class="mobile-link">Grinders</NuxtLink>
-      <NuxtLink to="/shop?category=portafilters" class="mobile-link">Portafilters</NuxtLink>
-      <NuxtLink to="/shop?category=distribution-tools" class="mobile-link">Tools</NuxtLink>
-      <NuxtLink to="/bundle" class="mobile-link">Bundle Builder</NuxtLink>
+    <!-- Mobile sub-links -->
+    <div
+      class="flex md:hidden overflow-x-auto gap-5 px-4 py-2.5 bg-bg/94 border-t border-border scrollbar-none"
+    >
+      <NuxtLink
+        to="/shop?category=manual-grinders"
+        class="text-[11px] font-bold uppercase tracking-[0.1em] text-text-2 no-underline whitespace-nowrap"
+        >Grinders</NuxtLink
+      >
+      <NuxtLink
+        to="/shop?category=portafilters"
+        class="text-[11px] font-bold uppercase tracking-[0.1em] text-text-2 no-underline whitespace-nowrap"
+        >Portafilters</NuxtLink
+      >
+      <NuxtLink
+        to="/shop?category=distribution-tools"
+        class="text-[11px] font-bold uppercase tracking-[0.1em] text-text-2 no-underline whitespace-nowrap"
+        >Tools</NuxtLink
+      >
+      <NuxtLink
+        to="/bundle"
+        class="text-[11px] font-bold uppercase tracking-[0.1em] text-text-2 no-underline whitespace-nowrap"
+        >Bundle Builder</NuxtLink
+      >
     </div>
 
     <!-- Search bar -->
     <Transition name="search">
-      <div v-if="searchOpen" class="search-bar">
-        <div class="search-inner">
-          <IconSearch class="search-icon" />
+      <div v-if="searchOpen" class="border-t border-border bg-surface">
+        <div class="flex items-center gap-3 px-8 py-3 max-w-[1440px] mx-auto">
+          <IconSearch class="text-text-3 shrink-0" />
           <input
             ref="searchInput"
             v-model="searchQuery"
-            class="search-input"
+            class="flex-1 border-none bg-transparent text-[15px] font-body text-text outline-none placeholder:text-text-3"
             placeholder="Search tools, grinders, portafilters..."
             @keyup.enter="doSearch"
             @keyup.esc="toggleSearch"
           />
-          <button class="search-close" @click="toggleSearch">✕</button>
+          <button
+            class="border-none bg-transparent text-text-3 cursor-pointer text-sm px-2 py-1 rounded hover:bg-surface-2 hover:text-text transition-all duration-default ease-default"
+            @click="toggleSearch"
+          >
+            ✕
+          </button>
         </div>
       </div>
     </Transition>
@@ -119,7 +205,8 @@ function doSearch() {
 }
 
 const userFirstName = computed(() => {
-  const name = user.value?.user_metadata?.full_name || user.value?.user_metadata?.name;
+  const name =
+    user.value?.user_metadata?.full_name || user.value?.user_metadata?.name;
   return name?.split(" ")[0] || "";
 });
 
@@ -130,227 +217,40 @@ const userAvatar = computed(() => {
     user.value?.user_metadata?.avatar
   );
 });
+
+const { data: profile } = await useAsyncData<any>("user-profile", async () => {
+  if (!user.value?.id) return null;
+  const client = useSupabaseClient();
+  const { data } = await client
+    .from("profiles")
+    .select("role")
+    .eq("id", user.value.id)
+    .single();
+  return data;
+});
+
+const isAdmin = ref(false);
+
+watchEffect(() => {
+  const role = profile.value?.role?.toLowerCase() || '';
+  const email = user.value?.email;
+  const calculatedIsAdmin = role === 'admin' || role === 'administrator' || role === 'true' || email === 'admin@bench.bb';
+  isAdmin.value = calculatedIsAdmin;
+});
 </script>
 
 <style scoped>
-.app-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  background: rgba(245, 244, 241, 0.94);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-}
-.nav-inner {
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  max-width: 1440px;
-  margin: 0 auto;
-}
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  text-decoration: none;
-  color: var(--text);
-}
-.logo-box {
-  width: 28px;
-  height: 28px;
-  background: var(--text);
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.logo-box span {
-  color: white;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-}
-.logo-text {
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-}
-.nav-links {
-  display: flex;
-  gap: 24px;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  align-items: center;
-}
-.nav-link {
-  font-size: 13.5px;
-  color: var(--text-2);
-  text-decoration: none;
-  font-weight: 450;
-  transition: color 0.15s;
-  white-space: nowrap;
-}
-.nav-link:hover,
-.nav-link.router-link-active {
-  color: var(--text);
-}
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.nav-icon-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  border-radius: 8px;
-  color: var(--text-2);
-  cursor: pointer;
-  transition: all 0.15s;
-  position: relative;
-}
-.nav-icon-btn:hover {
-  background: var(--surface-2);
-  color: var(--text);
-}
-.nav-profile-link {
-  width: auto !important;
-  gap: 8px;
-  padding: 0 10px;
-}
-.nav-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1.5px solid var(--border);
-}
-.nav-user-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  max-width: 80px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.cart-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 16px;
-  height: 16px;
-  background: var(--accent);
-  border-radius: 50%;
-  font-size: 9px;
-  font-weight: 700;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-/* Search */
-.search-bar {
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
-.search-inner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 32px;
-  max-width: 1440px;
-  margin: 0 auto;
-}
-.search-icon {
-  color: var(--text-3);
-  flex-shrink: 0;
-}
-.search-input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 15px;
-  font-family: var(--font-body);
-  color: var(--text);
-  outline: none;
-}
-.search-input::placeholder {
-  color: var(--text-3);
-}
-.search-close {
-  border: none;
-  background: transparent;
-  color: var(--text-3);
-  cursor: pointer;
-  font-size: 14px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all 0.15s;
-}
-.search-close:hover {
-  background: var(--surface-2);
-  color: var(--text);
-}
 /* Transition */
-.search-enter-active,
-.search-leave-active {
-  transition: all 0.2s ease;
-}
+
 .search-enter-from,
 .search-leave-to {
   transform: translateY(-6px);
 }
 
-/* RESPONSIVE */
-@media (max-width: 1024px) {
-  .nav-links {
-    display: none;
-  }
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
-
-@media (max-width: 768px) {
-  .nav-inner {
-    padding: 0 16px;
-  }
-  .logo-text {
-    display: none;
-  }
-  .mobile-links {
-    display: flex;
-    overflow-x: auto;
-    gap: 20px;
-    padding: 10px 16px;
-    background: rgba(245, 244, 241, 0.94);
-    border-top: 1px solid var(--border);
-    scrollbar-width: none;
-  }
-  .mobile-links::-webkit-scrollbar {
-    display: none;
-  }
-  .mobile-link {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-2);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-}
-
-@media (min-width: 769px) {
-  .mobile-links {
-    display: none;
-  }
+.scrollbar-none {
+  scrollbar-width: none;
 }
 </style>

@@ -1,64 +1,67 @@
 <template>
-  <footer class="app-footer">
-    <div class="footer-inner">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="footer-logo">
-            <div class="footer-logo-box"><span>BB</span></div>
+  <footer class="bg-bg-dark text-[#888]">
+    <div class="max-w-[1440px] mx-auto px-8 pt-14 pb-7">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2.2fr_1fr_1fr_1.4fr] gap-12 pb-12 border-b border-border-dark mb-6 text-center sm:text-left">
+        <div class="flex flex-col items-center sm:items-start">
+          <div class="flex items-center gap-2 text-white text-[12px] font-bold tracking-[0.1em] mb-4">
+            <div class="w-6 h-6 bg-white rounded-[3px] flex items-center justify-center">
+              <span class="text-black text-[8px] font-extrabold">BB</span>
+            </div>
             <span>BARISTA BENCH</span>
           </div>
-          <p>
+          <p class="text-[12.5px] text-[#5a5855] leading-[1.75] max-w-[260px] sm:max-w-none lg:max-w-[260px]">
             The destination for meticulous baristas seeking tools that match
             their passion. Precision in every gram, every click, and every shot.
           </p>
-          <div class="footer-social">
-            <a href="#" class="social-link">ig</a>
-            <a href="#" class="social-link">tt</a>
-            <a href="#" class="social-link">fb</a>
+          <div class="flex gap-2.5 mt-4 justify-center sm:justify-start">
+            <a v-for="social in ['ig', 'tt', 'fb']" :key="social" href="#" class="w-[30px] h-[30px] border border-border-dark rounded-full flex items-center justify-center text-[10px] font-semibold text-[#555] uppercase transition-all duration-150 hover:border-[#555] hover:text-[#aaa]">
+              {{ social }}
+            </a>
           </div>
         </div>
 
-        <div class="footer-col">
-          <h5>Shop</h5>
-          <NuxtLink to="/shop?category=manual-grinders"
-            >Manual Grinders</NuxtLink
-          >
-          <NuxtLink to="/shop?category=portafilters">Portafilters</NuxtLink>
-          <NuxtLink to="/shop?category=tampers"
-            >Tampers &amp; Levelers</NuxtLink
-          >
-          <NuxtLink to="/bundle">Bundle Builder</NuxtLink>
-          <NuxtLink to="/reviews">Customer Reviews</NuxtLink>
+        <div>
+          <h5 class="text-white text-[11px] tracking-[0.1em] uppercase font-semibold mb-5 font-body">Shop</h5>
+          <NuxtLink v-for="link in [
+            { to: '/shop?category=manual-grinders', text: 'Manual Grinders' },
+            { to: '/shop?category=portafilters', text: 'Portafilters' },
+            { to: '/shop?category=tampers', text: 'Tampers & Levelers' },
+            { to: '/bundle', text: 'Bundle Builder' },
+            { to: '/reviews', text: 'Customer Reviews' }
+          ]" :key="link.text" :to="link.to" class="block text-[#5a5855] text-[13px] mb-[11px] transition-colors duration-150 hover:text-[#aaa]">
+            {{ link.text }}
+          </NuxtLink>
         </div>
 
-        <div class="footer-col">
-          <h5>Support</h5>
-          <NuxtLink to="/shippingPolicy">Shipping Policy</NuxtLink>
-          <NuxtLink to="/returns">Returns &amp; Refunds</NuxtLink>
-          <NuxtLink to="/compatibility">Compatibility Guide</NuxtLink>
-          <NuxtLink to="/contact">Contact Us</NuxtLink>
+        <div>
+          <h5 class="text-white text-[11px] tracking-[0.1em] uppercase font-semibold mb-5 font-body">Support</h5>
+          <NuxtLink v-for="link in [
+            { to: '/shippingPolicy', text: 'Shipping Policy' },
+            { to: '/returns', text: 'Returns & Refunds' },
+            { to: '/compatibility', text: 'Compatibility Guide' },
+            { to: '/contact', text: 'Contact Us' }
+          ]" :key="link.text" :to="link.to" class="block text-[#5a5855] text-[13px] mb-[11px] transition-colors duration-150 hover:text-[#aaa]">
+            {{ link.text }}
+          </NuxtLink>
         </div>
 
-        <div class="footer-col">
-          <h5>Newsletter</h5>
-          <p class="newsletter-desc">
+        <div class="flex flex-col items-center sm:items-start">
+          <h5 class="text-white text-[11px] tracking-[0.1em] uppercase font-semibold mb-5 font-body">Newsletter</h5>
+          <p class="text-[12.5px] text-[#5a5855] mb-3.5 leading-[1.6]">
             Join our inner circle for precision tips and early access to drops.
           </p>
-          <form class="newsletter-form" @submit.prevent="subscribe">
-            <input v-model="email" type="email" placeholder="Your email" />
-            <button type="submit">JOIN</button>
+          <form class="flex w-full max-w-[400px] sm:max-w-none" @submit.prevent="subscribe">
+            <input v-model="email" type="email" placeholder="Your email" class="flex-1 bg-[#252422] border border-border-dark border-r-0 rounded-l-[5px] px-3.5 py-[9px] text-white text-[12px] font-body outline-none placeholder:text-[#444]" />
+            <button type="submit" class="bg-accent text-white px-[18px] py-[9px] text-[11px] font-bold tracking-[0.08em] rounded-r-[5px] hover:bg-accent-hover transition-colors font-body">JOIN</button>
           </form>
         </div>
       </div>
 
-      <div class="footer-bottom">
-        <span
-          >© {{ new Date().getFullYear() }} Barista Bench. Precision tools for
-          meticulous rituals.</span
-        >
-        <div class="footer-bottom-links">
-          <NuxtLink to="/terms">Terms of Service</NuxtLink>
-          <NuxtLink to="/privacy">Privacy Policy</NuxtLink>
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-5 text-[12px] text-[#3a3835]">
+        <span>© {{ new Date().getFullYear() }} Barista Bench. Precision tools for meticulous rituals.</span>
+        <div class="flex gap-6 flex-wrap justify-center">
+          <NuxtLink to="/terms" class="text-[#3a3835] hover:text-[#666] transition-colors duration-150">Terms of Service</NuxtLink>
+          <NuxtLink to="/privacy" class="text-[#3a3835] hover:text-[#666] transition-colors duration-150">Privacy Policy</NuxtLink>
         </div>
       </div>
     </div>
@@ -77,201 +80,5 @@ function subscribe() {
 </script>
 
 <style scoped>
-.app-footer {
-  background: var(--bg-dark);
-  color: #888;
-  /* margin-top: 100px; */
-}
-.footer-inner {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 56px 32px 28px;
-}
-.footer-grid {
-  display: grid;
-  grid-template-columns: 2.2fr 1fr 1fr 1.4fr;
-  gap: 48px;
-  padding-bottom: 48px;
-  border-bottom: 1px solid var(--border-dark);
-  margin-bottom: 24px;
-}
-.footer-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  margin-bottom: 16px;
-}
-.footer-logo-box {
-  width: 24px;
-  height: 24px;
-  background: white;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.footer-logo-box span {
-  color: black;
-  font-size: 8px;
-  font-weight: 800;
-}
-.footer-brand p {
-  font-size: 12.5px;
-  color: #5a5855;
-  line-height: 1.75;
-  max-width: 260px;
-}
-.footer-social {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
-}
-.social-link {
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--border-dark);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 600;
-  color: #555;
-  text-decoration: none;
-  transition: all 0.15s;
-  text-transform: uppercase;
-}
-.social-link:hover {
-  border-color: #555;
-  color: #aaa;
-}
-.footer-col h5 {
-  color: white;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-weight: 600;
-  margin-bottom: 20px;
-  font-family: var(--font-body);
-}
-.footer-col a {
-  display: block;
-  color: #5a5855;
-  font-size: 13px;
-  text-decoration: none;
-  margin-bottom: 11px;
-  transition: color 0.15s;
-}
-.footer-col a:hover {
-  color: #aaa;
-}
-.newsletter-desc {
-  font-size: 12.5px;
-  color: #5a5855;
-  margin-bottom: 14px;
-  line-height: 1.6;
-}
-.newsletter-form {
-  display: flex;
-}
-.newsletter-form input {
-  flex: 1;
-  background: #252422;
-  border: 1px solid var(--border-dark);
-  border-right: none;
-  border-radius: 5px 0 0 5px;
-  padding: 9px 14px;
-  color: white;
-  font-size: 12px;
-  font-family: var(--font-body);
-  outline: none;
-}
-.newsletter-form input::placeholder {
-  color: #444;
-}
-.newsletter-form button {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 9px 18px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-  font-family: var(--font-body);
-}
-.newsletter-form button:hover {
-  background: var(--accent-hover);
-}
-.footer-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  color: #3a3835;
-}
-.footer-bottom-links {
-  display: flex;
-  gap: 24px;
-}
-.footer-bottom-links a {
-  color: #3a3835;
-  text-decoration: none;
-  transition: color 0.15s;
-}
-.footer-bottom-links a:hover {
-  color: #666;
-}
-
-/* RESPONSIVE */
-@media (max-width: 900px) {
-  .footer-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 48px;
-  }
-}
-
-@media (max-width: 600px) {
-  .footer-grid {
-    grid-template-columns: 1fr;
-    gap: 40px;
-    text-align: center;
-  }
-  
-  .footer-brand {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .footer-brand p {
-    max-width: 100%;
-  }
-
-  .footer-social {
-    justify-content: center;
-  }
-  
-  .newsletter-form {
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  
-  .footer-bottom {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-  }
-  
-  .footer-bottom-links {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-}
+/* Scoped styles removed in favor of Tailwind CSS */
 </style>

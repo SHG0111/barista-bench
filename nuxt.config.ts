@@ -1,6 +1,11 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  modules: ["@nuxtjs/supabase", "@vueuse/nuxt", "@nuxt/image"],
+  modules: [
+    "@nuxtjs/supabase",
+    "@vueuse/nuxt",
+    "@nuxt/image",
+    "@nuxtjs/tailwindcss",
+  ],
   supabase: {
     url: process.env.SUPABASE_URL,
     key: process.env.SUPABASE_KEY,
@@ -41,6 +46,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY,

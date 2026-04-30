@@ -101,16 +101,34 @@ async function handleSubmit() {
   authSuccess.value = ''
   loading.value = true
   if (mode.value === 'login') {
-    const { error } = await supabase.auth.signInWithPassword({ email: form.email, password: form.password })
+    const { error, data } = await supabase.auth.signInWithPassword({ email: form.email, password: form.password })
     if (error) { authError.value = error.message }
-    else { await navigateTo('/account') }
+    else {
+      const adminEmail = 'admin@bench.bb'
+      if (data.user?.email === adminEmail || data.user?.app_metadata?.role === 'admin') {
+        await navigateTo('/admin')
+      } else {
+        await navigateTo('/account')
+      }
+    }
   } else {
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email: form.email, password: form.password,
       options: { data: { full_name: form.fullName } },
     })
-    if (error) { authError.value = error.message }
-    else { authSuccess.value = 'Check your email to confirm your account.' }
+    if (error) {
+      if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
+        authError.value = 'An account with this email already exists. Please sign in instead.'
+      } else {
+        authError.value = error.message
+      }
+    } else {
+      if (data.user && !data.user.email_confirmed_at) {
+        authSuccess.value = 'Check your email to confirm your account.'
+      } else {
+        await navigateTo('/account')
+      }
+    }
   }
   loading.value = false
 }

@@ -14,7 +14,7 @@ export const useCart = () => {
   const total = computed(() => subtotal.value - discount.value);
 
   async function fetchCart() {
-    if (!user.value) return;
+    if (!user.value?.id) return;
     loading.value = true;
     const { data } = await supabase
       .from("cart_items")

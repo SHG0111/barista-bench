@@ -1,32 +1,32 @@
 <template>
-  <div class="checkout-page">
-    <div class="container">
-      <div class="checkout-grid">
+  <div class="bg-white text-text min-h-screen py-10 pb-[120px] font-body">
+    <div class="max-w-[1200px] mx-auto px-0">
+      <div class="flex flex-col-reverse lg:flex-row min-h-[calc(100vh-40px)]">
         <!-- Left: Checkout Forms -->
-        <div class="checkout-forms">
+        <div class="flex-[1.25] p-10 lg:pr-[60px] lg:pl-6">
           <!-- Breadcrumb -->
-          <nav class="checkout-breadcrumb">
-            <NuxtLink to="/cart">Cart</NuxtLink>
-            <span class="sep">›</span>
+          <nav class="flex items-center gap-2 text-[12px] mb-12">
+            <NuxtLink to="/cart" class="text-accent no-underline font-semibold">Cart</NuxtLink>
+            <span class="text-text-3">›</span>
             <span
-              :class="step === 'information' ? 'current' : 'completed'"
+              class="cursor-pointer font-semibold"
+              :class="step === 'information' ? 'text-text' : 'text-accent'"
               @click="setStep('information')"
               >Information</span
             >
-            <span class="sep">›</span>
+            <span class="text-text-3">›</span>
             <span
-              :class="
-                step === 'shipping'
-                  ? 'current'
-                  : step === 'payment'
-                    ? 'completed'
-                    : 'inactive'
-              "
+              class="font-semibold"
+              :class="[
+                step === 'shipping' ? 'text-text' : 
+                step === 'payment' ? 'text-accent cursor-pointer' : 
+                'text-text-3'
+              ]"
               @click="step === 'payment' ? setStep('shipping') : null"
               >Shipping</span
             >
-            <span class="sep">›</span>
-            <span :class="step === 'payment' ? 'current' : 'inactive'"
+            <span class="text-text-3">›</span>
+            <span class="font-semibold" :class="step === 'payment' ? 'text-text' : 'text-text-3'"
               >Payment</span
             >
           </nav>
@@ -36,18 +36,16 @@
               <!-- INFORMATION STEP -->
               <div v-if="step === 'information'">
                 <!-- Country Selection Tabs -->
-                <section class="form-section">
-                  <div class="section-header">
-                    <h2>Select Country</h2>
+                <section class="mb-12">
+                  <div class="flex justify-between items-baseline mb-5">
+                    <h2 class="font-display text-2xl font-medium">Select Country</h2>
                   </div>
-                  <div class="country-tabs">
+                  <div class="flex flex-wrap gap-2.5 mb-8">
                     <button
                       v-for="c in availableCountriesList"
                       :key="c.code"
-                      :class="[
-                        'country-tab',
-                        { active: form.country === c.code },
-                      ]"
+                      class="px-4 py-2.5 rounded-[40px] border border-border text-[13px] font-medium cursor-pointer transition-all duration-200 font-body"
+                      :class="form.country === c.code ? 'bg-accent border-accent text-white' : 'bg-white text-text-2 hover:border-[#a09d98] hover:text-text'"
                       @click="form.country = c.code"
                       type="button"
                     >
@@ -57,20 +55,20 @@
                 </section>
 
                 <!-- Contact Info -->
-                <section class="form-section">
-                  <div class="section-header">
-                    <h2>Account</h2>
-                    <div class="login-prompt" v-if="!user">
+                <section class="mb-12">
+                  <div class="flex justify-between items-baseline mb-5">
+                    <h2 class="font-display text-2xl font-medium">Account</h2>
+                    <div class="text-[13px] text-text-2" v-if="!user">
                       Already have an account?
-                      <NuxtLink to="/auth/login">Log in</NuxtLink>
+                      <NuxtLink to="/auth/login" class="text-accent no-underline font-semibold">Log in</NuxtLink>
                     </div>
                   </div>
 
-                  <div v-if="user" class="logged-in-box">
-                    <div class="user-info">
-                      <span class="user-email">{{ user.email }}</span>
+                  <div v-if="user" class="bg-surface-2 p-4 sm:p-5 rounded">
+                    <div class="flex justify-between items-center">
+                      <span class="text-sm font-medium text-text">{{ user.email }}</span>
                       <button
-                        class="logout-link"
+                        class="bg-none border-none text-accent text-[13px] font-semibold cursor-pointer p-0 no-underline hover:underline"
                         @click="supabase.auth.signOut()"
                       >
                         Log out
@@ -78,114 +76,107 @@
                     </div>
                   </div>
 
-                  <div v-else>
-                    <div class="input-group">
+                  <div v-else class="space-y-3.5">
+                    <div class="mb-3.5">
                       <input
                         type="email"
                         placeholder="Email Address"
                         v-model="form.email"
                         required
+                        class="w-full bg-white border border-border rounded px-4 py-3.5 text-sm font-body text-text outline-none transition-all duration-200 focus:border-accent placeholder:text-[#a09d98]"
                       />
                     </div>
-                    <div class="checkbox-group">
-                      <input type="checkbox" id="news" checked />
-                      <label for="news"
-                        >Email me with news and offers regarding gear
-                        drops</label
-                      >
+                    <div class="flex items-center gap-2.5 mt-4">
+                      <input type="checkbox" id="news" checked class="w-[18px] h-[18px] accent-accent" />
+                      <label for="news" class="text-[13.5px] text-text-2">Email me with news and offers regarding gear drops</label>
                     </div>
                   </div>
                 </section>
 
                 <!-- Shipping Address -->
-                <section class="form-section">
-                  <div class="section-header">
-                    <h2>Shipping Address</h2>
+                <section class="mb-12">
+                  <div class="flex justify-between items-baseline mb-5">
+                    <h2 class="font-display text-2xl font-medium">Shipping Address</h2>
                   </div>
 
-                  <div class="form-row">
-                    <div class="input-group">
-                      <input
-                        type="text"
-                        placeholder="First name"
-                        v-model="form.firstName"
-                        required
-                      />
-                    </div>
-                    <div class="input-group">
-                      <input
-                        type="text"
-                        placeholder="Last name"
-                        v-model="form.lastName"
-                        required
-                      />
-                    </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-3.5">
+                    <input
+                      type="text"
+                      placeholder="First name"
+                      v-model="form.firstName"
+                      required
+                      class="w-full bg-white border border-border rounded px-4 py-3.5 text-sm font-body text-text outline-none transition-all duration-200 focus:border-accent placeholder:text-[#a09d98]"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Last name"
+                      v-model="form.lastName"
+                      required
+                      class="w-full bg-white border border-border rounded px-4 py-3.5 text-sm font-body text-text outline-none transition-all duration-200 focus:border-accent placeholder:text-[#a09d98]"
+                    />
                   </div>
 
-                  <div class="input-group">
+                  <div class="mb-3.5">
                     <input
                       type="text"
                       placeholder="Address (P.O. Boxes not permitted)"
                       v-model="form.address"
                       required
+                      class="w-full bg-white border border-border rounded px-4 py-3.5 text-sm font-body text-text outline-none transition-all duration-200 focus:border-accent placeholder:text-[#a09d98]"
                     />
                   </div>
 
-                  <div class="input-group">
+                  <div class="mb-3.5">
                     <input
                       type="text"
                       placeholder="Apartment, suite, etc. (optional)"
                       v-model="form.apartment"
+                      class="w-full bg-white border border-border rounded px-4 py-3.5 text-sm font-body text-text outline-none transition-all duration-200 focus:border-accent placeholder:text-[#a09d98]"
                     />
                   </div>
 
-                  <div class="form-row three-col">
-                    <div class="input-group">
-                      <select v-model="form.city" required>
-                        <option value="" disabled selected>City</option>
-                        <option
-                          v-for="city in availableCities"
-                          :key="city"
-                          :value="city"
-                        >
-                          {{ city }}
-                        </option>
-                      </select>
-                    </div>
-                    <div class="input-group">
-                      <input
-                        type="text"
-                        placeholder="State / Emirate"
-                        v-model="form.state"
-                        required
-                      />
-                    </div>
-                    <div class="input-group">
-                      <input
-                        type="text"
-                        placeholder="ZIP Code"
-                        v-model="form.zip"
-                        required
-                      />
-                    </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 mb-3.5">
+                    <select v-model="form.city" required class="w-full bg-white border border-border rounded px-4 py-3.5 text-sm font-body text-text outline-none transition-all duration-200 focus:border-accent appearance-none bg-[url('data:image/svg+xml,%3Csvg_xmlns=%22http://www.w3.org/2000/svg%22_width=%2212%22_height=%2212%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%236B6862%22_stroke-width=%222%22%3E%3Cpath_d=%22M6_9l6_6_6-6%22/%3E%3C/svg%3E')] bg-no-repeat bg-[right_12px_center]">
+                      <option value="" disabled selected>City</option>
+                      <option
+                        v-for="city in availableCities"
+                        :key="city"
+                        :value="city"
+                      >
+                        {{ city }}
+                      </option>
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="State / Emirate"
+                      v-model="form.state"
+                      required
+                      class="w-full bg-white border border-border rounded px-4 py-3.5 text-sm font-body text-text outline-none transition-all duration-200 focus:border-accent placeholder:text-[#a09d98]"
+                    />
+                    <input
+                      type="text"
+                      placeholder="ZIP Code"
+                      v-model="form.zip"
+                      required
+                      class="w-full bg-white border border-border rounded px-4 py-3.5 text-sm font-body text-text outline-none transition-all duration-200 focus:border-accent placeholder:text-[#a09d98] sm:col-span-2 md:col-span-1"
+                    />
                   </div>
 
-                  <div class="input-group">
+                  <div class="mb-3.5">
                     <input
                       type="tel"
                       placeholder="Phone"
                       v-model="form.phone"
                       required
+                      class="w-full bg-white border border-border rounded px-4 py-3.5 text-sm font-body text-text outline-none transition-all duration-200 focus:border-accent placeholder:text-[#a09d98]"
                     />
                   </div>
                 </section>
 
-                <!-- Continue Button -->
-                <div class="checkout-actions">
-                  <NuxtLink to="/cart" class="return-link"
-                    >‹ Return to cart</NuxtLink
-                  >
-                  <button class="btn-primary-alt" @click="proceedToShipping">
+                <!-- Actions -->
+                <div class="flex flex-col-reverse sm:flex-row justify-between items-center mt-8 pt-6 border-t border-border gap-5">
+                  <NuxtLink to="/cart" class="text-[13px] text-accent no-underline hover:underline">‹ Return to cart</NuxtLink>
+                  <button class="w-full sm:w-auto px-8 py-4.5 text-[12px] font-bold tracking-[0.1em] uppercase rounded bg-accent text-white border-none cursor-pointer transition-all duration-200 hover:bg-[#a67243] hover:-translate-y-0.5" @click="proceedToShipping">
                     CONTINUE TO SHIPPING
                   </button>
                 </div>
@@ -193,86 +184,79 @@
 
               <!-- SHIPPING STEP -->
               <div v-else-if="step === 'shipping'">
-                <section class="form-section summary-contact-box">
-                  <div class="summary-contact-row">
-                    <div class="col-lbl">Contact</div>
-                    <div class="col-val">
-                      {{ form.phone || "No phone provided" }}
-                    </div>
-                    <button class="col-act" @click="setStep('information')">
+                <section class="mb-10 border border-border rounded-lg bg-white p-0">
+                  <div class="flex items-center px-4 py-4 border-b border-border">
+                    <div class="w-20 text-text-2 text-sm">Contact</div>
+                    <div class="flex-1 text-sm text-text">{{ form.phone || "No phone provided" }}</div>
+                    <button class="bg-none border-none text-accent text-[12px] font-semibold cursor-pointer hover:underline" @click="setStep('information')">
                       Change
                     </button>
                   </div>
-                  <div class="summary-contact-row">
-                    <div class="col-lbl">Ship to</div>
-                    <div class="col-val">
-                      {{ form.address }}, {{ form.city }}, {{ form.state }}
-                      {{ form.zip }}, {{ form.country }}
+                  <div class="flex items-center px-4 py-4">
+                    <div class="w-20 text-text-2 text-sm">Ship to</div>
+                    <div class="flex-1 text-sm text-text truncate">
+                      {{ form.address }}, {{ form.city }}, {{ form.state }} {{ form.zip }}, {{ form.country }}
                     </div>
-                    <button class="col-act" @click="setStep('information')">
+                    <button class="bg-none border-none text-accent text-[12px] font-semibold cursor-pointer hover:underline" @click="setStep('information')">
                       Change
                     </button>
                   </div>
                 </section>
 
-                <section class="form-section">
-                  <div class="section-header">
-                    <h2>Shipping Method</h2>
+                <section class="mb-12">
+                  <div class="flex justify-between items-baseline mb-5">
+                    <h2 class="font-display text-2xl font-medium">Shipping Method</h2>
                   </div>
 
-                  <div class="shipping-methods">
+                  <div class="flex flex-col gap-3">
                     <label
-                      class="radio-card"
-                      :class="{ active: shippingMethod === 'standard' }"
+                      class="flex justify-between items-center border p-4 rounded-lg cursor-pointer transition-all duration-200"
+                      :class="shippingMethod === 'standard' ? 'border-accent bg-accent/5' : 'border-border'"
                     >
-                      <div class="rc-left">
+                      <div class="flex items-center gap-3">
                         <input
                           type="radio"
                           value="standard"
                           v-model="shippingMethod"
+                          class="accent-accent w-[18px] h-[18px]"
                         />
-                        <div class="rc-info">
-                          <span class="rc-title">Standard Shipping</span>
-                          <span class="rc-desc">3-5 business days</span>
+                        <div class="flex flex-col">
+                          <span class="text-[15px] font-semibold text-text">Standard Shipping</span>
+                          <span class="text-[13px] text-text-2">3-5 business days</span>
                         </div>
                       </div>
-                      <div class="rc-price">Free</div>
+                      <div class="text-[15px] font-semibold text-text">Free</div>
                     </label>
 
                     <label
-                      class="radio-card"
-                      :class="{ active: shippingMethod === 'express' }"
+                      class="flex justify-between items-center border p-4 rounded-lg cursor-pointer transition-all duration-200"
+                      :class="shippingMethod === 'express' ? 'border-accent bg-accent/5' : 'border-border'"
                     >
-                      <div class="rc-left">
+                      <div class="flex items-center gap-3">
                         <input
                           type="radio"
                           value="express"
                           v-model="shippingMethod"
+                          class="accent-accent w-[18px] h-[18px]"
                         />
-                        <div class="rc-info">
-                          <span class="rc-title">Express Priority</span>
-                          <span class="rc-desc">1-2 business days</span>
+                        <div class="flex flex-col">
+                          <span class="text-[15px] font-semibold text-text">Express Priority</span>
+                          <span class="text-[13px] text-text-2">1-2 business days</span>
                         </div>
                       </div>
-                      <div class="rc-price">$15.00</div>
+                      <div class="text-[15px] font-semibold text-text">$15.00</div>
                     </label>
                   </div>
                 </section>
 
-                <div class="checkout-actions">
+                <div class="flex flex-col-reverse sm:flex-row justify-between items-center mt-8 pt-6 border-t border-border gap-5">
                   <button
-                    class="return-link"
+                    class="bg-none border-none p-0 cursor-pointer text-[13px] text-accent no-underline hover:underline"
                     @click="setStep('information')"
-                    style="
-                      background: none;
-                      border: none;
-                      cursor: pointer;
-                      padding: 0;
-                    "
                   >
                     ‹ Return to information
                   </button>
-                  <button class="btn-primary-alt" @click="proceedToPayment">
+                  <button class="w-full sm:w-auto px-8 py-4.5 text-[12px] font-bold tracking-[0.1em] uppercase rounded bg-accent text-white border-none cursor-pointer transition-all duration-200 hover:bg-[#a67243] hover:-translate-y-0.5" @click="proceedToPayment">
                     CONTINUE TO PAYMENT
                   </button>
                 </div>
@@ -280,157 +264,108 @@
 
               <!-- PAYMENT STEP -->
               <div v-else-if="step === 'payment'">
-                <section class="form-section summary-contact-box">
-                  <div class="summary-contact-row">
-                    <div class="col-lbl">Contact</div>
-                    <div class="col-val">
-                      {{ form.phone || "No phone provided" }}
-                    </div>
-                    <button class="col-act" @click="setStep('information')">
-                      Change
-                    </button>
+                <section class="mb-10 border border-border rounded-lg bg-white p-0">
+                  <div class="flex items-center px-4 py-4 border-b border-border">
+                    <div class="w-20 text-text-2 text-sm">Contact</div>
+                    <div class="flex-1 text-sm text-text">{{ form.phone || "No phone provided" }}</div>
+                    <button class="bg-none border-none text-accent text-[12px] font-semibold cursor-pointer hover:underline" @click="setStep('information')">Change</button>
                   </div>
-                  <div class="summary-contact-row">
-                    <div class="col-lbl">Ship to</div>
-                    <div class="col-val">
-                      {{ form.address }}, {{ form.city }}, {{ form.state }}
-                      {{ form.zip }}, {{ form.country }}
-                    </div>
-                    <button class="col-act" @click="setStep('information')">
-                      Change
-                    </button>
+                  <div class="flex items-center px-4 py-4 border-b border-border">
+                    <div class="w-20 text-text-2 text-sm">Ship to</div>
+                    <div class="flex-1 text-sm text-text truncate">{{ form.address }}, {{ form.city }}, {{ form.state }} {{ form.zip }}, {{ form.country }}</div>
+                    <button class="bg-none border-none text-accent text-[12px] font-semibold cursor-pointer hover:underline" @click="setStep('information')">Change</button>
                   </div>
-                  <div class="summary-contact-row">
-                    <div class="col-lbl">Method</div>
-                    <div class="col-val">
-                      {{
-                        shippingMethod === "standard"
-                          ? "Standard Shipping"
-                          : "Express Priority"
-                      }}
-                      <span class="sm-price"
-                        >·
-                        {{
-                          shippingMethod === "standard" ? "Free" : "$15.00"
-                        }}</span
-                      >
+                  <div class="flex items-center px-4 py-4">
+                    <div class="w-20 text-text-2 text-sm">Method</div>
+                    <div class="flex-1 text-sm text-text">
+                      {{ shippingMethod === "standard" ? "Standard Shipping" : "Express Priority" }}
+                      <span class="font-semibold"> · {{ shippingMethod === "standard" ? "Free" : "$15.00" }}</span>
                     </div>
-                    <button class="col-act" @click="setStep('shipping')">
-                      Change
-                    </button>
+                    <button class="bg-none border-none text-accent text-[12px] font-semibold cursor-pointer hover:underline" @click="setStep('shipping')">Change</button>
                   </div>
                 </section>
 
-                <section class="form-section">
-                  <div class="section-header">
-                    <h2>Payment</h2>
+                <section class="mb-12">
+                  <div class="flex justify-between items-baseline mb-5">
+                    <h2 class="font-display text-2xl font-medium">Payment</h2>
                   </div>
-                  <p
-                    class="subtitle"
-                    style="
-                      margin-top: -10px;
-                      margin-bottom: 20px;
-                      color: #73706c;
-                      font-size: 14px;
-                    "
-                  >
+                  <p class="text-text-2 text-sm mb-5 -mt-2.5">
                     All transactions are secure and encrypted.
                   </p>
 
-                  <div class="shipping-methods" style="margin-bottom: 24px">
+                  <div class="flex flex-col gap-3 mb-6">
                     <label
-                      class="radio-card"
-                      :class="{ active: paymentMethod === 'online' }"
+                      class="flex justify-between items-center border p-4 rounded-lg cursor-pointer transition-all duration-200"
+                      :class="paymentMethod === 'online' ? 'border-accent bg-accent/5' : 'border-border'"
                     >
-                      <div class="rc-left">
+                      <div class="flex items-center gap-3">
                         <input
                           type="radio"
                           value="online"
                           v-model="paymentMethod"
+                          class="accent-accent w-[18px] h-[18px]"
                         />
-                        <div class="rc-info">
-                          <span class="rc-title"
-                            >Credit Card & Secure Online Payments</span
-                          >
-                        </div>
+                        <span class="text-[15px] font-semibold text-text">Credit Card & Secure Online Payments</span>
                       </div>
                     </label>
                     <label
-                      class="radio-card"
-                      :class="{ active: paymentMethod === 'cod' }"
+                      class="flex justify-between items-center border p-4 rounded-lg cursor-pointer transition-all duration-200"
+                      :class="paymentMethod === 'cod' ? 'border-accent bg-accent/5' : 'border-border'"
                     >
-                      <div class="rc-left">
+                      <div class="flex items-center gap-3">
                         <input
                           type="radio"
                           value="cod"
                           v-model="paymentMethod"
+                          class="accent-accent w-[18px] h-[18px]"
                         />
-                        <div class="rc-info">
-                          <span class="rc-title">Cash on Delivery (COD)</span>
-                        </div>
+                        <span class="text-[15px] font-semibold text-text">Cash on Delivery (COD)</span>
                       </div>
                     </label>
                   </div>
 
                   <div
                     v-show="paymentMethod === 'online'"
-                    class="stripe-container"
+                    class="p-4 bg-white border border-border rounded-lg min-h-[120px] flex flex-col justify-center"
                   >
-                    <div v-if="stripeLoading" class="loading-spinner">
+                    <div v-if="stripeLoading" class="text-center text-sm text-text-2">
                       Loading secure checkout...
                     </div>
                     <div id="payment-element"></div>
-                    <div v-if="stripeError" class="stripe-error-message">
+                    <div v-if="stripeError" class="mt-3 text-[#d32f2f] text-[13px] bg-[#fdeaea] p-3 rounded">
                       {{ stripeError }}
                     </div>
                   </div>
 
-                  <div v-show="paymentMethod === 'cod'" class="cod-container">
+                  <div v-show="paymentMethod === 'cod'" class="p-8 text-center bg-surface-2/50 rounded-lg">
                     <svg
                       viewBox="0 0 24 24"
                       width="48"
                       height="48"
-                      fill="rgba(0,0,0,0.1)"
-                      style="
-                        margin-bottom: 16px;
-                        margin-top: 20px;
-                        display: block;
-                        margin-inline: auto;
-                      "
+                      fill="currentColor"
+                      class="text-text/10 mb-4 mx-auto"
                     >
                       <path
                         d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"
                       ></path>
                       <path d="M11 11h2v6h-2zm0-4h2v2h-2z"></path>
                     </svg>
-                    <p
-                      style="
-                        color: #73706c;
-                        font-size: 14px;
-                        text-align: center;
-                      "
-                    >
+                    <p class="text-text-2 text-sm max-w-sm mx-auto">
                       You will pay for your order in physical cash directly to
                       the delivery agent upon receiving your items.
                     </p>
                   </div>
                 </section>
 
-                <div class="checkout-actions">
+                <div class="flex flex-col-reverse sm:flex-row justify-between items-center mt-8 pt-6 border-t border-border gap-5">
                   <button
-                    class="return-link"
+                    class="bg-none border-none p-0 cursor-pointer text-[13px] text-accent no-underline hover:underline"
                     @click="setStep('shipping')"
-                    style="
-                      background: none;
-                      border: none;
-                      cursor: pointer;
-                      padding: 0;
-                    "
                   >
                     ‹ Return to shipping
                   </button>
                   <button
-                    class="btn-primary-alt"
+                    class="w-full sm:w-auto px-8 py-4.5 text-[12px] font-bold tracking-[0.1em] uppercase rounded bg-accent text-white border-none cursor-pointer transition-all duration-200 hover:bg-[#a67243] hover:-translate-y-0.5"
                     @click="completeOrder"
                     :disabled="isProcessing"
                   >
@@ -442,93 +377,82 @@
             </div>
           </transition>
 
-          <div class="footer-links">
-            <NuxtLink to="/fullReturnPolicy">Refund policy</NuxtLink>
-            <NuxtLink to="/shippingPolicy">Shipping policy</NuxtLink>
-            <NuxtLink to="/termsAndConditions">Terms of service</NuxtLink>
+          <div class="flex gap-4 mt-[60px] pt-5 border-t border-border">
+            <NuxtLink to="/fullReturnPolicy" class="text-[11px] text-text-3 no-underline hover:text-accent">Refund policy</NuxtLink>
+            <NuxtLink to="/shippingPolicy" class="text-[11px] text-text-3 no-underline hover:text-accent">Shipping policy</NuxtLink>
+            <NuxtLink to="/termsAndConditions" class="text-[11px] text-text-3 no-underline hover:text-accent">Terms of service</NuxtLink>
           </div>
         </div>
 
         <!-- Right: Order Summary Sidebar -->
-        <div class="checkout-summary-wrap">
-          <div class="checkout-summary">
+        <div class="flex-1 bg-surface-2 lg:border-l border-border/50">
+          <div class="sticky top-10 p-10 lg:pr-6 lg:pl-10 space-y-6">
             <!-- Items Box -->
-            <div class="summary-items">
-              <div v-for="item in items" :key="item.id" class="summary-item">
-                <div class="si-img">
-                  <div class="si-badge">{{ item.quantity }}</div>
-                  <div class="img-placeholder">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1"
-                    >
-                      <path
-                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-                      ></path>
-                    </svg>
-                  </div>
+            <div class="flex flex-col gap-4 pb-6 border-b border-border">
+              <div v-for="item in items" :key="item.id" class="flex items-center gap-4">
+                <div class="relative w-16 h-16 bg-white rounded-lg shrink-0 flex items-center justify-center">
+                  <div class="absolute -top-2 -right-2 bg-text-2/90 text-white w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold z-[2]">{{ item.quantity }}</div>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1"
+                    class="w-6 h-6 opacity-20 text-text"
+                  >
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                    ></path>
+                  </svg>
                 </div>
-                <div class="si-details">
-                  <div class="si-name">{{ item.products.name }}</div>
-                  <div class="si-meta" v-if="item.products.series">
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-semibold text-text truncate">{{ item.products.name }}</div>
+                  <div class="text-[11px] text-text-3" v-if="item.products.series">
                     {{ item.products.series }}
                   </div>
                 </div>
-                <div class="si-price">
+                <div class="text-sm font-semibold text-text">
                   {{ currency }}
                   {{ (item.products.price * item.quantity).toFixed(2) }}
                 </div>
               </div>
             </div>
 
-            <div class="discount-box">
-              <input type="text" placeholder="Gift card or discount code" />
-              <button class="btn-apply">Apply</button>
+            <div class="flex gap-3 pb-6 border-b border-border group">
+              <input type="text" placeholder="Gift card or discount code" class="flex-1 bg-white border border-border rounded px-4 py-3.5 text-sm font-body" />
+              <button class="bg-[#e0ddd5] text-text-3 border-none rounded px-6 font-bold cursor-not-allowed transition-all duration-200 group-focus-within:bg-accent group-focus-within:text-white group-focus-within:cursor-pointer">Apply</button>
             </div>
 
             <!-- Totals -->
-            <div class="totals-box">
-              <div class="tl-line">
+            <div class="flex flex-col gap-3 pb-6 border-b border-border">
+              <div class="flex justify-between text-sm text-text-2">
                 <span>Subtotal</span>
-                <span>{{ currency }} {{ subtotal.toFixed(2) }}</span>
+                <span class="text-text font-medium">{{ currency }} {{ subtotal.toFixed(2) }}</span>
               </div>
-              <div class="tl-line" v-if="isBundle">
+              <div class="flex justify-between text-sm text-accent font-semibold" v-if="isBundle">
                 <span>Bundle Discount (15%)</span>
                 <span>−{{ currency }} {{ discount.toFixed(2) }}</span>
               </div>
-              <div class="tl-line" v-if="step !== 'information'">
+              <div class="flex justify-between text-sm text-text-2">
                 <span>Shipping</span>
-                <span>{{
-                  shippingCost === 0
-                    ? "Free"
-                    : currency + " " + shippingCost.toFixed(2)
+                <span class="text-text font-medium">{{
+                  step === 'information' ? 'Calculated at next step' : 
+                  (shippingCost === 0 ? "Free" : currency + " " + shippingCost.toFixed(2))
                 }}</span>
               </div>
-              <div class="tl-line" v-else>
-                <span>Shipping</span>
-                <span>Calculated at next step</span>
-              </div>
-              <div class="tl-line" v-if="step !== 'information'">
+              <div class="flex justify-between text-sm text-text-2">
                 <span>Taxes</span>
-                <span>{{ currency }} {{ taxes.toFixed(2) }}</span>
-              </div>
-              <div class="tl-line" v-else>
-                <span>Taxes</span>
-                <span>Calculated at next step</span>
+                <span class="text-text font-medium">{{ step === 'information' ? 'Calculated at next step' : currency + ' ' + taxes.toFixed(2) }}</span>
               </div>
             </div>
 
             <!-- Final -->
-            <div class="summary-total">
-              <div class="st-main">
-                <span>Total</span>
-                <span class="st-cur">{{ currency }}</span>
-                <span class="st-val" v-if="step !== 'information'">{{
-                  finalTotal.toFixed(2)
+            <div class="mt-6 flex justify-between items-baseline">
+              <span class="text-base text-text">Total</span>
+              <div class="flex items-baseline gap-2">
+                <span class="text-[12px] text-text-3">{{ currency }}</span>
+                <span class="text-2xl font-bold text-text">{{
+                  step !== 'information' ? finalTotal.toFixed(2) : total.toFixed(2)
                 }}</span>
-                <span class="st-val" v-else>{{ total.toFixed(2) }}</span>
               </div>
             </div>
           </div>
@@ -715,8 +639,6 @@ const initializeStripe = async () => {
 
   const stripeAmount = getStripeAmount(finalTotal.value, currency.value);
   
-  // Guard: Stripe cannot process payments below a certain threshold (usually ~$0.50)
-  // If the total is 0, we should ideally handle it as a free checkout instead of loading Stripe.
   if (finalTotal.value <= 0) {
     stripeError.value = "Total must be greater than 0 for online payments.";
     stripeLoading.value = false;
@@ -726,13 +648,10 @@ const initializeStripe = async () => {
   const restrictedCurrencies = ['KWD', 'BHD', 'JOD', 'OMR', 'LBP'];
   const isRestricted = restrictedCurrencies.includes(currency.value.toUpperCase());
   
-  // Use USD for restricted currencies (approximate conversion for Stripe floor)
   const processingCurrency = isRestricted ? 'usd' : currency.value.toLowerCase();
   let processingAmount = stripeAmount;
 
   if (isRestricted) {
-    // Simple mock conversion for the Stripe API floor check
-    // In a real prod app, you should use a real exchange rate API
     processingAmount = Math.round((finalTotal.value * 3.3) * 100); 
   }
 
@@ -811,7 +730,7 @@ const completeOrder = async () => {
       toast.error(`Database Error: ${dbError.message}`);
     } else {
       console.log("✅ Order successfully saved to Supabase");
-      await clearCart(); // Cart is now officially empty!
+      await clearCart(); 
     }
   }
 
@@ -873,464 +792,9 @@ const completeOrder = async () => {
 </script>
 
 <style scoped>
-/* Tabs */
-.country-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 32px;
-}
-
-.country-tab {
-  padding: 10px 16px;
-  border-radius: 40px;
-  background-color: var(--input-bg);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-
-.country-tab:hover {
-  border-color: #a09d98;
-  color: #1a1918;
-}
-
-.country-tab.active {
-  background-color: var(--accent-gold);
-  border-color: var(--accent-gold);
-  color: #fff;
-}
-
-/* Adhering to the Light Theme matching the Cart */
-.checkout-page {
-  background-color: #ffffff; /* White bg for forms */
-  color: #1a1918;
-  min-height: 100vh;
-  padding: 40px 0 120px;
-  --accent-gold: #c38a53;
-  --bg-sidebar: #f5f4f1;
-  --border: #e0ddd5;
-  --text-muted: #73706c;
-  --input-bg: #fff;
-  font-family: var(--font-body);
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0;
-}
-
-/* Base grid structure */
-.checkout-grid {
-  display: flex;
-  flex-direction: row;
-  min-height: calc(100vh - 40px);
-}
-
-/* Left Forms */
-.checkout-forms {
-  flex: 1.25;
-  padding: 40px 60px 40px 24px;
-}
-
-.checkout-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  margin-bottom: 48px;
-}
-
-.checkout-breadcrumb a {
-  color: var(--accent-gold);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.checkout-breadcrumb .sep {
-  color: var(--text-muted);
-}
-
-.checkout-breadcrumb .current {
-  color: #1a1918;
-  font-weight: 600;
-}
-
-.checkout-breadcrumb .inactive {
-  color: var(--text-muted);
-}
-
-/* Form Sections */
-.form-section {
-  margin-bottom: 48px;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 20px;
-}
-
-.section-header h2 {
-  font-family: var(--font-display, "Playfair Display", serif);
-  font-size: 24px;
-  font-weight: 500;
-}
-
-.login-prompt {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.login-prompt a {
-  color: var(--accent-gold);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.input-group {
-  margin-bottom: 14px;
-}
-
-.input-group input,
-.input-group select {
-  width: 100%;
-  background-color: var(--input-bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 14px 16px;
-  font-size: 14px;
-  font-family: var(--font-body);
-  color: #1a1918;
-  transition: all 0.2s;
-  box-sizing: border-box;
-}
-
-.input-group input::placeholder {
-  color: #a09d98;
-}
-
-.input-group input:focus,
-.input-group select:focus {
-  outline: none;
-  border-color: var(--accent-gold);
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.form-row.three-col {
-  grid-template-columns: 1fr 1fr 1fr;
-}
-
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.checkbox-group input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent-gold);
-}
-
-.checkbox-group label {
-  font-size: 13.5px;
-  color: var(--text-muted);
-}
-
-/* Logged in box */
-.logged-in-box {
-  background-color: var(--bg-sidebar);
-  padding: 16px 20px;
-  border-radius: 4px;
-}
-
-.user-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.user-email {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1a1918;
-}
-
-.logout-link {
-  background: none;
-  border: none;
-  color: var(--accent-gold);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: none;
-}
-
-.logout-link:hover {
-  text-decoration: underline;
-}
-
-/* Actions */
-.checkout-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
-}
-
-.return-link {
-  font-size: 13px;
-  color: var(--accent-gold);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.return-link:hover {
-  text-decoration: underline;
-}
-
-.btn-primary-alt {
-  padding: 18px 32px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  border-radius: 4px;
-  background-color: var(--accent-gold);
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-primary-alt:hover {
-  background-color: #a67243;
-  transform: translateY(-2px);
-}
-
-.footer-links {
-  display: flex;
-  gap: 16px;
-  margin-top: 60px;
-  border-top: 1px solid var(--border);
-  padding-top: 20px;
-}
-
-.footer-links a {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.footer-links a:hover {
-  color: var(--accent-gold);
-}
-
-/* Right Sidebar */
-.checkout-summary-wrap {
-  flex: 1;
-  background-color: var(--bg-sidebar);
-}
-
-.checkout-summary {
-  position: sticky;
-  top: 40px;
-  padding: 40px 24px 40px 40px;
-}
-
-.summary-items {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 24px;
-}
-
-.summary-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.si-img {
-  position: relative;
-  width: 64px;
-  height: 64px;
-  background-color: #fff;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.img-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.img-placeholder svg {
-  width: 24px;
-  height: 24px;
-  opacity: 0.2;
-  color: #1a1918;
-}
-
-.si-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background-color: rgba(115, 112, 108, 0.9);
-  color: #fff;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  z-index: 2;
-}
-
-.si-details {
-  flex: 1;
-}
-
-.si-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1918;
-  margin-bottom: 4px;
-}
-
-.si-meta {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.si-price {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1918;
-}
-
-/* Discount Box */
-.discount-box {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
-}
-
-.discount-box input {
-  flex: 1;
-  background-color: #fff;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 14px 16px;
-  font-size: 14px;
-  font-family: var(--font-body);
-}
-
-.btn-apply {
-  background-color: #e0ddd5;
-  color: var(--text-muted);
-  border: none;
-  border-radius: 4px;
-  padding: 0 24px;
-  font-weight: 700;
-  cursor: not-allowed; /* Disabled state style */
-  transition: all 0.2s;
-}
-
-.discount-box input:focus + .btn-apply {
-  background-color: var(--accent-gold);
-  color: #fff;
-  cursor: pointer;
-}
-
-/* Totals */
-.totals-box {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
-}
-
-.tl-line {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-.tl-line span:last-child {
-  color: #1a1918;
-  font-weight: 500;
-}
-
-.accent-row {
-  color: var(--accent-gold) !important;
-  font-weight: 600;
-}
-
-.summary-total {
-  margin-top: 24px;
-}
-
-.st-main {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-
-.st-main span:first-child {
-  font-size: 16px;
-  color: #1a1918;
-}
-
-.st-cur {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-right: -4px;
-  margin-left: auto;
-}
-
-.st-val {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1a1918;
-  margin-left: 8px;
-}
-
-/* Multi-step animations */
 .fade-enter-active,
 .fade-leave-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 .fade-enter-from {
   opacity: 0;
@@ -1339,252 +803,5 @@ const completeOrder = async () => {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
-}
-
-.checkout-breadcrumb .completed {
-  color: var(--accent-gold);
-  cursor: pointer;
-}
-
-.checkout-breadcrumb .completed:hover {
-  text-decoration: underline;
-}
-
-/* Summary Contact Box */
-.summary-contact-box {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--input-bg);
-  padding: 0 16px;
-  margin-bottom: 40px;
-}
-.summary-contact-row {
-  display: flex;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
-}
-.summary-contact-row:last-child {
-  border-bottom: none;
-}
-.col-lbl {
-  width: 80px;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-.col-val {
-  flex: 1;
-  font-size: 14px;
-  color: #1a1918;
-}
-.col-act {
-  background: none;
-  border: none;
-  color: var(--accent-gold);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.col-act:hover {
-  text-decoration: underline;
-}
-
-/* Shipping Methods */
-.shipping-methods {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.radio-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid var(--border);
-  padding: 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.radio-card.active {
-  border-color: var(--accent-gold);
-  background: rgba(195, 138, 83, 0.05);
-}
-.rc-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.rc-left input[type="radio"] {
-  accent-color: var(--accent-gold);
-  width: 18px;
-  height: 18px;
-}
-.rc-info {
-  display: flex;
-  flex-direction: column;
-}
-.rc-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1a1918;
-}
-.rc-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-.rc-price {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1a1918;
-}
-
-/* Payment Methods */
-.payment-methods {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  overflow: hidden;
-}
-.payment-accordion-item {
-  border-bottom: 1px solid var(--border);
-  background: var(--input-bg);
-}
-.payment-accordion-item:last-child {
-  border-bottom: none;
-}
-.payment-accordion-item.active {
-  background: rgba(195, 138, 83, 0.02);
-}
-.pa-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  cursor: pointer;
-}
-.pa-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  font-size: 15px;
-  color: #1a1918;
-}
-.pa-left input[type="radio"] {
-  accent-color: var(--accent-gold);
-  width: 18px;
-  height: 18px;
-}
-.pa-icons {
-  color: var(--text-muted);
-}
-.pa-body {
-  padding: 20px;
-  background: #faf9f7;
-  border-top: 1px solid var(--border);
-}
-.cc-form .input-group:last-child {
-  margin-bottom: 0;
-}
-.flex-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 20px;
-}
-.sm-price {
-  font-weight: 600;
-}
-/* Stripe Elements */
-.stripe-container {
-  padding: 16px;
-  background: var(--input-bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  min-height: 120px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.loading-spinner {
-  text-align: center;
-  font-size: 14px;
-  color: var(--text-muted);
-}
-.stripe-error-message {
-  margin-top: 12px;
-  color: #d32f2f;
-  font-size: 13px;
-  background: #fdeaea;
-  padding: 12px;
-  border-radius: 4px;
-}
-
-/* ---- RESPONSIVE MEDIA QUERIES ---- */
-
-/* Tablet & Smaller Desktop */
-@media (max-width: 992px) {
-  .checkout-forms {
-    padding: 40px 32px 40px 24px;
-  }
-  .form-row.three-col {
-    grid-template-columns: 1fr 1fr;
-  }
-  .form-row.three-col .input-group:last-child {
-    grid-column: span 2;
-  }
-  .checkout-summary {
-    padding: 40px 24px;
-  }
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .checkout-page {
-    padding: 0 0 60px;
-    /* Remove top padding, rely on nav */
-  }
-
-  /* Stack completely */
-  .checkout-grid {
-    flex-direction: column-reverse; /* Usually Summary is above forms on mobile */
-  }
-
-  .checkout-summary-wrap {
-    border-left: none;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .checkout-summary {
-    position: static;
-    padding: 24px;
-  }
-
-  .checkout-forms {
-    padding: 32px 24px;
-  }
-
-  .checkout-actions {
-    flex-direction: column-reverse; /* Return to cart below button */
-    gap: 20px;
-  }
-
-  .btn-primary-alt {
-    width: 100%;
-  }
-
-  .form-row,
-  .form-row.three-col {
-    grid-template-columns: 1fr; /* Stack all inputs */
-  }
-
-  .form-row.three-col .input-group:last-child {
-    grid-column: span 1;
-  }
-
-  .section-header {
-    flex-direction: column;
-    gap: 8px;
-  }
 }
 </style>

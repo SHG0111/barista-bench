@@ -1,113 +1,52 @@
 <template>
-  <div class="page-top">
-    <div class="container" style="padding-top: 48px; padding-bottom: 80px">
-      <div class="sidebar-layout">
+  <div class="pt-nav-h">
+    <div class="container mx-auto px-8 pt-12 pb-20">
+      <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8 items-start">
         <!-- Sidebar nav -->
-        <aside class="sidebar">
+        <aside class="bg-surface rounded-lg p-2 sticky top-[calc(56px+24px)]">
           <div
-            class="sidebar-item"
-            :class="{ active: activeTab === 'dashboard' }"
-            @click="activeTab = 'dashboard'"
+            v-for="tab in [
+              { id: 'dashboard', label: 'Dashboard', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z' },
+              { id: 'orders', label: 'My Orders', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6' },
+              { id: 'saved', label: 'Saved Tools', icon: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z' },
+              { id: 'settings', label: 'Profile Settings', icon: 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z' }
+            ]"
+            :key="tab.id"
+            class="flex items-center gap-2.5 px-3.5 py-2.5 rounded cursor-pointer text-[13.5px] font-medium transition-all duration-180"
+            :class="activeTab === tab.id ? 'bg-text text-white' : 'text-text-2 hover:bg-surface-2 hover:text-text'"
+            @click="activeTab = tab.id"
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-            >
-              <rect x="3" y="3" width="7" height="7" />
-              <rect x="14" y="3" width="7" height="7" />
-              <rect x="3" y="14" width="7" height="7" />
-              <rect x="14" y="14" width="7" height="7" />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path v-if="tab.id !== 'dashboard'" :d="tab.icon" />
+              <template v-else>
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+              </template>
             </svg>
-            Dashboard
+            {{ tab.label }}
           </div>
-          <div
-            class="sidebar-item"
-            :class="{ active: activeTab === 'orders' }"
-            @click="activeTab = 'orders'"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-            >
-              <path
-                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-              />
-              <polyline points="14 2 14 8 20 8" />
-            </svg>
-            My Orders
-          </div>
-          <div
-            class="sidebar-item"
-            :class="{ active: activeTab === 'saved' }"
-            @click="activeTab = 'saved'"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-            >
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-              />
-            </svg>
-            Saved Tools
-          </div>
-          <div
-            class="sidebar-item"
-            :class="{ active: activeTab === 'settings' }"
-            @click="activeTab = 'settings'"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-            >
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
-              />
-            </svg>
-            Profile Settings
-          </div>
-          <div class="sidebar-divider"></div>
-          <div class="barista-status-widget">
-            <div class="bsw-header">
-              <span class="bsw-icon">🏆</span>
-              <span class="bsw-label">BARISTA STATUS</span>
+          
+          <div class="h-px bg-border my-1.5 mx-2"></div>
+          
+          <div class="p-3.5 bg-surface-2 rounded mx-2 my-1.5">
+            <div class="flex items-center gap-2 mb-2.5">
+              <span class="text-sm">🏆</span>
+              <span class="text-[10px] font-bold tracking-widest uppercase text-accent">BARISTA STATUS</span>
             </div>
-            <div class="bsw-tier">
-              {{ profile?.barista_tier || "Expert Home Barista" }}
+            <div class="text-sm font-bold mb-0.5">{{ profile?.barista_tier || "Expert Home Barista" }}</div>
+            <div class="text-[11.5px] text-text-2 mb-2">Top 5% of the community</div>
+            <div class="h-1 bg-surface-3 rounded-full overflow-hidden mb-2.5">
+              <div class="h-full bg-gradient-to-r from-accent to-accent/10 rounded-full transition-all duration-500" style="width: 72%"></div>
             </div>
-            <div class="bsw-community">Top 5% of the community</div>
-            <div class="progress-bar" style="margin: 12px 0">
-              <div class="progress-fill" style="width: 72%"></div>
-            </div>
-            <div class="bsw-next">150 points until Master tier</div>
+            <div class="text-[11px] text-text-3">150 points until Master tier</div>
           </div>
-          <div class="sidebar-divider"></div>
-          <div class="sidebar-item logout-item" @click="signOut">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-            >
+          
+          <div class="h-px bg-border my-1.5 mx-2"></div>
+          
+          <div class="flex items-center gap-2.5 px-3.5 py-2.5 rounded cursor-pointer text-[13.5px] font-medium transition-all duration-180 text-red hover:bg-red-bg" @click="signOut">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
@@ -117,128 +56,97 @@
         </aside>
 
         <!-- Main content -->
-        <div class="account-main">
+        <div class="space-y-6">
           <!-- Dashboard -->
-          <div v-if="activeTab === 'dashboard'">
-            <div class="profile-header card">
+          <div v-if="activeTab === 'dashboard'" class="space-y-6">
+            <div class="flex items-center gap-5 p-6 bg-surface rounded-lg shadow-sm border border-border/50">
               <img
                 v-if="(profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.user_metadata?.avatar) && user"
                 :src="profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.user_metadata?.avatar"
-                class="profile-avatar"
+                class="w-16 h-16 rounded-full object-cover shrink-0"
                 referrerpolicy="no-referrer"
               />
-              <div v-else class="profile-avatar-placeholder">
+              <div v-else class="w-16 h-16 rounded-full bg-accent-light text-accent text-2xl font-bold flex items-center justify-center shrink-0">
                 {{ userInitial }}
               </div>
-              <div class="profile-info">
-                <h2>Welcome back, {{ firstName }}</h2>
-                <p>{{ user?.email }} • Member since {{ memberSince }}</p>
+              <div class="flex-1">
+                <h2 class="text-[22px] font-semibold mb-1">Welcome back, {{ firstName }}</h2>
+                <p class="text-[13px] text-text-2">{{ user?.email }} • Member since {{ memberSince }}</p>
               </div>
-              <button
-                class="btn btn-outline btn-sm"
-                @click="activeTab = 'settings'"
-              >
-                EDIT PROFILE
-              </button>
+              <button class="btn btn-outline btn-sm" @click="activeTab = 'settings'">EDIT PROFILE</button>
             </div>
 
-            <div class="stats-row">
-              <div class="stat-card card">
-                <div class="stat-label-sm">TOTAL ORDERS</div>
-                <div class="stat-number">{{ orders.length }}</div>
-                <div class="stat-sub green">+2 this month</div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="bg-surface rounded-lg p-5 shadow-sm border border-border/50">
+                <div class="text-[10.5px] font-bold tracking-widest uppercase text-text-3 mb-2 font-body">TOTAL ORDERS</div>
+                <div class="text-[32px] font-bold font-display mb-1">{{ orders.length }}</div>
+                <div class="text-[12px] text-green font-medium">+2 this month</div>
               </div>
-              <div class="stat-card card">
-                <div class="stat-label-sm">SAVED ITEMS</div>
-                <div class="stat-number">{{ savedTools.length }}</div>
-                <div class="stat-sub">Precision collection</div>
+              <div class="bg-surface rounded-lg p-5 shadow-sm border border-border/50">
+                <div class="text-[10.5px] font-bold tracking-widest uppercase text-text-3 mb-2 font-body">SAVED ITEMS</div>
+                <div class="text-[32px] font-bold font-display mb-1">{{ savedTools.length }}</div>
+                <div class="text-[12px] text-text-2">Precision collection</div>
               </div>
-              <div class="stat-card card">
-                <div class="stat-label-sm">ACADEMY RANK</div>
-                <div class="stat-number rank">
-                  {{ profile?.academy_rank || "Pro" }}
-                </div>
-                <div class="stat-sub amber">
-                  {{ profile?.courses_completed || 4 }} courses completed
-                </div>
+              <div class="bg-surface rounded-lg p-5 shadow-sm border border-border/50">
+                <div class="text-[10.5px] font-bold tracking-widest uppercase text-text-3 mb-2 font-body">ACADEMY RANK</div>
+                <div class="text-[26px] font-bold font-display mb-1">{{ profile?.academy_rank || "Pro" }}</div>
+                <div class="text-[12px] text-accent font-medium">{{ profile?.courses_completed || 4 }} courses completed</div>
               </div>
             </div>
 
             <!-- Recent orders preview -->
-            <div class="card" style="margin-top: 24px; position: relative; min-height: 180px;">
-              <div v-if="ordersLoading" class="tab-loader">
-                <div class="spinner"></div>
+            <div class="bg-surface rounded-lg p-6 shadow-sm border border-border/50 relative min-h-[180px]">
+              <div v-if="ordersLoading" class="absolute inset-0 flex items-center justify-center bg-white/70 z-10 rounded-lg">
+                <div class="w-6 h-6 border-2 border-border border-t-accent rounded-full animate-spin"></div>
               </div>
               <template v-else>
-                <div class="section-block-header">
-                  <h3>RECENT ORDERS</h3>
-                  <button
-                    class="btn btn-ghost btn-sm"
-                    @click="activeTab = 'orders'"
+                <div class="flex justify-between items-center mb-5">
+                  <h3 class="text-[11px] font-bold tracking-[0.12em] uppercase text-text-2 font-body">RECENT ORDERS</h3>
+                  <button class="btn btn-ghost btn-sm" @click="activeTab = 'orders'">VIEW ALL</button>
+                </div>
+                <div class="hidden sm:grid grid-cols-[1fr_120px_140px_100px_40px] items-center gap-4 mb-3 px-0 text-[11px] font-bold tracking-widest uppercase text-text-3">
+                  <span>Order #</span><span>Date</span><span>Status</span><span>Total</span><span></span>
+                </div>
+                <div class="space-y-1">
+                  <div
+                    v-for="o in orders.slice(0, 3)"
+                    :key="o.id"
+                    class="grid grid-cols-1 sm:grid-cols-[1fr_120px_140px_100px_40px] items-center gap-4 py-3.5 border-b border-border last:border-0"
                   >
-                    VIEW ALL
-                  </button>
+                    <span class="font-mono text-[13px] font-medium text-text">{{ o.order_number }}</span>
+                    <span class="text-[13px] text-text-2">{{ formatDate(o.placed_at) }}</span>
+                    <div>
+                      <span class="badge" :class="statusBadge(o.status)">{{ o.status }}</span>
+                    </div>
+                    <span class="text-[14px] font-bold text-text">${{ o.total?.toFixed(2) }}</span>
+                    <NuxtLink :to="`/order/${o.order_number}`" class="btn btn-ghost btn-sm px-2"><IconEye /></NuxtLink>
+                  </div>
                 </div>
-                <div class="order-thead order-row">
-                  <span>Order #</span><span>Date</span><span>Status</span
-                  ><span>Total</span><span></span>
-                </div>
-                <div
-                  v-for="o in orders.slice(0, 3)"
-                  :key="o.id"
-                  class="order-row"
-                >
-                  <span class="order-num">{{ o.order_number }}</span>
-                  <span class="order-date">{{ formatDate(o.placed_at) }}</span>
-                  <span>
-                    <span class="badge" :class="statusBadge(o.status)">
-                      <span v-if="o.status === 'delivered'">●</span>
-                      {{ o.status }}
-                    </span>
-                  </span>
-                  <span class="order-total">${{ o.total?.toFixed(2) }}</span>
-                  <NuxtLink
-                    :to="`/order/${o.order_number}`"
-                    class="btn btn-ghost btn-sm"
-                  >
-                    <IconEye />
-                  </NuxtLink>
-                </div>
-                <div v-if="orders.length === 0" class="empty-tab">
-                  No orders yet. <NuxtLink to="/shop">Start shopping →</NuxtLink>
+                <div v-if="orders.length === 0" class="text-center py-10 text-text-2">
+                  No orders yet. <NuxtLink to="/shop" class="text-accent underline">Start shopping →</NuxtLink>
                 </div>
               </template>
             </div>
 
             <!-- Saved tools preview -->
-            <div class="card" style="margin-top: 24px" v-if="savedTools.length">
-              <div class="section-block-header">
-                <h3>SAVED TOOLS</h3>
-                <button
-                  class="btn btn-ghost btn-sm"
-                  @click="activeTab = 'saved'"
-                >
-                  VIEW ALL
-                </button>
+            <div class="bg-surface rounded-lg p-6 shadow-sm border border-border/50" v-if="savedTools.length">
+              <div class="flex justify-between items-center mb-5">
+                <h3 class="text-[11px] font-bold tracking-[0.12em] uppercase text-text-2 font-body">SAVED TOOLS</h3>
+                <button class="btn btn-ghost btn-sm" @click="activeTab = 'saved'">VIEW ALL</button>
               </div>
-              <div class="saved-grid">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div
                   v-for="item in savedTools.slice(0, 2)"
                   :key="item.id"
-                  class="saved-item"
+                  class="flex items-center gap-3.5 p-4 border border-border rounded-lg bg-surface"
                 >
-                  <div class="saved-img"></div>
-                  <div class="saved-info">
-                    <div class="saved-name">{{ item.products?.name }}</div>
-                    <div class="saved-price">${{ item.products?.price }}</div>
-                    <button
-                      class="btn btn-accent btn-sm"
-                      @click="addSavedToCart(item)"
-                    >
-                      ADD TO CART
-                    </button>
+                  <div class="w-[52px] h-[52px] rounded-lg bg-surface-2 shrink-0"></div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-[13.5px] font-semibold text-text truncate mb-0.5">{{ item.products?.name }}</div>
+                    <div class="text-[12px] text-accent font-bold mb-2">${{ item.products?.price }}</div>
+                    <button class="btn btn-accent btn-sm" @click="addSavedToCart(item)">ADD TO CART</button>
                   </div>
-                  <button class="saved-remove" @click="removeSaved(item)">
+                  <button class="p-1 rounded text-text-3 hover:text-red hover:bg-red-bg transition-all duration-150" @click="removeSaved(item)">
                     <IconTrash />
                   </button>
                 </div>
@@ -247,33 +155,28 @@
           </div>
 
           <!-- Orders tab -->
-          <div v-if="activeTab === 'orders'">
-            <h2 style="margin-bottom: 24px">My Orders</h2>
-            <div class="card" style="position: relative; min-height: 200px;">
-              <div v-if="ordersLoading" class="tab-loader">
-                <div class="spinner"></div>
+          <div v-if="activeTab === 'orders'" class="space-y-6">
+            <h2 class="text-2xl font-semibold">My Orders</h2>
+            <div class="bg-surface rounded-lg p-6 shadow-sm border border-border/50 relative min-h-[200px]">
+              <div v-if="ordersLoading" class="absolute inset-0 flex items-center justify-center bg-white/70 z-10 rounded-lg">
+                <div class="w-6 h-6 border-2 border-border border-t-accent rounded-full animate-spin"></div>
               </div>
               <template v-else>
-                <div class="order-thead order-row">
-                  <span>Order #</span><span>Date</span><span>Status</span
-                  ><span>Total</span><span></span>
+                <div class="hidden sm:grid grid-cols-[1fr_120px_140px_100px_40px] items-center gap-4 mb-3 text-[11px] font-bold tracking-widest uppercase text-text-3">
+                  <span>Order #</span><span>Date</span><span>Status</span><span>Total</span><span></span>
                 </div>
-                <div v-for="o in orders" :key="o.id" class="order-row">
-                  <span class="order-num">{{ o.order_number }}</span>
-                  <span class="order-date">{{ formatDate(o.placed_at) }}</span>
-                  <span
-                    ><span class="badge" :class="statusBadge(o.status)">{{
-                      o.status
-                    }}</span></span
-                  >
-                  <span class="order-total">${{ o.total?.toFixed(2) }}</span>
-                  <NuxtLink
-                    :to="`/order/${o.order_number}`"
-                    class="btn btn-ghost btn-sm"
-                    ><IconEye
-                  /></NuxtLink>
+                <div class="space-y-1">
+                  <div v-for="o in orders" :key="o.id" class="grid grid-cols-1 sm:grid-cols-[1fr_120px_140px_100px_40px] items-center gap-4 py-3.5 border-b border-border last:border-0">
+                    <span class="font-mono text-[13px] font-medium text-text">{{ o.order_number }}</span>
+                    <span class="text-[13px] text-text-2">{{ formatDate(o.placed_at) }}</span>
+                    <div>
+                      <span class="badge" :class="statusBadge(o.status)">{{ o.status }}</span>
+                    </div>
+                    <span class="text-[14px] font-bold text-text">${{ o.total?.toFixed(2) }}</span>
+                    <NuxtLink :to="`/order/${o.order_number}`" class="btn btn-ghost btn-sm px-2"><IconEye /></NuxtLink>
+                  </div>
                 </div>
-                <div v-if="orders.length === 0" class="empty-tab">
+                <div v-if="orders.length === 0" class="text-center py-10 text-text-2">
                   No orders yet.
                 </div>
               </template>
@@ -281,103 +184,69 @@
           </div>
 
           <!-- Saved tools tab -->
-          <div v-if="activeTab === 'saved'">
-            <h2 style="margin-bottom: 24px">Saved Tools</h2>
-            <div class="saved-grid-full" v-if="savedTools.length">
+          <div v-if="activeTab === 'saved'" class="space-y-6">
+            <h2 class="text-2xl font-semibold">Saved Tools</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5" v-if="savedTools.length">
               <div
                 v-for="item in savedTools"
                 :key="item.id"
-                class="saved-item card"
+                class="flex items-center gap-3.5 p-4 bg-surface rounded-lg shadow-sm border border-border/50"
               >
-                <div class="saved-img"></div>
-                <div class="saved-info">
-                  <div class="saved-name">{{ item.products?.name }}</div>
-                  <div class="saved-price">${{ item.products?.price }}</div>
-                  <button
-                    class="btn btn-accent btn-sm"
-                    @click="addSavedToCart(item)"
-                  >
-                    ADD TO CART
-                  </button>
+                <div class="w-[52px] h-[52px] rounded-lg bg-surface-2 shrink-0"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[13.5px] font-semibold text-text truncate mb-0.5">{{ item.products?.name }}</div>
+                  <div class="text-[12px] text-accent font-bold mb-2">${{ item.products?.price }}</div>
+                  <button class="btn btn-accent btn-sm" @click="addSavedToCart(item)">ADD TO CART</button>
                 </div>
-                <button class="saved-remove" @click="removeSaved(item)">
+                <button class="p-1 rounded text-text-3 hover:text-red hover:bg-red-bg transition-all duration-150" @click="removeSaved(item)">
                   <IconTrash />
                 </button>
               </div>
             </div>
-            <div v-else class="empty-tab card">
+            <div v-else class="text-center py-10 text-text-2 bg-surface rounded-lg shadow-sm border border-border/50">
               No saved tools yet.
-              <NuxtLink to="/shop">Browse the collection →</NuxtLink>
+              <NuxtLink to="/shop" class="text-accent underline block mt-2">Browse the collection →</NuxtLink>
             </div>
           </div>
 
           <!-- Settings tab -->
-          <div v-if="activeTab === 'settings'">
-            <h2 style="margin-bottom: 24px">Profile Settings</h2>
-            <div class="card settings-form">
-              <div class="form-grid">
+          <div v-if="activeTab === 'settings'" class="space-y-6">
+            <h2 class="text-2xl font-semibold">Profile Settings</h2>
+            <div class="bg-surface rounded-lg p-6 shadow-sm border border-border/50">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="input-label">Full Name</label>
-                  <input v-model="settingsForm.full_name" class="input" />
+                  <label class="block text-[11px] font-bold tracking-widest uppercase text-text-2 mb-1.5">Full Name</label>
+                  <input v-model="settingsForm.full_name" class="w-full px-3.5 py-2.5 bg-surface border-[1.5px] border-border rounded font-body text-sm text-text outline-none focus:border-accent transition-colors" />
                 </div>
                 <div>
-                  <label class="input-label">Email</label>
-                  <input
-                    :value="user?.email"
-                    class="input"
-                    disabled
-                    style="opacity: 0.5"
-                  />
+                  <label class="block text-[11px] font-bold tracking-widest uppercase text-text-2 mb-1.5">Email</label>
+                  <input :value="user?.email" class="w-full px-3.5 py-2.5 bg-surface border-[1.5px] border-border rounded font-body text-sm text-text outline-none opacity-50 cursor-not-allowed" disabled />
                 </div>
               </div>
-              <button
-                class="btn btn-primary"
-                style="margin-top: 20px"
-                @click="saveSettings"
-                :disabled="saving"
-              >
+              <button class="btn btn-primary mt-5" @click="saveSettings" :disabled="saving">
                 {{ saving ? "Saving..." : "Save Changes" }}
               </button>
             </div>
 
-            <!-- Password change (only for email users) -->
-            <div
-              class="card"
-              style="margin-top: 24px"
-              v-if="user?.app_metadata?.provider === 'email'"
-            >
-              <h3 style="margin-bottom: 20px; font-size: 14px; letter-spacing: 0.05em">SECURITY</h3>
-              <div class="form-grid">
+            <!-- Password change -->
+            <div class="bg-surface rounded-lg p-6 shadow-sm border border-border/50" v-if="user?.app_metadata?.provider === 'email'">
+              <h3 class="text-sm font-bold tracking-wider uppercase mb-5">SECURITY</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="input-label">New Password</label>
-                  <input
-                    v-model="passwordForm.new"
-                    type="password"
-                    class="input"
-                    placeholder="••••••••"
-                  />
+                  <label class="block text-[11px] font-bold tracking-widest uppercase text-text-2 mb-1.5">New Password</label>
+                  <input v-model="passwordForm.new" type="password" class="w-full px-3.5 py-2.5 bg-surface border-[1.5px] border-border rounded font-body text-sm text-text outline-none focus:border-accent transition-colors" placeholder="••••••••" />
                 </div>
                 <div>
-                  <label class="input-label">Confirm Password</label>
-                  <input
-                    v-model="passwordForm.confirm"
-                    type="password"
-                    class="input"
-                    placeholder="••••••••"
-                  />
+                  <label class="block text-[11px] font-bold tracking-widest uppercase text-text-2 mb-1.5">Confirm Password</label>
+                  <input v-model="passwordForm.confirm" type="password" class="w-full px-3.5 py-2.5 bg-surface border-[1.5px] border-border rounded font-body text-sm text-text outline-none focus:border-accent transition-colors" placeholder="••••••••" />
                 </div>
               </div>
-              <button
-                class="btn btn-outline"
-                style="margin-top: 20px"
-                @click="updatePassword"
-                :disabled="changingPassword"
-              >
+              <button class="btn btn-outline mt-5" @click="updatePassword" :disabled="changingPassword">
                 {{ changingPassword ? "Updating..." : "Update Password" }}
               </button>
             </div>
-            <div class="card" style="margin-top: 24px" v-else>
-               <p style="font-size: 13px; color: var(--text-3)">
+            <div class="bg-surface rounded-lg p-6 shadow-sm border border-border/50" v-else>
+               <p class="text-[13px] text-text-3">
                  You are logged in via <strong>{{ user?.app_metadata?.provider }}</strong>. 
                  Password management is handled by your provider.
                </p>
@@ -390,7 +259,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ middleware: "auth" });
+definePageMeta({ middleware: ["auth", "block-admin"] });
 
 const supabase: any = useSupabaseClient();
 const user = useSupabaseUser();
@@ -470,7 +339,7 @@ async function saveSettings() {
 
 async function updatePassword() {
   if (!passwordForm.new || passwordForm.new !== passwordForm.confirm) {
-    supabase.auth.updateUser({ password: 'dummy' }); // just to trigger a potential toast if middleware exists
+    supabase.auth.updateUser({ password: 'dummy' });
     toast.error("Passwords do not match or are empty");
     return;
   }
@@ -497,281 +366,57 @@ async function signOut() {
 }
 
 onMounted(async () => {
-  if (!user.value) return;
-
-  // Catch dynamic stripe callback
-  if (route.query.stripe_cb === 'true' && route.query.redirect_status === 'succeeded') {
-    const ordId = String(route.query.ord_id);
-    await supabase.from('orders').update({ status: 'processed' }).eq('order_number', ordId);
-    
-    // Trigger mock email
-    $fetch('/api/send-email', {
-      method: 'POST',
-      body: {
-        to: user.value.email,
-        subject: `Payment Received: Order ${ordId}`,
-        content: `Your payment was perfectly tracked on the server! Order ${ordId} is now processing.`
-      }
-    }).catch(e => console.error(e));
+  ordersLoading.value = true;
+  
+  if (!user.value?.id) {
+    ordersLoading.value = false;
+    return;
   }
 
-  // DEBUG: View exactly what Google sent us
-  console.log("🔌 AUTH USER DATA:", user.value);
-  console.log("📸 USER METADATA:", user.value?.user_metadata);
+  try {
+    if (route.query.stripe_cb === 'true' && route.query.redirect_status === 'succeeded') {
+      const ordId = String(route.query.ord_id);
+      await supabase.from('orders').update({ status: 'processed' }).eq('order_number', ordId);
+      
+      $fetch('/api/send-email', {
+        method: 'POST',
+        body: {
+          to: user.value.email,
+          subject: `Payment Received: Order ${ordId}`,
+          content: `Your payment was perfectly tracked on the server! Order ${ordId} is now processing.`
+        }
+      }).catch(e => console.error(e));
+    }
 
-  ordersLoading.value = true;
-  const [{ data: p }, { data: o }, { data: s }] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user.value.id).single(),
-    supabase
-      .from("orders")
-      .select("*")
-      .eq("user_id", user.value.id)
-      .order("placed_at", { ascending: false }),
-    supabase
-      .from("saved_tools")
-      .select("*, products(*)")
-      .eq("user_id", user.value.id),
-  ]);
-  profile.value = p;
-  orders.value = o || [];
-  savedTools.value = s || [];
-  if (p?.full_name) settingsForm.full_name = p.full_name;
-  ordersLoading.value = false;
+    const [{ data: p }, { data: o }, { data: s }] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", user.value.id).single(),
+      supabase
+        .from("orders")
+        .select("*")
+        .eq("user_id", user.value.id)
+        .order("placed_at", { ascending: false }),
+      supabase
+        .from("saved_tools")
+        .select("*, products(*)")
+        .eq("user_id", user.value.id),
+    ]);
+    profile.value = p;
+    orders.value = o || [];
+    savedTools.value = s || [];
+    if (p?.full_name) settingsForm.full_name = p.full_name;
+  } finally {
+    ordersLoading.value = false;
+  }
 });
 </script>
 
 <style scoped>
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-.profile-avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-.profile-avatar-placeholder {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--accent-light);
-  color: var(--accent);
-  font-size: 24px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.profile-info {
-  flex: 1;
-}
-.profile-info h2 {
-  font-size: 22px;
-  margin-bottom: 4px;
-}
-.profile-info p {
-  font-size: 13px;
-  color: var(--text-2);
-}
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-.stat-card {
-  padding: 20px;
-}
-.stat-label-sm {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  margin-bottom: 8px;
-  font-family: var(--font-body);
-}
-.stat-number {
-  font-size: 32px;
-  font-weight: 700;
-  font-family: var(--font-display);
-  margin-bottom: 4px;
-}
-.stat-number.rank {
-  font-size: 26px;
-}
-.stat-sub {
-  font-size: 12px;
-  color: var(--text-2);
-}
-.stat-sub.green {
-  color: var(--green);
-}
-.stat-sub.amber {
-  color: var(--accent);
-}
-.section-block-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-.section-block-header h3 {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--text-2);
-  font-family: var(--font-body);
-}
-.order-num {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 500;
-}
-.order-date {
-  font-size: 13px;
-  color: var(--text-2);
-}
-.order-total {
-  font-weight: 700;
-}
-.saved-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-.saved-grid-full {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-.saved-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-}
-.saved-img {
-  width: 52px;
-  height: 52px;
-  border-radius: 8px;
-  background: var(--surface-2);
-  flex-shrink: 0;
-}
-.saved-info {
-  flex: 1;
-}
-.saved-name {
-  font-size: 13.5px;
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-.saved-price {
-  font-size: 12px;
-  color: var(--accent);
-  margin-bottom: 8px;
-}
-.saved-remove {
-  border: none;
-  background: transparent;
-  color: var(--text-3);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.15s;
-}
-.saved-remove:hover {
-  color: var(--red);
-  background: var(--red-bg);
-}
-.settings-form .form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.empty-tab {
-  padding: 40px;
-  text-align: center;
-  color: var(--text-2);
-}
-.empty-tab a {
-  color: var(--accent);
-  text-decoration: underline;
-}
-.logout-item {
-  color: var(--red) !important;
-}
-.logout-item:hover {
-  background: var(--red-bg) !important;
-}
-.barista-status-widget {
-  padding: 14px;
-  background: var(--surface-2);
-  border-radius: var(--radius);
-  margin: 6px 8px;
-}
-.bsw-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.bsw-icon {
-  font-size: 14px;
-}
-.bsw-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-.bsw-tier {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-.bsw-community {
-  font-size: 11.5px;
-  color: var(--text-2);
-  margin-bottom: 8px;
-}
-.bsw-next {
-  font-size: 11px;
-  color: var(--text-3);
-}
-
-.tab-loader {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.7);
-  z-index: 10;
-  border-radius: var(--radius-lg);
-}
-
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--border);
-  border-top: 2px solid var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
+/* Transition & Spinners */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 0.8s linear infinite;
 }
 </style>

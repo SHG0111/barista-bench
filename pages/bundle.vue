@@ -1,103 +1,109 @@
 <template>
-  <div
-    style="padding-top: var(--nav-h); min-height: 100vh; background: var(--bg)"
-  >
+  <div class="pt-[56px] min-h-screen bg-bg">
     <!-- Mini nav bar -->
-    <div class="bundle-topbar">
-      <NuxtLink to="/shop" class="topbar-logo">
-        <div class="logo-box-sm"><span>BB</span></div>
+    <div class="bg-surface border-b border-border h-[52px] flex items-center justify-between px-8">
+      <NuxtLink to="/shop" class="flex items-center gap-2 no-underline text-text text-[12px] font-bold tracking-[0.1em]">
+        <div class="w-6 h-6 bg-text rounded-[4px] flex items-center justify-center">
+          <span class="text-white text-[8px] font-extrabold">BB</span>
+        </div>
         <span>BARISTA BENCH</span>
       </NuxtLink>
-      <div class="topbar-title">
-        KIT BUILDER <span class="topbar-sep">/</span> COMPATIBILITY VERIFIED
+      <div class="hidden md:block text-[12px] font-semibold tracking-[0.08em] text-text-2">
+        KIT BUILDER <span class="mx-1.5 text-text-3">/</span> COMPATIBILITY VERIFIED
       </div>
-      <NuxtLink to="/shop" class="topbar-close">✕</NuxtLink>
+      <NuxtLink to="/shop" class="text-base text-text-2 no-underline px-2 py-1 rounded transition-all duration-150 hover:bg-surface-2 hover:text-text">✕</NuxtLink>
     </div>
 
-    <div class="bundle-layout">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-0 min-h-[calc(100vh-52px-56px-56px)]">
       <!-- Main -->
-      <div class="bundle-main">
+      <div class="p-10 lg:p-12 lg:px-12">
         <!-- Steps -->
-        <div class="steps-wrap">
-          <div class="steps">
+        <div class="mb-9">
+          <div class="flex items-center justify-center md:justify-start gap-3 md:gap-0">
             <div
               v-for="(step, i) in steps"
               :key="step.key"
-              class="step-item"
-              :class="{ active: currentStep === i, done: currentStep > i }"
+              class="flex flex-col items-center gap-1.5 relative flex-1 max-w-[120px]"
             >
-              <div class="step-circle">
-                <span v-if="currentStep > i">✓</span>
-                <span v-else>{{ i + 1 }}</span>
+              <div class="flex items-center w-full relative">
+                <div 
+                  class="w-7 h-7 rounded-full border-[1.5px] flex items-center justify-center text-xs font-semibold relative z-10 transition-all duration-300"
+                  :class="[
+                    currentStep === i ? 'bg-text border-text text-white shadow-sm' : 
+                    currentStep > i ? 'bg-accent border-accent text-white' : 
+                    'bg-surface border-border text-text-3'
+                  ]"
+                >
+                  <span v-if="currentStep > i">✓</span>
+                  <span v-else>{{ i + 1 }}</span>
+                </div>
+                <div v-if="i < steps.length - 1" class="absolute left-1/2 top-1/2 w-full h-px bg-border -translate-y-1/2 z-0"></div>
               </div>
-              <div class="step-label">{{ step.label }}</div>
+              <div 
+                class="hidden md:block text-[10px] font-bold uppercase tracking-[0.08em] transition-colors duration-300"
+                :class="currentStep === i ? 'text-text' : currentStep > i ? 'text-accent' : 'text-text-3'"
+              >
+                {{ step.label }}
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="bundle-step-content">
-          <div class="step-header">
-            <h2>{{ steps[currentStep].title }}</h2>
-            <span class="step-indicator"
-              >Step {{ currentStep + 1 }} of {{ steps.length }}</span
-            >
+        <div class="space-y-7">
+          <div class="flex items-baseline justify-between mb-7">
+            <h2 class="text-3xl font-display font-semibold text-text">{{ steps[currentStep].title }}</h2>
+            <span class="text-[12px] text-text-3 font-medium">Step {{ currentStep + 1 }} of {{ steps.length }}</span>
           </div>
 
-          <div class="bundle-products-grid" v-if="stepProducts.length">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5" v-if="stepProducts.length">
             <div
               v-for="p in stepProducts"
               :key="p.id"
-              class="bundle-prod-card"
-              :class="{
-                selected: selectedItems[steps[currentStep].key]?.id === p.id,
-              }"
+              class="group bg-surface rounded-lg pb-4 cursor-pointer relative transition-all duration-180 ease-default hover:shadow-md"
+              :class="{ 'ring-2 ring-text': selectedItems[steps[currentStep].key]?.id === p.id }"
               @click="selectItem(p)"
             >
               <div
-                class="bpc-check"
+                class="absolute top-3.5 right-3.5 w-6 h-6 bg-text rounded-full text-white text-[12px] font-bold flex items-center justify-center z-10"
                 v-if="selectedItems[steps[currentStep].key]?.id === p.id"
               >
                 ✓
               </div>
-              <div class="bpc-img">
-                <div class="bpc-img-bg"></div>
-              </div>
-              <div class="bpc-info">
-                <div class="bpc-name-row">
-                  <h3>{{ p.name }}</h3>
-                  <span class="bpc-price">${{ p.price }}</span>
+              <div class="aspect-[16/9] overflow-hidden rounded-t-lg bg-gradient-to-br from-[#efede9] to-[#e0ddd8]"></div>
+              <div class="px-4 pt-4">
+                <div class="flex justify-between items-baseline mb-1.5">
+                  <h3 class="text-[16px] font-semibold text-text truncate pr-2">{{ p.name }}</h3>
+                  <span class="text-[15px] font-bold text-text shrink-0">${{ p.price }}</span>
                 </div>
-                <p class="bpc-desc">{{ p.tagline }}</p>
-                <div class="bpc-tags">
-                  <span v-for="t in p.tags?.slice(0, 2)" :key="t" class="tag">{{
-                    t
-                  }}</span>
+                <p class="text-[12.5px] text-text-2 leading-[1.6] mb-2.5 line-clamp-2">{{ p.tagline }}</p>
+                <div class="flex gap-1.5 mb-3 flex-wrap">
+                  <span v-for="t in p.tags?.slice(0, 2)" :key="t" class="px-2 py-0.5 bg-surface-2 rounded-full text-[10px] font-medium text-text-2 uppercase tracking-wide">{{ t }}</span>
                 </div>
               </div>
               <div
                 v-if="selectedItems[steps[currentStep].key]?.id !== p.id"
-                class="bpc-select-btn"
+                class="mx-4 py-2.5 bg-surface-2 rounded-lg text-center text-[12.5px] font-semibold text-text-2 transition-all duration-150 group-hover:bg-text group-hover:text-white"
               >
                 Select {{ steps[currentStep].label }}
               </div>
             </div>
           </div>
-          <div v-else class="step-empty">
+          <div v-else class="text-center py-20 text-text-2">
             <p>No products available for this step yet.</p>
           </div>
         </div>
 
         <!-- Nav buttons -->
-        <div class="bundle-nav">
+        <div class="flex flex-col sm:flex-row justify-between items-center mt-10 pt-7 border-t border-border gap-4">
           <button
-            class="btn btn-ghost"
+            class="btn btn-ghost w-full sm:w-auto"
             :disabled="currentStep === 0"
             @click="currentStep--"
           >
             PREVIOUS
           </button>
           <button
-            class="btn btn-primary btn-lg"
+            class="btn btn-primary btn-lg w-full sm:w-auto"
             @click="nextStep"
             :disabled="
               !selectedItems[steps[currentStep].key] &&
@@ -114,78 +120,53 @@
       </div>
 
       <!-- Sidebar summary -->
-      <div class="bundle-sidebar">
-        <div class="card-dark bundle-summary-card">
-          <h3 style="color: var(--text); font-size: 18px; margin-bottom: 4px">
-            YOUR BUNDLE
-          </h3>
-          <p
-            style="
-              color: var(--accent);
-              font-size: 12px;
-              letter-spacing: 0.06em;
-            "
-          >
-            Save 15% on completion
-          </p>
+      <div class="bg-white p-8 lg:px-6 lg:border-l border-border/50">
+        <div class="space-y-5">
+          <h3 class="text-[18px] font-display font-semibold text-text mb-1">YOUR BUNDLE</h3>
+          <p class="text-[12px] text-accent tracking-[0.06em] font-bold uppercase -mt-4">Save 15% on completion</p>
 
-          <div class="bundle-items" style="margin-top: 20px">
-            <div v-for="step in steps" :key="step.key" class="bundle-line-item">
-              <div class="bli-label">{{ step.label }}</div>
-              <div v-if="selectedItems[step.key]" class="bli-selected">
-                <div class="bli-prod-img"></div>
-                <div class="bli-prod-info">
-                  <div class="bli-prod-name">
-                    {{ selectedItems[step.key].name }}
-                  </div>
-                  <div class="bli-prod-price">
-                    ${{ selectedItems[step.key].price }}
-                  </div>
+          <div class="space-y-3.5 mt-5">
+            <div v-for="step in steps" :key="step.key" class="flex flex-col gap-1.5">
+              <div class="text-[10px] font-bold tracking-[0.1em] uppercase text-[#555]">{{ step.label }}</div>
+              <div v-if="selectedItems[step.key]" class="flex items-center gap-2.5 bg-surface-2 rounded-lg p-2.5 group">
+                <div class="w-8 h-8 rounded-md bg-[#333] shrink-0"></div>
+                <div class="min-w-0">
+                  <div class="text-[12.5px] text-text font-medium truncate">{{ selectedItems[step.key].name }}</div>
+                  <div class="text-[12px] text-accent font-bold">${{ selectedItems[step.key].price }}</div>
                 </div>
-                <button class="bli-remove" @click="removeItem(step.key)">
+                <button class="ml-auto border-none bg-transparent cursor-pointer text-[#555] p-1 opacity-60 hover:opacity-100 transition-opacity" @click="removeItem(step.key)">
                   🗑
                 </button>
               </div>
-              <div v-else class="bli-empty">Select {{ step.label }}</div>
+              <div v-else class="border-[1.5px] border-dashed border-border-hover rounded-lg p-3 text-center text-[12px] text-[#444] font-medium">Select {{ step.label }}</div>
             </div>
           </div>
 
-          <hr style="border-color: var(--border-dark); margin: 20px 0" />
+          <hr class="border-border-dark my-5" />
 
-          <div class="bundle-totals">
-            <div class="total-row">
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between text-[13px] text-[#777] font-medium">
               <span>Subtotal</span>
               <span>${{ bundleSubtotal.toFixed(2) }}</span>
             </div>
-            <div class="total-row accent-row">
+            <div class="flex justify-between text-[13px] text-accent font-bold">
               <span>Bundle Discount (15%)</span>
               <span>−${{ bundleDiscount.toFixed(2) }}</span>
             </div>
-            <div class="total-row total-final">
+            <div class="flex justify-between text-text text-[18px] font-bold mt-1">
               <span>Total</span>
               <span>${{ bundleTotal.toFixed(2) }}</span>
             </div>
           </div>
 
           <button
-            class="btn btn-accent btn-full btn-lg"
-            style="margin-top: 20px"
+            class="btn btn-accent btn-full btn-lg mt-5"
             :disabled="!hasMinimumItems"
             @click="addKitToCart"
           >
             ADD KIT TO CART
           </button>
-          <div
-            style="
-              display: flex;
-              align-items: center;
-              gap: 6px;
-              justify-content: center;
-              margin-top: 10px;
-              font-size: 11px;
-              color: #555;
-            "
-          >
+          <div class="flex items-center gap-1.5 justify-center mt-2.5 text-[11px] text-[#555] font-bold uppercase tracking-wider">
             ⊙ 2-YEAR WARRANTY INCLUDED
           </div>
         </div>
@@ -193,19 +174,11 @@
     </div>
 
     <!-- Footer mini -->
-    <div class="bundle-footer-bar">
-      <span
-        >✈ FREE SHIPPING
-        <span style="color: #555">On orders over $150</span></span
-      >
-      <span
-        >⊙ EXPERT SUPPORT
-        <span style="color: #555">Barista-led help desk</span></span
-      >
-      <div class="payment-logos">
-        <span class="pay-logo">VISA</span>
-        <span class="pay-logo">MC</span>
-        <span class="pay-logo">PP</span>
+    <div class="bg-surface border-t border-border flex flex-col md:flex-row items-center gap-4 md:gap-10 p-6 md:px-12 text-[12.5px] font-bold tracking-[0.04em] text-text">
+      <span class="flex items-center gap-2">✈ FREE SHIPPING <span class="text-[#555] font-medium">On orders over $150</span></span>
+      <span class="flex items-center gap-2">⊙ EXPERT SUPPORT <span class="text-[#555] font-medium">Barista-led help desk</span></span>
+      <div class="flex gap-2 ml-0 md:ml-auto">
+        <span v-for="pay in ['VISA', 'MC', 'PP']" :key="pay" class="border border-border rounded px-2 py-0.5 text-[10px] font-bold text-text-3">{{ pay }}</span>
       </div>
     </div>
   </div>
@@ -305,338 +278,5 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.bundle-topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-}
-.topbar-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  color: var(--text);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-.logo-box-sm {
-  width: 24px;
-  height: 24px;
-  background: var(--text);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.logo-box-sm span {
-  color: white;
-  font-size: 8px;
-  font-weight: 800;
-}
-.topbar-title {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-2);
-}
-.topbar-sep {
-  margin: 0 6px;
-  color: var(--text-3);
-}
-.topbar-close {
-  font-size: 16px;
-  color: var(--text-2);
-  text-decoration: none;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all 0.15s;
-}
-.topbar-close:hover {
-  background: var(--surface-2);
-  color: var(--text);
-}
-.bundle-layout {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 0;
-  min-height: calc(100vh - 52px - var(--nav-h) - 56px);
-}
-.bundle-main {
-  padding: 40px 48px;
-}
-.steps-wrap {
-  margin-bottom: 36px;
-}
-.step-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 28px;
-}
-.step-header h2 {
-  font-size: 30px;
-}
-.step-indicator {
-  font-size: 12px;
-  color: var(--text-3);
-}
-.bundle-products-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-.bundle-prod-card {
-  border-radius: var(--radius-lg);
-  padding: 0 0 16px;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.18s;
-  background: var(--surface);
-}
-.bundle-prod-card:hover {
-  box-shadow: var(--shadow-md);
-}
-.bundle-prod-card.selected {
-  outline: 2px solid var(--text);
-}
-.bpc-check {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 24px;
-  height: 24px;
-  background: var(--text);
-  border-radius: 50%;
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-}
-.bpc-img {
-  aspect-ratio: 16/9;
-  overflow: hidden;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-}
-.bpc-img-bg {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #efede9, #e0ddd8);
-}
-.bpc-info {
-  padding: 16px 16px 0;
-}
-.bpc-name-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 6px;
-}
-.bpc-name-row h3 {
-  font-size: 16px;
-  font-weight: 600;
-}
-.bpc-price {
-  font-size: 15px;
-  font-weight: 700;
-}
-.bpc-desc {
-  font-size: 12.5px;
-  color: var(--text-2);
-  line-height: 1.6;
-  margin-bottom: 10px;
-}
-.bpc-tags {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-.bpc-select-btn {
-  margin: 0 16px;
-  padding: 9px;
-  background: var(--surface-2);
-  border-radius: 8px;
-  text-align: center;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-2);
-  transition: all 0.15s;
-}
-.bundle-prod-card:hover .bpc-select-btn {
-  background: var(--text);
-  color: white;
-}
-.bundle-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 40px;
-  padding-top: 28px;
-  border-top: 1px solid var(--border);
-}
-.bundle-sidebar {
-  background: #fff;
-  padding: 32px 24px;
-}
-.bundle-summary-card {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-}
-.bundle-line-item {
-  margin-bottom: 14px;
-}
-.bli-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #555;
-  margin-bottom: 6px;
-}
-.bli-selected {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--surface-2);
-  border-radius: 8px;
-  padding: 10px 12px;
-}
-.bli-prod-img {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: #333;
-  flex-shrink: 0;
-}
-.bli-prod-name {
-  font-size: 12.5px;
-  color: var(--text);
-  font-weight: 500;
-}
-.bli-prod-price {
-  font-size: 12px;
-  color: var(--accent);
-}
-.bli-remove {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: #555;
-  font-size: 14px;
-  margin-left: auto;
-}
-.bli-empty {
-  border: 1.5px dashed var(--border-dark);
-  border-radius: 8px;
-  padding: 12px;
-  text-align: center;
-  font-size: 12px;
-  color: #444;
-}
-.bundle-totals {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.total-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #777;
-}
-.accent-row {
-  color: var(--accent);
-}
-.total-final {
-  color: var(--text);
-  font-size: 18px;
-  font-weight: 700;
-  margin-top: 4px;
-}
-.bundle-footer-bar {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 40px;
-  padding: 14px 48px;
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--text);
-}
-.payment-logos {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
-}
-.pay-logo {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 3px 8px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-3);
-}
-/* text-align: center; padding: 48px; color: var(--text-2); } */
-
-/* RESPONSIVE */
-@media (max-width: 1024px) {
-  .bundle-layout {
-    grid-template-columns: 1fr;
-  }
-  .bundle-sidebar {
-    border-left: none;
-    border-top: 1px solid var(--border-dark);
-  }
-  .bundle-main {
-    padding: 32px 24px;
-  }
-}
-
-@media (max-width: 768px) {
-  .topbar-title {
-    display: none;
-  }
-  .bundle-products-grid {
-    grid-template-columns: 1fr;
-  }
-  .step-label {
-    display: none;
-  }
-  .steps {
-    justify-content: center;
-    gap: 12px;
-  }
-  .bundle-footer-bar {
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
-    padding: 24px;
-  }
-  .payment-logos {
-    margin-left: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .step-header h2 {
-    font-size: 24px;
-  }
-  .bundle-nav {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .bundle-nav .btn {
-    width: 100%;
-  }
-}
+/* All styles handled via Tailwind CSS utility classes */
 </style>
