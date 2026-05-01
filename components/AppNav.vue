@@ -70,16 +70,7 @@
           class="w-auto h-9 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-brand transition-all gap-2 px-2.5"
           title="Admin Dashboard"
         >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            width="20"
-            height="20"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
+          <Icon name="solar:box-broken" width="20" height="20" />
           <span class="text-[13px] font-semibold text-text">Admin</span>
         </NuxtLink>
 

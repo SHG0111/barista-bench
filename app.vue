@@ -4,9 +4,7 @@
     <div v-if="showEmailBanner" class="sticky top-0 z-50 bg-accent/10 border-b border-accent/20 px-4 py-3">
       <div class="container mx-auto flex items-center justify-between gap-4">
         <div class="flex items-center gap-3 flex-1 min-w-0">
-          <svg class="w-5 h-5 text-accent shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
+          <Icon name="solar:letter-broken" class="w-5 h-5 text-accent shrink-0" />
           <p class="text-sm text-accent font-medium">
             <span class="font-bold">Email not verified.</span> Please check your inbox and click the confirmation link to unlock your full account.
           </p>
@@ -16,7 +14,7 @@
             Resend email
           </button>
           <button @click="dismissBanner" class="text-accent/60 hover:text-accent transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            <Icon name="solar:close-circle-broken" class="w-4 h-4" />
           </button>
         </div>
       </div>

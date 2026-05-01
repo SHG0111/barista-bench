@@ -48,9 +48,9 @@
         <div class="flex flex-col gap-5">
           <div class="flex bg-white rounded-lg p-6 gap-6" v-for="item in items" :key="item.id">
             <div class="w-[100px] h-[100px] shrink-0">
-              <div class="w-full h-full bg-bg rounded-md flex items-center justify-center text-text-2">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="w-10 h-10 opacity-30"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
-              </div>
+                <div class="w-full h-full bg-bg rounded-md flex items-center justify-center text-text-2">
+                  <Icon name="solar:cart-broken" class="w-10 h-10 opacity-30" />
+                </div>
             </div>
             
             <div class="flex-1 flex flex-col min-w-0">

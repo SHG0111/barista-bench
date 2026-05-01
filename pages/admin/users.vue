@@ -5,7 +5,7 @@
       <div>
         <nav class="flex items-center gap-2 text-xs font-medium text-text-3 mb-2">
           <NuxtLink to="/admin" class="text-accent hover:text-accent-hover transition-colors">Home</NuxtLink>
-          <svg class="w-3 h-3 text-text-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+          <Icon name="solar:arrow-right-broken" class="w-3 h-3 text-text-3" />
           <span class="text-accent">User Management</span>
         </nav>
         <h2 class="text-3xl font-extrabold text-text tracking-tight">User Management</h2>
@@ -13,11 +13,11 @@
       </div>
       <div class="flex gap-3">
         <button class="flex items-center gap-2 bg-white border border-border px-5 py-2.5 rounded-xl font-semibold text-sm text-text-2 hover:bg-surface-2 shadow-sm transition-all active:scale-95">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+          <Icon name="solar:filter-broken" class="w-4 h-4" />
           Filter View
         </button>
         <button class="flex items-center gap-2 bg-white border border-border px-5 py-2.5 rounded-xl font-semibold text-sm text-text-2 hover:bg-surface-2 shadow-sm transition-all active:scale-95">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+          <Icon name="solar:file-bold-broken" class="w-4 h-4" />
           Export Data
         </button>
       </div>
@@ -28,7 +28,7 @@
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-border group hover:border-accent-light transition-all">
         <div class="flex justify-between items-start mb-4">
           <div class="p-3 rounded-xl bg-accent-light group-hover:bg-accent/20 transition-colors">
-            <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            <Icon name="solar:user-broken" class="w-6 h-6 text-accent" />
           </div>
           <div class="flex items-center gap-1 text-green text-xs font-bold bg-green-bg px-2 py-1 rounded-lg">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
@@ -41,8 +41,8 @@
 
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-border group hover:border-blue-100 transition-all">
         <div class="flex justify-between items-start mb-4">
-          <div class="p-3 bg-blue-50 rounded-xl group-hover:bg-blue-100 transition-colors">
-            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+             <div class="p-3 bg-blue-50 rounded-xl group-hover:bg-blue-100 transition-colors">
+            <Icon name="solar:bolt-broken" class="w-6 h-6 text-blue-600" />
           </div>
           <div class="flex items-center gap-1 text-green text-xs font-bold bg-green-bg px-2 py-1 rounded-lg">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
@@ -56,7 +56,7 @@
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-border group hover:border-orange-100 transition-all">
         <div class="flex justify-between items-start mb-4">
           <div class="p-3 bg-orange-50 rounded-xl group-hover:bg-orange-100 transition-colors">
-            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+             <Icon name="solar:shield-broken" class="w-6 h-6 text-orange-600" />
           </div>
           <span class="bg-red-bg text-red px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter">Action Required</span>
         </div>
@@ -67,7 +67,7 @@
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-border group hover:border-accent-light transition-all">
         <div class="flex justify-between items-start mb-4">
           <div class="p-3 rounded-xl bg-accent-light group-hover:bg-accent/20 transition-colors">
-            <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+             <Icon name="solar:bolt-broken" class="w-6 h-6 text-accent" />
           </div>
         </div>
         <p class="text-text-3 text-xs font-bold uppercase tracking-widest mb-1">Active Sessions</p>
@@ -112,18 +112,18 @@
             </div>
           </div>
           <div class="flex items-center gap-1 flex-shrink-0">
-            <button v-if="profile.status === 'pending'" @click="verifyAccount(profile)" class="p-2 text-text-3 hover:text-green transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </button>
-            <button v-if="profile.status === 'suspended'" @click="toggleSuspend(profile)" class="p-2 text-text-3 hover:text-green transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </button>
-            <button v-else-if="profile.status !== 'pending' && profile.role !== 'admin'" @click="toggleSuspend(profile)" class="p-2 text-text-3 hover:text-red transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" /></svg>
-            </button>
-            <button v-if="profile.role !== 'admin'" @click="deleteUser(profile)" class="p-2 text-text-3 hover:text-red-600 transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-            </button>
+             <button v-if="profile.status === 'pending'" @click="verifyAccount(profile)" class="p-2 text-text-3 hover:text-green transition-colors">
+               <Icon name="solar:check-circle-broken" class="w-5 h-5" />
+             </button>
+             <button v-if="profile.status === 'suspended'" @click="toggleSuspend(profile)" class="p-2 text-text-3 hover:text-green transition-colors">
+               <Icon name="solar:check-circle-broken" class="w-5 h-5" />
+             </button>
+             <button v-else-if="profile.status !== 'pending' && profile.role !== 'admin'" @click="toggleSuspend(profile)" class="p-2 text-text-3 hover:text-red transition-colors">
+               <Icon name="solar:close-circle-broken" class="w-5 h-5" />
+             </button>
+             <button v-if="profile.role !== 'admin'" @click="deleteUser(profile)" class="p-2 text-text-3 hover:text-red-600 transition-colors">
+               <Icon name="solar:trash-bin-minimalistic-broken" class="w-5 h-5" />
+             </button>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-border/50">
@@ -187,14 +187,14 @@
                 </div>
               </button>
               <button v-else-if="profile.status !== 'pending' && profile.role !== 'admin'" @click="toggleSuspend(profile)" class="group/suspend p-2 hover:bg-white rounded-xl text-text-3 hover:text-red transition-all shadow-sm hover:ring-1 ring-border relative">
-                <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                 <Icon name="solar:close-circle-broken" class="w-[18px] h-[18px]" />
                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-black text-white text-xs font-medium rounded-md opacity-0 invisible group-hover/suspend:opacity-100 group-hover/suspend:visible transition-all whitespace-nowrap z-50 pointer-events-none">
                   Suspend
                   <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-black"></div>
                 </div>
               </button>
-              <button v-if="profile.role !== 'admin'" @click="deleteUser(profile)" class="group/delete p-2 hover:bg-white rounded-xl text-text-3 hover:text-red-600 transition-all shadow-sm hover:ring-1 ring-border relative">
-                <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+               <button v-if="profile.role !== 'admin'" @click="deleteUser(profile)" class="group/delete p-2 hover:bg-white rounded-xl text-text-3 hover:text-red-600 transition-all shadow-sm hover:ring-1 ring-border relative">
+                 <Icon name="solar:trash-bin-minimalistic-broken" class="w-[18px] h-[18px]" />
                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-black text-white text-xs font-medium rounded-md opacity-0 invisible group-hover/delete:opacity-100 group-hover/delete:visible transition-all whitespace-nowrap z-50 pointer-events-none">
                   Delete User
                   <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-black"></div>
@@ -217,7 +217,7 @@
             Manage Automation
           </button>
         </div>
-        <svg class="absolute -right-6 -bottom-6 w-[180px] h-[180px] text-white/5 rotate-12 group-hover:rotate-0 transition-transform duration-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+         <Icon name="solar:shield-broken" class="absolute -right-6 -bottom-6 w-[180px] h-[180px] text-white/5 rotate-12 group-hover:rotate-0 transition-transform duration-700" />
       </div>
 
       <div class="bg-white border border-border rounded-3xl p-8 flex flex-col justify-between shadow-sm">
@@ -227,10 +227,10 @@
         </div>
         <div class="flex gap-6 pt-6 mt-6 border-t border-border/50">
           <a href="#" class="font-black text-xs uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all text-accent">
-            View Guidelines <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+             View Guidelines <Icon name="solar:arrow-right-broken" class="w-4 h-4" />
           </a>
           <a href="#" class="font-black text-xs uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all text-accent">
-            Contact Support <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+             Contact Support <Icon name="solar:arrow-right-broken" class="w-4 h-4" />
           </a>
         </div>
       </div>

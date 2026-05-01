@@ -7,28 +7,14 @@
       @click="isOpen = !isOpen"
       aria-label="Open support chat"
     >
-      <svg
+      <Icon
         v-if="!isOpen"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-        <path
-          d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"
-        ></path>
-      </svg>
-      <svg
+        name="solar:chat-round-dots-broken"
+      />
+      <Icon
         v-else
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
+        name="solar:close-circle-broken"
+      />
     </button>
 
     <!-- Chat Window -->
@@ -68,15 +54,7 @@
             @keyup.enter="sendMessage"
           />
           <button class="send-btn" @click="sendMessage">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <line x1="22" y1="2" x2="11" y2="13"></line>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
+            <Icon name="solar:send-square-broken" />
           </button>
         </div>
       </div>

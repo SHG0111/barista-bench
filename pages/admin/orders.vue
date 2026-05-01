@@ -19,9 +19,7 @@
     <!-- Header Actions -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="relative flex-1 max-w-md group">
-        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-        </svg>
+        <Icon name="solar:magnifer-broken" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand transition-colors" />
         <input type="text" v-model="searchQuery" placeholder="Search orders..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-brand/10 focus:border-brand transition-all" />
       </div>
       
@@ -62,11 +60,7 @@
               <td colspan="6" class="px-6 py-16 text-center">
                 <div class="flex flex-col items-center gap-3">
                   <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4Z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 6h18" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 10a4 4 0 01-8 0" />
-                    </svg>
+                    <Icon name="solar:cart-broken" class="w-8 h-8 text-slate-300" />
                   </div>
                   <p class="text-sm font-semibold text-slate-900">No orders found</p>
                   <p class="text-xs text-slate-500 max-w-xs">
@@ -93,7 +87,7 @@
               </td>
               <td class="px-6 py-4 text-right">
                 <NuxtLink :to="`/order/${order.id}`" class="p-2 text-slate-400 hover:text-brand hover:bg-brand/5 rounded-lg transition-all inline-flex" title="View Details">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  <Icon name="solar:eye-broken" class="w-4 h-4" />
                 </NuxtLink>
               </td>
             </tr>

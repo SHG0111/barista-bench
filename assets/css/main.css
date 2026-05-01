@@ -596,3 +596,9 @@ h6 {
   text-transform: uppercase;
   color: var(--text-3);
 }
+
+/* ── Global Icon Size ── */
+.iconify {
+  width: 1.5em !important;
+  height: 1.5em !important;
+}

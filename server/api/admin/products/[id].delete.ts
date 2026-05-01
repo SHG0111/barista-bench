@@ -15,6 +15,27 @@ export default defineEventHandler(async (event) => {
     }
   })
 
+  const { data: product } = await supabaseAdmin
+    .from('products_with_category')
+    .select('images, category_slug')
+    .eq('id', id)
+    .single()
+
+  if (product?.images?.length) {
+    const paths = product.images.map(url => {
+      const prefix = '/storage/v1/object/public/products/'
+      const idx = url.indexOf(prefix)
+      return idx !== -1 ? url.substring(idx + prefix.length) : null
+    }).filter(Boolean)
+
+    if (paths.length > 0) {
+      await supabaseAdmin.storage.from('products').remove(paths)
+    }
+  }
+
+  const categoryFolder = product?.category_slug || 'uncategorized'
+  await supabaseAdmin.storage.from('products').remove([`${categoryFolder}/${id}`])
+
   const { error } = await supabaseAdmin.from('products').delete().eq('id', id)
 
   if (error) {

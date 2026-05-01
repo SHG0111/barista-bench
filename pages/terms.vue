@@ -21,14 +21,10 @@
         <!-- Section 1: Agreement -->
         <div class="detail-card card-guarantee">
           <div class="guarantee-bg-icon">
-             <svg viewBox="0 0 24 24" fill="none" class="bg-icon-svg" stroke="currentColor" stroke-width="0.5">
-               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-             </svg>
+            <Icon name="solar:shield-broken" class="bg-icon-svg" />
           </div>
           <div class="badge-wrap">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent-gold)">
-              <path d="M22 12A10 10 0 1 1 12 2a10 10 0 0 1 10 10zM12 4a8 8 0 1 0 8 8 8 8 0 0 0-8-8zm-2 11.5l-3.5-3.5 1.4-1.4 2.1 2.1 5.3-5.3 1.4 1.4z" />
-            </svg>
+            <Icon name="solar:check-circle-broken" width="24" height="24" />
           </div>
           <h2>Acceptance of Terms</h2>
           <p>
@@ -112,10 +108,7 @@
             </div>
             <div class="pw-item">
               <div class="pw-pkg-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
+                <Icon name="solar:lock-broken" width="18" height="18" />
               </div>
               <div>
                 <div class="pw-title">Secure Commerce</div>

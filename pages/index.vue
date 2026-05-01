@@ -170,12 +170,12 @@
           <div class="flex justify-between items-end mb-10">
             <h2 class="text-2xl lg:text-[32px] font-display font-medium text-text">Consumer Voices</h2>
             <div class="flex gap-3">
-              <button @click="scrollReviews('left')" class="w-11 h-11 rounded-full border border-border bg-surface text-text flex items-center justify-center hover:bg-text hover:text-white hover:border-text transition-all duration-200">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              </button>
-              <button @click="scrollReviews('right')" class="w-11 h-11 rounded-full border border-border bg-surface text-text flex items-center justify-center hover:bg-text hover:text-white hover:border-text transition-all duration-200">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </button>
+                <button @click="scrollReviews('left')" class="w-11 h-11 rounded-full border border-border bg-surface text-text flex items-center justify-center hover:bg-text hover:text-white hover:border-text transition-all duration-200">
+                  <Icon name="solar:arrow-left-broken" width="20" height="20" />
+                </button>
+                <button @click="scrollReviews('right')" class="w-11 h-11 rounded-full border border-border bg-surface text-text flex items-center justify-center hover:bg-text hover:text-white hover:border-text transition-all duration-200">
+                  <Icon name="solar:arrow-right-broken" width="20" height="20" />
+                </button>
             </div>
           </div>
           <div ref="reviewsList" class="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-5 -mb-5">
@@ -209,9 +209,9 @@
             Can’t find the answer you’re looking for? Reach out to our sommelier team for personalized assistance.
           </p>
           <NuxtLink to="/contact" class="group flex items-center gap-4 text-[11px] font-bold tracking-[0.15em] text-white no-underline">
-            <div class="w-[52px] h-11 bg-[#e2b382] rounded-lg flex items-center justify-center text-[#121211] transition-all duration-200 group-hover:bg-[#f1bf8b] group-hover:-translate-y-0.5">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            </div>
+              <div class="w-[52px] h-11 bg-[#e2b382] rounded-lg flex items-center justify-center text-[#121211] transition-all duration-200 group-hover:bg-[#f1bf8b] group-hover:-translate-y-0.5">
+                <Icon name="solar:letter-broken" width="20" height="20" />
+              </div>
             <span>CONTACT SUPPORT</span>
           </NuxtLink>
         </div>
@@ -224,9 +224,11 @@
           >
             <div class="flex justify-between items-center">
               <span class="text-lg font-normal text-[#f7f5f2]">{{ faq.q }}</span>
-              <span class="text-accent transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" :class="{ 'rotate-180': openFaq === i }">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-              </span>
+              <Icon
+                name="solar:alt-arrow-down-broken"
+                class="text-accent transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] w-5 h-5"
+                :class="{ 'rotate-180': openFaq === i }"
+              />
             </div>
             <Transition
               enter-active-class="transition-all duration-300 ease-out overflow-hidden"

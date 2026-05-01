@@ -338,18 +338,7 @@
                   </div>
 
                   <div v-show="paymentMethod === 'cod'" class="p-8 text-center bg-surface-2/50 rounded-lg">
-                    <svg
-                      viewBox="0 0 24 24"
-                      width="48"
-                      height="48"
-                      fill="currentColor"
-                      class="text-text/10 mb-4 mx-auto"
-                    >
-                      <path
-                        d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"
-                      ></path>
-                      <path d="M11 11h2v6h-2zm0-4h2v2h-2z"></path>
-                    </svg>
+                  <Icon name="solar:info-circle-broken" width="48" height="48" class="text-text/10 mb-4 mx-auto" />
                     <p class="text-text-2 text-sm max-w-sm mx-auto">
                       You will pay for your order in physical cash directly to
                       the delivery agent upon receiving your items.
@@ -392,17 +381,7 @@
               <div v-for="item in items" :key="item.id" class="flex items-center gap-4">
                 <div class="relative w-16 h-16 bg-white rounded-lg shrink-0 flex items-center justify-center">
                   <div class="absolute -top-2 -right-2 bg-text-2/90 text-white w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold z-[2]">{{ item.quantity }}</div>
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1"
-                    class="w-6 h-6 opacity-20 text-text"
-                  >
-                    <path
-                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-                    ></path>
-                  </svg>
+                  <Icon name="solar:cart-broken" class="w-6 h-6 opacity-20 text-text" />
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-semibold text-text truncate">{{ item.products.name }}</div>

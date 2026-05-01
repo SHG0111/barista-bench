@@ -1,9 +1,9 @@
 <template>
-  <div class="bg-white border border-border rounded-3xl shadow-sm overflow-hidden">
-    <!-- Table Controls -->
-    <div v-if="$slots.controls" class="px-4 sm:px-8 py-4 sm:py-6 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <slot name="controls" />
-    </div>
+  <!-- Table Controls -->
+  <div v-if="$slots.controls" class="    flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <slot name="controls" />
+  </div>
+  <div class="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
 
     <!-- Mobile Cards -->
     <div v-if="paginatedItems.length > 0" class="md:hidden divide-y divide-border/50">
@@ -16,8 +16,8 @@
     <div class="hidden md:block">
       <table class="w-full text-left">
         <thead v-if="headers">
-          <tr class="bg-surface-2/50">
-            <th v-for="header in headers" :key="header.key" class="px-8 py-4 text-[11px] font-extrabold text-text-3 uppercase tracking-widest whitespace-nowrap" :class="{ 'text-right': header.align === 'right' }">
+          <tr class="bg-slate-50/50">
+            <th v-for="header in headers" :key="header.key" class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap" :class="{ 'text-right': header.align === 'right' }">
               {{ header.label }}
             </th>
           </tr>
@@ -43,14 +43,14 @@
     </div>
 
     <!-- Pagination -->
-    <div v-if="pagination" class="px-4 sm:px-8 py-4 sm:py-5 bg-surface-2/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div v-if="pagination" class="px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex gap-2">
         <button @click="currentPage > 1 && currentPage--" :disabled="currentPage === 1" class="p-2 border border-border rounded-xl bg-white text-text-3 disabled:opacity-30 transition-all hover:bg-surface-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+          <Icon name="solar:arrow-left-broken" class="w-5 h-5" />
         </button>
         <button v-for="page in visiblePages" :key="page" @click="goToPage(page)" :class="['w-10 h-10 rounded-xl text-sm font-bold transition-all', currentPage === page ? 'bg-accent text-white shadow-md shadow-accent/20' : 'bg-white border border-border text-text-2 hover:bg-surface-2']">{{ page }}</button>
         <button @click="currentPage < totalPages && currentPage++" :disabled="currentPage === totalPages" class="p-2 border border-border rounded-xl bg-white text-text-3 disabled:opacity-30 transition-all hover:bg-surface-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+          <Icon name="solar:arrow-right-broken" class="w-5 h-5" />
         </button>
       </div>
       <div class="flex items-center gap-4">

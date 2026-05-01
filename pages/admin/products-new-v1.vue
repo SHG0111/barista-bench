@@ -61,9 +61,7 @@
         >
           <template v-if="!imagePreview">
             <div class="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center text-amber-800">
-              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <Icon name="solar:upload-broken" class="w-10 h-10" />
             </div>
             <div>
               <p class="font-semibold text-slate-900">Upload high-res photos</p>
@@ -83,9 +81,7 @@
       <!-- Technical Specifications Card -->
       <div class="col-span-12 bg-white rounded-xl p-6 shadow-sm">
         <div class="flex items-center gap-2 mb-6">
-          <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.83-1.372 2.008-2.142 3.348-2.142 1.342 0 2.52.77 3.348 2.142M10.915 4.317c.83 1.372 2.008 2.142 3.348 2.142 1.342 0 2.52-.77 3.348-2.142M7.464 12.857c.83-1.372 2.008-2.142 3.348-2.142 1.342 0 2.52.77 3.348 2.142M7.464 12.857c.83 1.372 2.008 2.142 3.348 2.142 1.342 0 2.52-.77 3.348-2.142M12 21.428c1.342 0 2.52-.77 3.348-2.142M12 21.428c-1.342 0-2.52.77-3.348 2.142" />
-          </svg>
+          <Icon name="solar:settings-broken" class="w-5 h-5 text-amber-700" />
           <h3 class="text-xl font-semibold text-slate-900">Technical Specifications</h3>
         </div>
         <div class="grid grid-cols-4 gap-6">
@@ -150,14 +146,9 @@
           <div class="space-y-4">
             <label class="text-xs font-bold text-stone-500 uppercase tracking-wider">Warehouse Location</label>
             <div class="flex items-center gap-3 p-3 bg-stone-100 rounded-lg">
-              <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+              <Icon name="solar:map-point-broken" class="w-5 h-5 text-stone-400" />
               <span class="text-sm font-medium">Main Distribution Center - Portland</span>
-              <svg class="w-5 h-5 text-stone-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
+              <Icon name="solar:alt-arrow-down-broken" class="w-5 h-5 text-stone-400 ml-auto" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-8">
