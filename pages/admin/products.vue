@@ -125,9 +125,10 @@
              <span class="text-sm font-bold text-slate-900">${{ item.price }}</span>
            </div>
            <div class="flex items-center gap-3" v-else>
-             <select v-model="editForm.category_slug" class="px-2 py-1 text-xs border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20">
-               <option v-for="cat in categories.filter(c => c.value !== 'all')" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
-             </select>
+              <select v-model="editForm.category_slug" class="px-2 py-1 text-xs border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20">
+                <option value="" disabled>Select a category</option>
+                <option v-for="cat in categories.filter(c => c.value !== 'all')" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
+              </select>
              <input v-model="editForm.price" type="number" step="0.01" class="w-24 px-2 py-1 text-sm border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20" placeholder="0.00" />
            </div>
           <div class="flex items-center justify-between">
@@ -341,11 +342,12 @@
           <td class="px-8 py-5" v-if="editingProductId !== product.id">
             <span class="text-xs font-bold px-2 py-1 rounded-md" :style="getCategoryBadgeStyle(product.category_slug)">{{ product.category_name }}</span>
           </td>
-          <td class="px-8 py-5" v-else>
-            <select v-model="editForm.category_slug" class="w-full px-2 py-1 text-xs border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20">
-              <option v-for="cat in categories.filter(c => c.value !== 'all')" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
-            </select>
-          </td>
+            <td class="px-8 py-5" v-else>
+              <select v-model="editForm.category_slug" class="w-full px-2 py-1 text-xs border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20">
+                <option value="" disabled>Select a category</option>
+                <option v-for="cat in categories.filter(c => c.value !== 'all')" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
+              </select>
+            </td>
           <td class="px-8 py-5 text-sm font-bold text-slate-900" v-if="editingProductId !== product.id">${{ product.price }}</td>
           <td class="px-8 py-5" v-else>
             <input v-model="editForm.price" type="number" step="0.01" class="w-full px-2 py-1 text-sm border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20" placeholder="0.00" />
@@ -454,6 +456,9 @@
 </template>
 
 <script setup>
+import { onClickOutside } from '@vueuse/core'
+import { nextTick } from 'vue'
+
 definePageMeta({
   layout: 'admin',
   middleware: 'admin'
@@ -716,9 +721,11 @@ const categories = ref([
 const showMoreCats = ref(false)
 const moreCatsDropdown = ref(null)
 
-onClickOutside(moreCatsDropdown, () => {
-  showMoreCats.value = false
-})
+if (process.client) {
+  onClickOutside(moreCatsDropdown, () => {
+    showMoreCats.value = false
+  })
+}
 
 const { data: cats } = await useAsyncData('admin-categories', async () => {
   const { data } = await client.from('categories').select('slug, name, id')
@@ -754,8 +761,17 @@ const getCategoryBadgeStyle = (slug) => {
 }
 
 const { data: products, refresh, pending } = await useAsyncData('admin-products-list', async () => {
-  const { data } = await client.from('products_with_category').select('*').order('created_at', { ascending: false })
-  return data
+  try {
+    const { data, error } = await client.from('products_with_category').select('*').order('created_at', { ascending: false })
+    if (error) {
+      console.error('Supabase fetch error:', error)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('Products fetch failed:', err)
+    return []
+  }
 })
 
 const allProducts = ref([])
@@ -810,13 +826,33 @@ const stats = computed(() => {
 })
 
 const startEdit = (product) => {
-  editingProductId.value = product.id
-  editForm.value = {
-    name: product.name,
-    price: product.price?.toString() || '0',
-    category_slug: product.category_slug || ''
+  editingProductId.value = product.id;
+
+  // Ensure product's current category exists in categories list
+  const slug = product.category_slug || ''
+  if (slug && !categories.value.some(c => c.value === slug)) {
+    categories.value.push({ value: slug, label: product.category_name || slug, id: product.category_id || '' })
   }
+
+  // Set form values directly (update properties, don't replace object)
+  editForm.value.name = product.name
+  editForm.value.price = product.price?.toString() || '0'
+  editForm.value.category_slug = slug
+  // Set form values after nextTick so the select options are ready
+  nextTick(() => {
+    editForm.value = {
+      name: product.name,
+      price: product.price?.toString() || '0',
+      category_slug: slug
+    }
+    console.log('After nextTick, editForm.category_slug:', editForm.value.category_slug)
+
+  })
 }
+
+
+
+
 
 const cancelEdit = () => {
   editingProductId.value = null
@@ -830,13 +866,18 @@ const saveEdit = async (product) => {
     if (editForm.value.name !== product.name) updates.name = editForm.value.name
     if (parseFloat(editForm.value.price) !== product.price) updates.price = parseFloat(editForm.value.price)
 
-    if (editForm.value.category_slug !== product.category_slug) {
-      const { data: cat } = await client
-        .from('categories')
-        .select('id')
-        .eq('slug', editForm.value.category_slug)
-        .single()
-      if (cat) updates.category_id = cat.id
+    const newSlug = editForm.value.category_slug
+    if (newSlug !== (product.category_slug || '')) {
+      if (!newSlug) {
+        updates.category_id = null
+      } else {
+        const { data: cat } = await client
+          .from('categories')
+          .select('id')
+          .eq('slug', newSlug)
+          .single()
+        if (cat) updates.category_id = cat.id
+      }
     }
 
     if (Object.keys(updates).length > 0) {
