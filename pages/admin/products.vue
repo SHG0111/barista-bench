@@ -112,15 +112,24 @@
                 </template>
               </div>
             </div>
-            <div class="min-w-0 flex-1">
-              <p class="text-sm font-bold text-slate-900 truncate">{{ item.name }}</p>
-              <p class="text-[10px] font-mono text-slate-500 uppercase">{{ item.sku || 'NO-SKU' }}</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-xs font-bold px-2 py-1 rounded-md" :style="getCategoryBadgeStyle(item.category_slug)">{{ item.category_name }}</span>
-            <span class="text-sm font-bold text-slate-900">${{ item.price }}</span>
-          </div>
+             <div class="min-w-0 flex-1" v-if="editingProductId !== item.id">
+               <p class="text-sm font-bold text-slate-900 truncate">{{ item.name }}</p>
+               <p class="text-[10px] font-mono text-slate-500 uppercase">{{ item.sku || 'NO-SKU' }}</p>
+             </div>
+             <div class="min-w-0 flex-1 space-y-2" v-else>
+               <input v-model="editForm.name" class="w-full px-2 py-1 text-sm border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20" placeholder="Product name" />
+             </div>
+           </div>
+           <div class="flex items-center gap-3" v-if="editingProductId !== item.id">
+             <span class="text-xs font-bold px-2 py-1 rounded-md" :style="getCategoryBadgeStyle(item.category_slug)">{{ item.category_name }}</span>
+             <span class="text-sm font-bold text-slate-900">${{ item.price }}</span>
+           </div>
+           <div class="flex items-center gap-3" v-else>
+             <select v-model="editForm.category_slug" class="px-2 py-1 text-xs border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20">
+               <option v-for="cat in categories.filter(c => c.value !== 'all')" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
+             </select>
+             <input v-model="editForm.price" type="number" step="0.01" class="w-24 px-2 py-1 text-sm border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20" placeholder="0.00" />
+           </div>
           <div class="flex items-center justify-between">
             <div class="flex flex-col gap-1.5 w-24">
               <div class="flex items-center justify-between text-[10px] font-bold">
@@ -134,20 +143,28 @@
               {{ item.in_stock ? 'In Stock' : 'Out' }}
             </span>
           </div>
-          <div class="flex gap-2 pt-2 border-t border-slate-100">
-            <button @click="toggleImageUpload(item.id)" class="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-slate-600 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-              <Icon name="solar:gallery-broken" class="w-3.5 h-3.5" />
-              Images
-            </button>
-            <button class="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-brand bg-brand/5 rounded-lg hover:bg-brand/10 transition-colors">
-              <Icon name="solar:pen-broken" class="w-3.5 h-3.5" />
-              Edit
-            </button>
-            <button @click="confirmDelete(item)" class="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
-              <Icon name="solar:trash-bin-minimalistic-broken" class="w-3.5 h-3.5" />
-              Delete
-            </button>
-          </div>
+           <div class="flex gap-2 pt-2 border-t border-slate-100" v-if="editingProductId !== item.id">
+             <button @click="toggleImageUpload(item.id)" class="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-slate-600 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+               <Icon name="solar:gallery-broken" class="w-3.5 h-3.5" />
+               Images
+             </button>
+             <button @click="startEdit(item)" class="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-brand bg-brand/5 rounded-lg hover:bg-brand/10 transition-colors">
+               <Icon name="solar:pen-broken" class="w-3.5 h-3.5" />
+               Edit
+             </button>
+             <button @click="confirmDelete(item)" class="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+               <Icon name="solar:trash-bin-minimalistic-broken" class="w-3.5 h-3.5" />
+               Delete
+             </button>
+           </div>
+           <div class="flex gap-2 pt-2 border-t border-slate-100" v-else>
+             <button @click="saveEdit(item)" :disabled="saving" class="flex-1 px-3 py-2 text-xs font-bold text-white bg-brand rounded-lg hover:bg-brand/90 transition-all disabled:opacity-50">
+               {{ saving ? 'Saving...' : 'Save' }}
+             </button>
+             <button @click="cancelEdit" class="flex-1 px-3 py-2 text-xs font-bold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-all">
+               Cancel
+             </button>
+           </div>
 
           <!-- Inline Image Upload Area (Mobile) -->
           <div v-if="expandedProduct === item.id" class="mt-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
@@ -191,7 +208,7 @@
       <template #default="{ items }">
         <tr v-for="product in items" :key="product.id" class="hover:bg-slate-50/50 transition-colors group">
           <td class="px-8 py-5">
-            <div class="flex items-start gap-4">
+            <div class="flex items-center gap-4 ">
               <div class="relative flex-shrink-0 group/thumb">
                 <div class="w-12 h-12 rounded-lg bg-slate-100 overflow-hidden border border-slate-200 cursor-pointer relative" @click="toggleImageUpload(product.id)">
                   <div v-if="coverImages[product.id] || product.images?.[0]" class="relative w-full h-full">
@@ -225,10 +242,13 @@
                   <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-900 text-white text-[10px] font-semibold rounded whitespace-nowrap opacity-0 invisible group-hover/thumb:opacity-100 group-hover/thumb:visible transition-all pointer-events-none after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-[4px] after:border-t-slate-900 after:border-x-transparent after:border-b-transparent">Manage Images</span>
                 </button>
               </div>
-              <div class="min-w-0 flex-1">
+              <div class="min-w-0 flex-1" v-if="editingProductId !== product.id">
                 <p class="text-sm font-bold text-slate-900 truncate">{{ product.name }}</p>
                 <p class="text-[10px] font-mono text-slate-500 uppercase tracking-tight">{{ product.sku || 'NO-SKU' }}</p>
                 <div v-if="product.images?.length > 1" class="text-[10px] text-slate-400 mt-0.5">{{ product.images.length }}/4 images</div>
+              </div>
+              <div class="min-w-0 flex-1 space-y-2" v-else>
+                <input v-model="editForm.name" class="w-full px-2 py-1 text-sm border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20" placeholder="Product name" />
               </div>
             </div>
 
@@ -318,10 +338,18 @@
               </div>
             </div>
           </td>
-          <td class="px-8 py-5">
+          <td class="px-8 py-5" v-if="editingProductId !== product.id">
             <span class="text-xs font-bold px-2 py-1 rounded-md" :style="getCategoryBadgeStyle(product.category_slug)">{{ product.category_name }}</span>
           </td>
-          <td class="px-8 py-5 text-sm font-bold text-slate-900">${{ product.price }}</td>
+          <td class="px-8 py-5" v-else>
+            <select v-model="editForm.category_slug" class="w-full px-2 py-1 text-xs border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20">
+              <option v-for="cat in categories.filter(c => c.value !== 'all')" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
+            </select>
+          </td>
+          <td class="px-8 py-5 text-sm font-bold text-slate-900" v-if="editingProductId !== product.id">${{ product.price }}</td>
+          <td class="px-8 py-5" v-else>
+            <input v-model="editForm.price" type="number" step="0.01" class="w-full px-2 py-1 text-sm border border-brand rounded-md focus:outline-none focus:ring-2 focus:ring-brand/20" placeholder="0.00" />
+          </td>
           <td class="px-8 py-5">
             <div class="flex flex-col gap-1.5 w-24">
               <div class="flex items-center justify-between text-[10px] font-bold">
@@ -338,14 +366,22 @@
             </span>
           </td>
           <td class="px-8 py-5 text-right">
-            <div class="flex justify-end gap-2">
-              <button class="p-2 text-slate-400 hover:text-brand hover:bg-brand/5 rounded-lg transition-all relative group/edit">
+            <div class="flex justify-end gap-2" v-if="editingProductId !== product.id">
+              <button @click="startEdit(product)" class="p-2 text-slate-400 hover:text-brand hover:bg-brand/5 rounded-lg transition-all relative group/edit">
                 <Icon name="solar:pen-broken" class="w-4 h-4" />
                 <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-[#001B22] text-white text-[10px] font-semibold rounded whitespace-nowrap opacity-0 invisible group-hover/edit:opacity-100 group-hover/edit:visible transition-all pointer-events-none after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-t-[#001B22] after:border-x-transparent after:border-b-transparent">Edit</span>
               </button>
               <button @click="confirmDelete(product)" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50/50 rounded-lg transition-all relative group/del">
                 <Icon name="solar:trash-bin-minimalistic-broken" class="w-4 h-4" />
                 <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-[#001B22] text-white text-[10px] font-semibold rounded whitespace-nowrap opacity-0 invisible group-hover/del:opacity-100 group-hover/del:visible transition-all pointer-events-none after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-t-[#001B22] after:border-x-transparent after:border-b-transparent">Delete</span>
+              </button>
+            </div>
+            <div class="flex justify-end gap-2" v-else>
+              <button @click="saveEdit(product)" :disabled="saving" class="px-3 py-1.5 text-xs font-bold text-white bg-brand rounded-lg hover:bg-brand/90 transition-all disabled:opacity-50">
+                {{ saving ? 'Saving...' : 'Save' }}
+              </button>
+              <button @click="cancelEdit" class="px-3 py-1.5 text-xs font-bold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-all">
+                Cancel
               </button>
             </div>
           </td>
@@ -443,6 +479,9 @@ const uploadProgress = ref({})
 const coverImages = ref({})
 const imageLoading = ref({})
 const thumbLoading = ref({})
+const editingProductId = ref(null)
+const editForm = ref({ name: '', price: '', category_slug: '' })
+const saving = ref(false)
 
 const tableHeaders = [
   { key: 'product', label: 'Product' },
@@ -670,15 +709,9 @@ const deleteProduct = async () => {
   }
 }
 
-const categories = [
+const categories = ref([
   { value: 'all', label: 'All' },
-  { value: 'manual-grinders', label: 'Grinders' },
-  { value: 'portafilters', label: 'Portafilters' },
-  { value: 'tampers', label: 'Tampers' },
-  { value: 'accessories', label: 'Accessories' },
-  { value: 'distributors', label: 'Distributors' },
-  { value: 'scales', label: 'Scales' },
-]
+])
 
 const showMoreCats = ref(false)
 const moreCatsDropdown = ref(null)
@@ -687,8 +720,19 @@ onClickOutside(moreCatsDropdown, () => {
   showMoreCats.value = false
 })
 
-const primaryCategories = computed(() => categories.filter(c => ['all', 'manual-grinders', 'portafilters'].includes(c.value)))
-const secondaryCategories = computed(() => categories.filter(c => !['all', 'manual-grinders', 'portafilters'].includes(c.value)))
+const { data: cats } = await useAsyncData('admin-categories', async () => {
+  const { data } = await client.from('categories').select('slug, name, id')
+  if (data) {
+    categories.value = [
+      { value: 'all', label: 'All' },
+      ...data.map(c => ({ value: c.slug, label: c.name, id: c.id }))
+    ]
+  }
+  return data
+})
+
+const primaryCategories = computed(() => categories.value.filter(c => ['all', 'manual-grinders', 'portafilters'].includes(c.value)))
+const secondaryCategories = computed(() => categories.value.filter(c => !['all', 'manual-grinders', 'portafilters'].includes(c.value)))
 const hasMoreActive = computed(() => secondaryCategories.value.some(c => c.value === filterCategory.value))
 
 const categoryColors = {
@@ -756,7 +800,7 @@ const stats = computed(() => {
   const lowStock = productData.filter(p => p.stock_count < 10).length
   const outOfStock = productData.filter(p => p.stock_count === 0).length
   const totalValue = productData.reduce((sum, p) => sum + (parseFloat(p.price) * p.stock_count), 0)
-  
+
   return [
     { label: 'Total Products', value: totalProducts, sublabel: 'In catalog' },
     { label: 'Total Value', value: `$${totalValue.toLocaleString()}`, sublabel: 'Inventory value' },
@@ -764,6 +808,54 @@ const stats = computed(() => {
     { label: 'Out of Stock', value: outOfStock, sublabel: 'Unavailable' }
   ]
 })
+
+const startEdit = (product) => {
+  editingProductId.value = product.id
+  editForm.value = {
+    name: product.name,
+    price: product.price?.toString() || '0',
+    category_slug: product.category_slug || ''
+  }
+}
+
+const cancelEdit = () => {
+  editingProductId.value = null
+  editForm.value = { name: '', price: '', category_slug: '' }
+}
+
+const saveEdit = async (product) => {
+  saving.value = true
+  try {
+    const updates = {}
+    if (editForm.value.name !== product.name) updates.name = editForm.value.name
+    if (parseFloat(editForm.value.price) !== product.price) updates.price = parseFloat(editForm.value.price)
+
+    if (editForm.value.category_slug !== product.category_slug) {
+      const { data: cat } = await client
+        .from('categories')
+        .select('id')
+        .eq('slug', editForm.value.category_slug)
+        .single()
+      if (cat) updates.category_id = cat.id
+    }
+
+    if (Object.keys(updates).length > 0) {
+      const { error } = await client
+        .from('products')
+        .update(updates)
+        .eq('id', product.id)
+
+      if (error) throw error
+
+      await refresh()
+    }
+    editingProductId.value = null
+  } catch (err) {
+    console.error('Save error:', err)
+  } finally {
+    saving.value = false
+  }
+}
 
 const getStockColor = (count) => {
   if (count > 50) return '#10b981'
