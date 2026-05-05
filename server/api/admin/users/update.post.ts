@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Missing id or status' })
   }
 
-  const supabaseAdmin = createClient(config.public.supabaseUrl, config.supabaseServiceKey, {
+  const supabaseAdmin = createClient(config.public.supabaseUrl, config.supabaseSecretKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false

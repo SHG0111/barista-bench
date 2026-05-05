@@ -62,7 +62,16 @@
             </div>
             <div class="order-items-list">
               <div v-for="item in order.order_items" :key="item.id" class="oi-row">
-                <div class="oi-img"></div>
+                <div class="oi-img">
+                  <NuxtImg
+                    v-if="item.product_image"
+                    :src="item.product_image"
+                    :alt="item.product_name"
+                    class="w-full h-full object-cover rounded"
+                    format="webp"
+                    loading="lazy"
+                  />
+                </div>
                 <div class="oi-info">
                   <div class="oi-name">{{ item.product_name }}</div>
                   <div class="oi-variant" v-if="item.variant_info?.color">{{ item.variant_info.color }}</div>
@@ -175,14 +184,26 @@ async function lookupOrder() {
 
   const { data, error } = await supabase
     .from('orders')
-    .select('*, order_items(*)')
+    .select(`
+      *,
+      order_items(
+        *,
+        products(image)
+      )
+    `)
     .eq('order_number', lookupNum.value.trim().toUpperCase())
     .single()
 
   if (error || !data) {
     lookupError.value = 'Order not found. Please check the order number.'
   } else {
-    order.value = data
+    order.value = {
+      ...data,
+      order_items: (data.order_items || []).map((item: any) => ({
+        ...item,
+        product_image: item.products?.image || null
+      }))
+    }
   }
   loading.value = false
 }

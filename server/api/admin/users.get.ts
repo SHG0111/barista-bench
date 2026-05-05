@@ -5,9 +5,9 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   
   const supabaseUrl = config.public.supabaseUrl
-  const supabaseServiceKey = config.supabaseServiceKey
+  const supabaseSecretKey = config.supabaseSecretKey
 
-  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  const supabaseAdmin = createClient(supabaseUrl, supabaseSecretKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
   const supabaseClient = createServerClient(
     supabaseUrl,
-    config.supabaseServiceKey,
+    config.supabaseSecretKey,
     { cookies: { get: () => {} } }
   )
 
@@ -34,9 +34,15 @@ export default defineEventHandler(async (event) => {
 
   const usersWithEmail = profiles.map(profile => {
     const authUser = users.find(u => u.id === profile.id)
+    const avatarUrl = profile.avatar_url 
+      || authUser?.user_metadata?.avatar_url 
+      || authUser?.user_metadata?.picture 
+      || authUser?.user_metadata?.avatar 
+      || null
     return {
       ...profile,
-      email: authUser?.email || profile.email || 'No email'
+      email: authUser?.email || profile.email || 'No email',
+      avatar_url: avatarUrl
     }
   })
 

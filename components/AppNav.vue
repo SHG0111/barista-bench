@@ -163,23 +163,12 @@
 
 <script setup lang="ts">
 import { watch, nextTick } from "vue";
-const { count: cartCount, fetchCart } = useCart();
+const user = useSupabaseUser()
+const { count: cartCount } = useCart();
 const router = useRouter();
 const searchOpen = ref(false);
 const searchQuery = ref("");
 const searchInput = ref<HTMLInputElement>();
-
-const user = useSupabaseUser();
-
-watch(
-  user,
-  (newUser) => {
-    if (newUser) {
-      fetchCart();
-    }
-  },
-  { immediate: true },
-);
 
 function toggleSearch() {
   searchOpen.value = !searchOpen.value;

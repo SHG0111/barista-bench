@@ -26,52 +26,54 @@
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-border group hover:border-accent-light transition-all">
-        <div class="flex justify-between items-start mb-4">
-          <div class="p-3 rounded-xl bg-accent-light group-hover:bg-accent/20 transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-accent-light group-hover:bg-accent/20 transition-colors">
             <Icon name="solar:user-broken" class="w-6 h-6 text-accent" />
           </div>
-          <div class="flex items-center gap-1 text-green text-xs font-bold bg-green-bg px-2 py-1 rounded-lg">
+          <div v-if="customerTrend !== null" class="flex items-center gap-1 text-green text-xs font-bold bg-green-bg px-2 py-1 rounded-lg">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-            12%
+            {{ customerTrend }}%
           </div>
         </div>
         <p class="text-text-3 text-xs font-bold uppercase tracking-widest mb-1">Total Customers</p>
         <h3 class="text-3xl font-black text-text">{{ stats.customers }}</h3>
       </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-border group hover:border-blue-100 transition-all">
-        <div class="flex justify-between items-start mb-4">
-             <div class="p-3 bg-blue-50 rounded-xl group-hover:bg-blue-100 transition-colors">
-            <Icon name="solar:bolt-broken" class="w-6 h-6 text-blue-600" />
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-border group hover:border-red-100 transition-all">
+        <div class="flex justify-between items-center mb-4">
+             <div class="flex justify-center  w-12 h-12 rounded-full items-center bg-red-bg group-hover:bg-red/10 transition-colors">
+            <Icon name="solar:close-circle-broken" class="w-6 h-6 text-red" />
           </div>
-          <div class="flex items-center gap-1 text-green text-xs font-bold bg-green-bg px-2 py-1 rounded-lg">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-            5%
+          <div v-if="stats.suspended > 0" class="flex items-center gap-1 text-red text-xs font-bold bg-red-bg px-2 py-1 rounded-lg">
+            {{ stats.suspendedPercent }}% of total
           </div>
         </div>
-        <p class="text-text-3 text-xs font-bold uppercase tracking-widest mb-1">Barista/Sellers</p>
-        <h3 class="text-3xl font-black text-text">{{ stats.baristas }}</h3>
+        <p class="text-text-3 text-xs font-bold uppercase tracking-widest mb-1">Suspended Users</p>
+        <h3 class="text-3xl font-black text-text">{{ stats.suspended }}</h3>
       </div>
 
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-border group hover:border-orange-100 transition-all">
-        <div class="flex justify-between items-start mb-4">
-          <div class="p-3 bg-orange-50 rounded-xl group-hover:bg-orange-100 transition-colors">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex justify-center w-12 h-12 rounded-full items-center bg-orange-50 group-hover:bg-orange-100 transition-colors">
              <Icon name="solar:shield-broken" class="w-6 h-6 text-orange-600" />
           </div>
-          <span class="bg-red-bg text-red px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter">Action Required</span>
+          <span v-if="stats.pending > 0" class="bg-red-bg text-red px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter">Action Required</span>
         </div>
         <p class="text-text-3 text-xs font-bold uppercase tracking-widest mb-1">Pending Verification</p>
         <h3 class="text-3xl font-black text-text">{{ stats.pending }}</h3>
       </div>
 
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-border group hover:border-accent-light transition-all">
-        <div class="flex justify-between items-start mb-4">
-          <div class="p-3 rounded-xl bg-accent-light group-hover:bg-accent/20 transition-colors">
-             <Icon name="solar:bolt-broken" class="w-6 h-6 text-accent" />
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex justify-center w-12 h-12 rounded-full items-center bg-green-bg group-hover:bg-green/20 transition-colors">
+             <Icon name="solar:check-circle-broken" class="w-6 h-6 text-green" />
+          </div>
+          <div v-if="stats.activePercent !== null" class="flex items-center gap-1 text-text-2 text-xs font-bold bg-surface-2 px-2 py-1 rounded-lg">
+            {{ stats.activePercent }}% of total
           </div>
         </div>
-        <p class="text-text-3 text-xs font-bold uppercase tracking-widest mb-1">Active Sessions</p>
-        <h3 class="text-3xl font-black text-text">{{ stats.activeSessions }}</h3>
+        <p class="text-text-3 text-xs font-bold uppercase tracking-widest mb-1">Active Users</p>
+        <h3 class="text-3xl font-black text-text">{{ stats.active }}</h3>
       </div>
     </div>
 
@@ -92,7 +94,10 @@
         <div class="flex items-start justify-between gap-4">
           <div class="flex items-start gap-3 flex-1 min-w-0">
             <div class="relative flex-shrink-0">
-              <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white" :style="{ backgroundColor: getRandomColor(profile.full_name) }">
+              <template v-if="profile.avatar_url">
+                <img :src="profile.avatar_url" :alt="profile.full_name || 'User'" class="w-12 h-12 rounded-2xl object-cover shadow-sm ring-2 ring-white" referrerpolicy="no-referrer" />
+              </template>
+              <div v-else class="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white" :style="{ backgroundColor: getRandomColor(profile.full_name) }">
                 {{ profile.full_name?.charAt(0) || 'U' }}
               </div>
               <div v-if="profile.status === 'active'" class="absolute -bottom-1 -right-1 w-4 h-4 bg-green border-2 border-white rounded-full"></div>
@@ -139,11 +144,14 @@
       </template>
 
       <template #default="{ items }">
-        <tr v-for="profile in $refs.table?.paginatedItems || items" :key="profile.id" class="hover:bg-accent-light/30 transition-colors group">
+        <tr v-for="profile in $refs.table?.paginatedItems || items" :key="profile.id" class="hover:bg-slate-50 transition-colors group">
           <td class="px-4 sm:px-8 py-4 sm:py-5">
             <div class="flex items-center gap-4">
               <div class="relative">
-                <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white" :style="{ backgroundColor: getRandomColor(profile.full_name) }">
+                <template v-if="profile.avatar_url">
+                  <img :src="profile.avatar_url" :alt="profile.full_name || 'User'" class="w-11 h-11 rounded-2xl object-cover shadow-sm ring-2 ring-white" referrerpolicy="no-referrer" />
+                </template>
+                <div v-else class="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white" :style="{ backgroundColor: getRandomColor(profile.full_name) }">
                   {{ profile.full_name?.charAt(0) || 'U' }}
                 </div>
                 <div v-if="profile.status === 'active'" class="absolute -bottom-1 -right-1 w-4 h-4 bg-green border-2 border-white rounded-full"></div>
@@ -186,14 +194,14 @@
                   <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-black"></div>
                 </div>
               </button>
-              <button v-else-if="profile.status !== 'pending' && profile.role !== 'admin'" @click="toggleSuspend(profile)" class="group/suspend p-2 hover:bg-white rounded-xl text-text-3 hover:text-red transition-all shadow-sm hover:ring-1 ring-border relative">
+              <button v-else-if="profile.status !== 'pending' && profile.role !== 'admin'" @click="toggleSuspend(profile)" class="group/suspend  hover:bg-white rounded-full w-8 h-8 flex items-center justify-center  text-text-3 hover:text-red transition-all shadow-sm hover:ring-1 ring-border relative">
                  <Icon name="solar:close-circle-broken" class="w-[18px] h-[18px]" />
                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-black text-white text-xs font-medium rounded-md opacity-0 invisible group-hover/suspend:opacity-100 group-hover/suspend:visible transition-all whitespace-nowrap z-50 pointer-events-none">
                   Suspend
                   <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-black"></div>
                 </div>
               </button>
-               <button v-if="profile.role !== 'admin'" @click="deleteUser(profile)" class="group/delete p-2 hover:bg-white rounded-xl text-text-3 hover:text-red-600 transition-all shadow-sm hover:ring-1 ring-border relative">
+               <button v-if="profile.role !== 'admin'" @click="deleteUser(profile)" class="group/delete p-2 hover:bg-white rounded-full w-8 h-8 flex items-center justify-center  text-text-3 hover:text-red-600 transition-all shadow-sm hover:ring-1 ring-border relative">
                  <Icon name="solar:trash-bin-minimalistic-broken" class="w-[18px] h-[18px]" />
                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-black text-white text-xs font-medium rounded-md opacity-0 invisible group-hover/delete:opacity-100 group-hover/delete:visible transition-all whitespace-nowrap z-50 pointer-events-none">
                   Delete User
@@ -269,12 +277,35 @@ const tableHeaders = [
   { key: 'actions', label: 'Actions', align: 'right', hiddenOn: ['sm'] }
 ]
 
-const stats = computed(() => ({
-  customers: users.value?.filter(u => u.user_type !== 'barista' && u.role !== 'admin').length || 0,
-  baristas: users.value?.filter(u => u.user_type === 'barista').length || 0,
-  pending: users.value?.filter(u => u.status === 'pending').length || 0,
-  activeSessions: 312
-}))
+const stats = computed(() => {
+  const all = users.value || []
+  const customers = all.filter(u => u.user_type !== 'barista' && u.role !== 'admin').length
+  const pending = all.filter(u => u.status === 'pending').length
+  const active = all.filter(u => u.status === 'active').length
+  const suspended = all.filter(u => u.status === 'suspended').length
+  const total = all.length
+
+  const now = new Date()
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+
+  const recentCustomers = all.filter(u => u.user_type !== 'barista' && u.role !== 'admin' && new Date(u.created_at) >= thirtyDaysAgo).length
+  const prevCustomers = all.filter(u => u.user_type !== 'barista' && u.role !== 'admin' && new Date(u.created_at) >= sixtyDaysAgo && new Date(u.created_at) < thirtyDaysAgo).length
+
+  const activePercent = total > 0 ? Math.round((active / total) * 100) : null
+  const suspendedPercent = total > 0 ? Math.round((suspended / total) * 100) : null
+
+  return {
+    customers,
+    pending,
+    active,
+    suspended,
+    total,
+    activePercent,
+    suspendedPercent,
+    customerTrend: prevCustomers > 0 ? Math.round(((recentCustomers - prevCustomers) / prevCustomers) * 100) : (recentCustomers > 0 ? 100 : null),
+  }
+})
 
 const filteredUsers = computed(() => {
   if (!users.value) return []

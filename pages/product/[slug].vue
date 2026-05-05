@@ -5,20 +5,25 @@
       <div class="pdp-images">
         <div class="main-image">
           <div class="main-img-bg">
-            <div class="pdp-mock-img">
-              <div class="pdp-mock-shape"></div>
-            </div>
+            <NuxtImg
+              v-if="displayImages.length"
+              :src="displayImages[activeThumb - 1]"
+              :alt="product.name"
+              class="main-img"
+              format="webp"
+              loading="lazy"
+            />
           </div>
         </div>
-        <div class="thumb-row">
+        <div v-if="displayImages.length > 1" class="thumb-row">
           <div
-            v-for="i in 4"
+            v-for="(img, i) in displayImages"
             :key="i"
             class="thumb"
-            :class="{ active: activeThumb === i }"
-            @click="activeThumb = i"
+            :class="{ active: activeThumb === i + 1 }"
+            @click="activeThumb = i + 1"
           >
-            <div class="thumb-bg"></div>
+            <NuxtImg :src="img" :alt="`${product.name} ${i + 1}`" class="thumb-img" format="webp" loading="lazy" />
           </div>
         </div>
       </div>
@@ -406,6 +411,12 @@ const displaySpecs = computed(() => {
   );
 });
 
+const displayImages = computed(() => {
+  const images = product.value?.images as string[] | undefined;
+  if (!images || images.length === 0) return [];
+  return images;
+});
+
 function formatKey(k: string) {
   return k.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
@@ -493,16 +504,12 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
-.pdp-mock-img {
-  width: 50%;
-  height: 50%;
-}
-.pdp-mock-shape {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #2a2825, #1a1816);
-  border-radius: 16px;
+.main-img {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
 }
 .thumb-row {
   display: flex;
@@ -516,14 +523,18 @@ onMounted(async () => {
   border: 2px solid var(--border);
   overflow: hidden;
   transition: border-color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
 }
 .thumb.active {
   border-color: var(--text);
 }
-.thumb-bg {
+.thumb-img {
   width: 100%;
   height: 100%;
-  background: var(--surface-2);
+  object-fit: cover;
 }
 
 .pdp-series-row {

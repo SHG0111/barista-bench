@@ -69,7 +69,17 @@
               >
                 ✓
               </div>
-              <div class="aspect-[16/9] overflow-hidden rounded-t-lg bg-gradient-to-br from-[#efede9] to-[#e0ddd8]"></div>
+              <div class="aspect-[16/9] overflow-hidden rounded-t-lg bg-[#f0ede8]">
+                <NuxtImg
+                  v-if="p.images?.length"
+                  :src="p.images[0]"
+                  :alt="p.name"
+                  class="w-full h-full object-cover"
+                  format="webp"
+                  loading="lazy"
+                />
+                <div v-else class="w-full h-full bg-gradient-to-br from-[#efede9] to-[#e0ddd8]"></div>
+              </div>
               <div class="px-4 pt-4">
                 <div class="flex justify-between items-baseline mb-1.5">
                   <h3 class="text-[16px] font-semibold text-text truncate pr-2">{{ p.name }}</h3>

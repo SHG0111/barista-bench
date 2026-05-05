@@ -1,4 +1,5 @@
 export default defineNuxtConfig({
+  compatibilityDate: '2026-05-05',
   devtools: { enabled: false },
   modules: [
     "@nuxtjs/supabase",
@@ -15,6 +16,8 @@ export default defineNuxtConfig({
   supabase: {
     url: process.env.SUPABASE_URL,
     key: process.env.SUPABASE_KEY,
+    serviceKey: process.env.SUPABASE_SECRET_KEY,
+    cookiePrefix: 'sb',
     redirectOptions: {
       login: "/auth/login",
       callback: "/auth/confirm",
@@ -52,7 +55,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
-    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
+    supabaseSecretKey: process.env.SUPABASE_SECRET_KEY,
+    resendApiKey: process.env.RESEND_API_KEY,
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY,

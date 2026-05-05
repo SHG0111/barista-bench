@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'CSV file has no data rows' })
   }
 
-  const supabaseAdmin = createClient(config.public.supabaseUrl, config.supabaseServiceKey, {
+  const supabaseAdmin = createClient(config.public.supabaseUrl, config.supabaseSecretKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false

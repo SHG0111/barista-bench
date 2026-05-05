@@ -23,7 +23,6 @@
         <input type="text" v-model="searchQuery" placeholder="Search orders..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-brand/10 focus:border-brand transition-all" />
       </div>
       
-      <!-- Status Filter -->
       <div class="flex gap-2">
         <button
           v-for="status in statuses"
@@ -43,7 +42,26 @@
 
     <!-- Orders Table -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
+      <div v-if="pending" class="px-6 py-24 flex items-center justify-center">
+        <div class="flex flex-col items-center gap-4">
+          <svg class="animate-spin w-8 h-8 text-brand" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-sm font-semibold text-slate-500">Loading orders...</p>
+        </div>
+      </div>
+      <div v-else-if="error" class="px-6 py-24 flex items-center justify-center">
+        <div class="flex flex-col items-center gap-3">
+          <div class="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center">
+            <Icon name="solar:danger-broken" class="w-8 h-8 text-red-500" />
+          </div>
+          <p class="text-sm font-semibold text-slate-900">Failed to load orders</p>
+          <p class="text-xs text-slate-500 max-w-xs">{{ error }}</p>
+          <button @click="refresh" class="mt-2 px-4 py-2 bg-brand text-white rounded-lg text-sm font-semibold hover:bg-brand/90 transition-all">Retry</button>
+        </div>
+      </div>
+      <div v-else class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-50/50">
@@ -107,8 +125,8 @@
           </button>
         </div>
       </div>
+      </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -125,16 +143,42 @@ const statuses = [
   { value: 'all', label: 'All' },
   { value: 'placed', label: 'Placed' },
   { value: 'processed', label: 'Processed' },
-  { value: 'shipped', label: 'Shipped' },
+  { value: 'in_transit', label: 'In Transit' },
+  { value: 'out_for_delivery', label: 'Out for Delivery' },
   { value: 'delivered', label: 'Delivered' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'returned', label: 'Returned' },
 ]
 
-const { data: orders } = await useAsyncData('admin-orders-list', async () => {
-  const { data } = await client.from('orders').select('*').order('placed_at', { ascending: false })
-  return data
+const { data: orders, pending, error, refresh } = await useAsyncData('admin-orders-list', async () => {
+  try {
+    const { data, error: fetchError } = await client
+      .from('orders')
+      .select('*')
+      .order('placed_at', { ascending: false })
+    if (fetchError) throw new Error(fetchError.message)
+    return data
+  } catch (err) {
+    throw new Error(err.message || 'Failed to fetch orders')
+  }
 })
 
-const allOrders = computed(() => orders.value || [])
+const { data: profiles } = await useAsyncData('admin-profiles-list', async () => {
+  const { data } = await client.from('profiles').select('id, full_name')
+  return data || []
+})
+
+const allOrders = computed(() => {
+  const raw = orders.value || []
+  const profileMap = {}
+  for (const p of profiles.value) {
+    profileMap[p.id] = p.full_name
+  }
+  return raw.map(order => ({
+    ...order,
+    customer_name: order.user_id ? profileMap[order.user_id] || null : null
+  }))
+})
 
 const filteredOrders = computed(() => {
   let result = allOrders.value
@@ -158,12 +202,13 @@ const stats = computed(() => {
   const orderData = allOrders.value
   const totalRevenue = orderData.reduce((sum, o) => sum + (parseFloat(o.total) || 0), 0)
   const pendingOrders = orderData.filter(o => o.status === 'placed').length
-  
+  const uniqueCustomers = new Set(orderData.filter(o => o.user_id).map(o => o.user_id)).size
+
   return [
     { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, sublabel: 'All time' },
     { label: 'Orders', value: orderData.length || '0', sublabel: 'This month' },
     { label: 'Pending', value: pendingOrders, sublabel: 'Needs attention' },
-    { label: 'Customers', value: '—', sublabel: 'Unique buyers' }
+    { label: 'Customers', value: uniqueCustomers || '0', sublabel: 'Unique buyers' }
   ]
 })
 
@@ -171,8 +216,10 @@ const statusClasses = {
   delivered: 'bg-emerald-100 text-emerald-700',
   processed: 'bg-blue-100 text-blue-700',
   in_transit: 'bg-amber-100 text-amber-700',
+  out_for_delivery: 'bg-violet-100 text-violet-700',
   placed: 'bg-slate-100 text-slate-600',
-  cancelled: 'bg-red-100 text-red-700'
+  cancelled: 'bg-red-100 text-red-700',
+  returned: 'bg-orange-100 text-orange-700'
 }
 
 const formatDate = (dateString) => {

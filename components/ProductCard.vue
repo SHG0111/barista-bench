@@ -1,13 +1,48 @@
 <template>
   <div class="bg-surface rounded-lg overflow-hidden cursor-pointer transition-all duration-180 ease-default hover:shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1)] hover:-translate-y-[3px]" @click="navigate">
     <div class="relative">
-      <div class="aspect-square bg-surface-2 flex items-center justify-center overflow-hidden">
-        <div class="w-[65%] h-[65%] flex items-center justify-center">
+      <div class="aspect-square flex items-center justify-center overflow-hidden">
+        <NuxtImg
+          v-if="coverImage"
+          :src="coverImage"
+          :alt="product.name"
+          class="w-full h-full object-cover"
+          format="webp"
+          loading="lazy"
+        />
+        <div v-else class="w-[65%] h-[65%] flex items-center justify-center">
           <div class="w-full h-full rounded-xl" :style="mockStyle"></div>
         </div>
       </div>
       <span v-if="product.is_bestseller" class="absolute top-3 left-3 bg-accent text-white text-[9px] font-bold tracking-[0.1em] px-2.5 py-1 rounded-full">BEST SELLER</span>
-      <button class="absolute bottom-3 right-3 w-[30px] h-[30px] rounded-full bg-text text-white border-none text-[20px] flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-150 cursor-pointer" @click.stop="$emit('addToCart', product.id)" title="Add to cart">+</button>
+      
+      <div class="absolute bottom-3 right-3 z-10">
+        <transition name="qty">
+          <div v-if="cartQty > 0" class="flex items-center gap-1 bg-text/95 backdrop-blur-sm rounded-full p-1 shadow-lg">
+            <button
+              class="w-[26px] h-[26px] rounded-full bg-white/10 text-white text-sm flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
+              @click.stop="adjust(-1)"
+            >
+              -
+            </button>
+            <span class="w-[20px] text-center text-[12px] font-bold text-white">{{ cartQty }}</span>
+            <button
+              class="w-[26px] h-[26px] rounded-full bg-white/10 text-white text-sm flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer"
+              @click.stop="adjust(1)"
+            >
+              +
+            </button>
+          </div>
+        </transition>
+        <button
+          v-show="cartQty === 0"
+          class="w-[30px] h-[30px] rounded-full bg-text text-white border-none text-[20px] flex items-center justify-center shadow-lg hover:bg-text-2 transition-colors cursor-pointer"
+          @click.stop="addToCart"
+          title="Add to cart"
+        >
+          +
+        </button>
+      </div>
     </div>
     <div class="p-4 pt-4 pb-[18px]">
       <p class="text-[10px] font-semibold tracking-[0.1em] uppercase text-accent mb-1">{{ product.series || product.category_name }}</p>
@@ -25,12 +60,17 @@
 
 <script setup lang="ts">
 const props = defineProps<{ product: any }>()
-defineEmits(['addToCart'])
 
 const router = useRouter()
 function navigate() {
   router.push(`/product/${props.product.slug}`)
 }
+
+const coverImage = computed(() => {
+  const images = props.product.images as string[] | undefined
+  if (!images || images.length === 0) return null
+  return images[0]
+})
 
 const mockStyle = computed(() => {
   const colors: Record<string, string> = {
@@ -42,11 +82,41 @@ const mockStyle = computed(() => {
   }
   return { background: colors[props.product.category_slug] || 'linear-gradient(135deg,#2A2825,#1A1816)' }
 })
+
+const { addToCart: cartAdd, updateQuantity, removeFromCart, fetchCart, getItemQuantity } = useCart()
+const { success } = useToast()
+
+const cartQty = computed(() => getItemQuantity(props.product.id))
+
+const addToCart = async () => {
+  if (!props.product?.id) {
+    console.error('ProductCard - product missing id:', props.product)
+    return
+  }
+  const successResult = await cartAdd(props.product.id, 1)
+  if (successResult) {
+    success("Added to your cart")
+  }
+}
+
+const adjust = async (delta: number) => {
+  const newQty = Math.max(0, cartQty.value + delta)
+  if (newQty === 0) {
+    await removeFromCart(props.product.id)
+  } else {
+    await updateQuantity(props.product.id, newQty)
+  }
+}
 </script>
 
 <style scoped>
-/* 
-Note: Added 'group' to the root div to trigger hover effects on child elements.
-Updating the template above to use 'group' class.
-*/
+.qty-enter-active,
+.qty-leave-active {
+  transition: all 0.2s ease;
+}
+.qty-enter-from,
+.qty-leave-to {
+  opacity: 0;
+  transform: scale(0.7) translateY(4px);
+}
 </style>

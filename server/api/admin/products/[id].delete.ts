@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Product ID is required' })
   }
 
-  const supabaseAdmin = createClient(config.public.supabaseUrl, config.supabaseServiceKey, {
+  const supabaseAdmin = createClient(config.public.supabaseUrl, config.supabaseSecretKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false

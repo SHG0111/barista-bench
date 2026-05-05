@@ -26,50 +26,82 @@
         <NuxtLink to="/" class="back-link">← Back to site</NuxtLink>
 
         <div class="auth-tabs">
-          <button :class="{ active: mode === 'login' }" @click="mode = 'login'">Sign In</button>
-          <button :class="{ active: mode === 'register' }" @click="mode = 'register'">Create Account</button>
+          <button :class="{ active: mode === 'login' }" @click="mode = 'login'; authError = ''; authSuccess = ''; showResendBtn = false">Sign In</button>
+          <button :class="{ active: mode === 'register' }" @click="mode = 'register'; authError = ''; authSuccess = ''; showResendBtn = false">Create Account</button>
         </div>
 
-        <form class="auth-form" @submit.prevent="handleSubmit">
-          <div v-if="mode === 'register'">
-            <label class="input-label">Full Name</label>
-            <input v-model="form.fullName" class="input" placeholder="Alex Rivers" style="margin-bottom:16px" />
-          </div>
-          <label class="input-label">Email Address</label>
-          <input v-model="form.email" type="email" class="input" placeholder="you@example.com" style="margin-bottom:16px" />
-          <label class="input-label">Password</label>
-          <div class="password-wrapper" style="margin-bottom:24px">
-            <input 
-              v-model="form.password" 
-              :type="showPassword ? 'text' : 'password'" 
-              class="input" 
-              placeholder="••••••••" 
-            />
-            <button type="button" class="password-toggle" @click="showPassword = !showPassword">
-              <Icon v-if="!showPassword" name="solar:eye-broken" width="18" height="18" />
-              <Icon v-else name="solar:eye-closed-broken" width="18" height="18" />
-            </button>
-          </div>
+         <form class="auth-form" @submit.prevent="handleSubmit">
+           <div v-if="mode === 'register'">
+             <label class="input-label">Full Name</label>
+             <input v-model="form.fullName" class="input" placeholder="Alex Rivers" style="margin-bottom:16px" />
+           </div>
+           <label class="input-label">Email Address</label>
+           <input v-model="form.email" type="email" class="input" placeholder="you@example.com" :style="{ marginBottom: mode === 'forgot' ? '24px' : '16px' }" />
+           <div v-if="mode !== 'forgot'">
+             <label class="input-label">Password</label>
+             <div class="password-wrapper" :style="{ marginBottom: mode === 'register' ? '8px' : '24px' }">
+               <input
+                 v-model="form.password"
+                 :type="showPassword ? 'text' : 'password'"
+                 class="input"
+                 placeholder="••••••••"
+               />
+               <button type="button" class="password-toggle" @click="showPassword = !showPassword">
+                 <Icon v-if="!showPassword" name="solar:eye-broken" width="18" height="18" />
+                 <Icon v-else name="solar:eye-closed-broken" width="18" height="18" />
+               </button>
+             </div>
+           </div>
 
-          <p v-if="authError" class="auth-error">{{ authError }}</p>
-          <p v-if="authSuccess" class="auth-success">{{ authSuccess }}</p>
+           <div v-if="mode === 'register' && form.password" class="pw-requirements">
+             <div class="pw-req" :class="{ met: form.password.length >= 8 }">
+               <Icon name="solar:check-circle-broken" width="14" height="14" v-if="form.password.length >= 8" />
+               <Icon name="solar:circle-broken" width="14" height="14" v-else />
+               At least 8 characters
+             </div>
+             <div class="pw-req" :class="{ met: /[a-zA-Z]/.test(form.password) }">
+               <Icon name="solar:check-circle-broken" width="14" height="14" v-if="/[a-zA-Z]/.test(form.password)" />
+               <Icon name="solar:circle-broken" width="14" height="14" v-else />
+               At least one letter
+             </div>
+             <div class="pw-req" :class="{ met: /[^a-zA-Z0-9]/.test(form.password) }">
+               <Icon name="solar:check-circle-broken" width="14" height="14" v-if="/[^a-zA-Z0-9]/.test(form.password)" />
+               <Icon name="solar:circle-broken" width="14" height="14" v-else />
+               At least one symbol
+             </div>
+           </div>
 
-          <button type="submit" class="btn btn-primary btn-full btn-lg" :disabled="loading">
-            {{ loading ? 'Please wait...' : (mode === 'login' ? 'Sign In' : 'Create Account') }}
-          </button>
+           <p v-if="mode === 'login'" class="forgot-link" @click="mode = 'forgot'; authError = ''; authSuccess = ''; showResendBtn = false">Forgot password?</p>
 
-          <div class="auth-divider"><span>or continue with</span></div>
+            <p v-if="authError" class="auth-error">{{ authError }}</p>
+            <div v-if="authSuccess" class="auth-success-box">
+              <p>{{ authSuccess }}</p>
+              <button v-if="showResendBtn" type="button" class="resend-btn" @click="handleResend" :disabled="resendCooldown > 0">
+                <svg v-if="resending" class="resend-spinner" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+                {{ resendCooldown > 0 ? `Try again in ${resendCooldown}s` : resendSent ? 'Email confirmed! Try signing in.' : 'Confirm email now' }}
+              </button>
+            </div>
 
-          <button type="button" class="btn btn-outline btn-full" @click="signInWithGoogle">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Continue with Google
-          </button>
-        </form>
+           <button type="submit" class="btn btn-primary btn-full btn-lg" :disabled="loading || resetCooldown > 0">
+             {{ loading ? 'Please wait...' : resetCooldown > 0 ? `Wait ${resetCooldown}s` : (mode === 'login' ? 'Sign In' : mode === 'register' ? 'Create Account' : 'Send Reset Link') }}
+           </button>
 
-        <p class="auth-footer-note">
-          By continuing, you agree to our
-          <NuxtLink to="/terms">Terms of Service</NuxtLink> and <NuxtLink to="/privacy">Privacy Policy</NuxtLink>.
-        </p>
+            <button v-if="mode === 'forgot'" type="button" class="btn btn-outline btn-full" style="margin-top:12px" @click="mode = 'login'; authError = ''; authSuccess = ''; showResendBtn = false; form.password = ''">Back to Sign In</button>
+
+           <template v-if="mode === 'login'">
+             <div class="auth-divider"><span>or continue with</span></div>
+
+             <button type="button" class="btn btn-outline btn-full" @click="signInWithGoogle">
+               <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+               Continue with Google
+             </button>
+           </template>
+         </form>
+
+         <p class="auth-footer-note">
+           By continuing, you agree to our
+           <NuxtLink to="/terms">Terms of Service</NuxtLink> and <NuxtLink to="/privacy">Privacy Policy</NuxtLink>.
+         </p>
       </div>
     </div>
   </div>
@@ -81,14 +113,76 @@ definePageMeta({ layout: 'clean' })
 const supabase = useSupabaseClient()
 const { success } = useToast()
 
-const mode = ref<'login' | 'register'>('login')
+const mode = ref<'login' | 'register' | 'forgot'>('login')
 const loading = ref(false)
 const showPassword = ref(false)
 const authError = ref('')
 const authSuccess = ref('')
+const resetCooldown = ref(0)
+const showResendBtn = ref(false)
+const resendCooldown = ref(0)
+const resendSent = ref(false)
+const resending = ref(false)
+const registeredEmail = ref('')
 const form = reactive({ email: '', password: '', fullName: '' })
 
 const route = useRoute()
+
+async function resendConfirmation(email: string) {
+  resending.value = true
+  try {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email
+    })
+    if (error) {
+      if (error.message?.includes('already confirmed') || error.message?.includes('email confirmed')) {
+        authSuccess.value = 'Your email is already confirmed. Please try signing in again.'
+      } else {
+        authError.value = error.message || 'Failed to resend confirmation email'
+      }
+    } else {
+      resendSent.value = true
+    }
+      resendCooldown.value = 5
+      let t = setInterval(() => {
+        resendCooldown.value--
+        if (resendCooldown.value <= 0) clearInterval(t)
+      }, 1000)
+    }
+  
+  
+  
+    catch (err: any) {
+      authError.value = err?.data?.message || err?.message || 'Failed to resend confirmation'
+    } finally {
+      resending.value = false
+    }
+  }
+
+
+async function handleResend() {
+  if (resendCooldown.value > 0 || resending.value) return
+  resendSent.value = false
+  await resendConfirmation(registeredEmail.value)
+}
+
+let cooldownTimer: ReturnType<typeof setInterval> | null = null
+function startCooldown(seconds: number) {
+  if (cooldownTimer) clearInterval(cooldownTimer)
+  resetCooldown.value = seconds
+  cooldownTimer = setInterval(() => {
+    resetCooldown.value--
+    if (resetCooldown.value <= 0 && cooldownTimer) {
+      clearInterval(cooldownTimer)
+      cooldownTimer = null
+    }
+  }, 1000)
+}
+
+onUnmounted(() => {
+  if (cooldownTimer) clearInterval(cooldownTimer)
+})
 
 onMounted(() => {
   if (route.query.error === 'timeout') {
@@ -100,33 +194,104 @@ async function handleSubmit() {
   authError.value = ''
   authSuccess.value = ''
   loading.value = true
+  if (mode.value === 'forgot') {
+    if (resetCooldown.value > 0) {
+      authError.value = `Please wait ${resetCooldown.value}s before requesting another reset link.`
+      loading.value = false
+      return
+    }
+    if (!form.email.trim()) {
+      authError.value = 'Please enter your email address.'
+      loading.value = false
+      return
+    }
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(form.email.trim().toLowerCase(), {
+        redirectTo: `${window.location.origin}/auth/update-password`,
+      })
+      if (resetError) throw resetError
+      authSuccess.value = 'Password reset link sent! Check your email to reset your password.'
+      showResendBtn.value = false
+      form.email = ''
+      startCooldown(60)
+    } catch (err: any) {
+      const msg = err?.data?.statusMessage || err?.data?.message || err?.message || ''
+      if (msg.toLowerCase().includes('rate limit') || msg.includes('429')) {
+        authError.value = 'Too many requests. Please wait a minute before trying again.'
+        startCooldown(60)
+      } else if (msg.toLowerCase().includes('recovery email')) {
+        authError.value = 'Failed to send reset link. Please check your email address and try again.'
+      } else {
+        authError.value = msg || 'Failed to send reset link. Please try again.'
+      }
+    }
+    loading.value = false
+    return
+  }
   if (mode.value === 'login') {
-    const { error, data } = await supabase.auth.signInWithPassword({ email: form.email, password: form.password })
-    if (error) { authError.value = error.message }
-    else {
+    const { error, data } = await supabase.auth.signInWithPassword({ email: form.email.trim().toLowerCase(), password: form.password })
+    if (error) {
+      if (error.message?.toLowerCase().includes('email') && error.message?.toLowerCase().includes('confirm')) {
+        authSuccess.value = 'Email not confirmed. Please check your inbox and click the confirmation link.'
+        registeredEmail.value = form.email.trim().toLowerCase()
+        showResendBtn.value = true
+        await resendConfirmation(form.email.trim().toLowerCase())
+      } else {
+        authError.value = error.message
+      }
+    } else {
       const adminEmail = 'admin@bench.bb'
-      if (data.user?.email === adminEmail || data.user?.app_metadata?.role === 'admin') {
+      const isUnconfirmed = !data.user?.email_confirmed_at && !data.user?.user_metadata?.email_verified
+      if (isUnconfirmed) {
+        authSuccess.value = 'Email not confirmed. Please check your inbox and click the confirmation link.'
+        registeredEmail.value = data.user?.email || form.email.trim().toLowerCase()
+        showResendBtn.value = true
+        await resendConfirmation(data.user?.email || form.email.trim().toLowerCase())
+      } else if (data.user?.email === adminEmail || data.user?.app_metadata?.role === 'admin') {
         await navigateTo('/admin')
       } else {
         await navigateTo('/account')
       }
     }
   } else {
-    const { error, data } = await supabase.auth.signUp({
-      email: form.email, password: form.password,
-      options: { data: { full_name: form.fullName } },
-    })
-    if (error) {
-      if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
-        authError.value = 'An account with this email already exists. Please sign in instead.'
+    if (!form.fullName.trim()) {
+      authError.value = 'Please enter your full name.'
+      loading.value = false
+      return
+    }
+    if (form.password.length < 8) {
+      authError.value = 'Password must be at least 8 characters long.'
+      loading.value = false
+      return
+    }
+    if (!/[a-zA-Z]/.test(form.password)) {
+      authError.value = 'Password must contain at least one letter.'
+      loading.value = false
+      return
+    }
+    if (!/[^a-zA-Z0-9]/.test(form.password)) {
+      authError.value = 'Password must contain at least one symbol.'
+      loading.value = false
+      return
+    }
+    const normalizedEmail = form.email.trim().toLowerCase()
+    try {
+      await $fetch('/api/auth/signup', {
+        method: 'POST',
+        body: { email: normalizedEmail, password: form.password, fullName: form.fullName.trim() }
+      })
+      authSuccess.value = 'Account created! Please confirm your email to continue.'
+      registeredEmail.value = normalizedEmail
+      showResendBtn.value = true
+      mode.value = 'login'
+      form.password = ''
+    } catch (err: any) {
+      const msg = err?.data?.statusMessage || err?.data?.message || err?.message || ''
+      if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('duplicate')) {
+        authError.value = 'This email is already registered. Please sign in instead.'
       } else {
-        authError.value = error.message
-      }
-    } else {
-      if (data.user && !data.user.email_confirmed_at) {
-        authSuccess.value = 'Check your email to confirm your account.'
-      } else {
-        await navigateTo('/account')
+        authError.value = msg || 'Failed to create account. Please try again.'
       }
     }
   }
@@ -150,7 +315,6 @@ async function signInWithGoogle() {
 <style scoped>
 .auth-page { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
 .auth-left { background: var(--bg-dark); padding: 48px; display: flex; flex-direction: column; justify-content: space-between; }
-.auth-brand { }
 .auth-logo { display: flex; align-items: center; gap: 10px; color: white; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 40px; }
 .logo-box { width: 28px; height: 28px; background: white; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
 .logo-box span { color: black; font-size: 9px; font-weight: 800; }
@@ -172,7 +336,13 @@ async function signInWithGoogle() {
 .auth-tabs button.active { color: var(--text); border-bottom-color: var(--text); }
 .auth-form { display: flex; flex-direction: column; }
 .auth-error { color: var(--red); font-size: 13px; background: var(--red-bg); padding: 10px 14px; border-radius: var(--radius); margin-bottom: 14px; }
-.auth-success { color: var(--green); font-size: 13px; background: var(--green-bg); padding: 10px 14px; border-radius: var(--radius); margin-bottom: 14px; }
+.auth-success-box { color: var(--green); font-size: 13px; background: var(--green-bg); padding: 10px 14px; border-radius: var(--radius); margin-bottom: 14px; }
+.auth-success-box p { margin: 0 0 8px 0; }
+.resend-btn { background: var(--green); color: white; border: none; padding: 6px 14px; border-radius: var(--radius); font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-body); transition: opacity 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.resend-btn:hover:not(:disabled) { opacity: 0.85; }
+.resend-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.resend-spinner { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .auth-divider { text-align: center; margin: 20px 0; position: relative; }
 .auth-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); }
 .auth-divider span { position: relative; background: var(--bg); padding: 0 12px; font-size: 12px; color: var(--text-3); }
@@ -182,4 +352,12 @@ async function signInWithGoogle() {
 .password-wrapper { position: relative; display: flex; align-items: center; }
 .password-toggle { position: absolute; right: 12px; background: none; border: none; padding: 4px; color: var(--text-3); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
 .password-toggle:hover { color: var(--text); }
+
+.pw-requirements { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+.pw-req { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-3); transition: color 0.2s; }
+.pw-req.met { color: var(--green); }
+.pw-req svg { flex-shrink: 0; }
+
+.forgot-link { font-size: 12px; color: var(--text-2); cursor: pointer; text-align: right; margin-bottom: 20px; transition: color 0.2s; }
+.forgot-link:hover { color: var(--text); }
 </style>
