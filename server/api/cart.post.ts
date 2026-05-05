@@ -8,12 +8,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const supabase = serverSupabaseServiceRole(event)
-  const body = await readBody(event)
-  const { productId, quantity } = body
-
-  if (!productId) {
-    throw createError({ statusCode: 400, statusMessage: 'productId is required' })
-  }
+  const { productId, quantity } = await readBody(event)
 
   const { data: existing, error: fetchError } = await supabase
     .from('cart_items')

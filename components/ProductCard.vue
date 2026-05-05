@@ -86,25 +86,32 @@ const mockStyle = computed(() => {
 const { addToCart: cartAdd, updateQuantity, removeFromCart, fetchCart, getItemQuantity } = useCart()
 const { success } = useToast()
 
-const cartQty = computed(() => getItemQuantity(props.product.id))
+const cartQty = computed(() => {
+  const id = props.product?.id
+  if (!id) return 0
+  return getItemQuantity(id)
+})
 
 const addToCart = async () => {
-  if (!props.product?.id) {
+  const id = props.product?.id
+  if (!id) {
     console.error('ProductCard - product missing id:', props.product)
     return
   }
-  const successResult = await cartAdd(props.product.id, 1)
+  const successResult = await cartAdd(id, 1)
   if (successResult) {
     success("Added to your cart")
   }
 }
 
 const adjust = async (delta: number) => {
+  const id = props.product?.id
+  if (!id) return
   const newQty = Math.max(0, cartQty.value + delta)
   if (newQty === 0) {
-    await removeFromCart(props.product.id)
+    await removeFromCart(id)
   } else {
-    await updateQuantity(props.product.id, newQty)
+    await updateQuantity(id, newQty)
   }
 }
 </script>

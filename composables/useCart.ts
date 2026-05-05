@@ -47,7 +47,6 @@ export const useCart = () => {
     }
 
     try {
-      console.log('useCart addToCart - productId:', productId, 'type:', typeof productId)
       await $fetch('/api/cart', {
         method: 'POST',
         credentials: 'include',
