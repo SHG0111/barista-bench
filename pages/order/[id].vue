@@ -137,7 +137,9 @@
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabaseClient()
+import type { Database } from '~/types/database.types'
+
+const supabase = useSupabaseClient<Database>()
 const user = useSupabaseUser()
 const route = useRoute()
 const { success } = useToast()
@@ -188,7 +190,7 @@ async function lookupOrder() {
       *,
       order_items(
         *,
-        products(image)
+        products(name, images, series, price)
       )
     `)
     .eq('order_number', lookupNum.value.trim().toUpperCase())
@@ -202,8 +204,14 @@ async function lookupOrder() {
       ...rawData,
       order_items: (rawData.order_items || []).map((item: any) => ({
         ...item,
-        product_image: item.products?.image || null
+        product_image: item.products?.images?.[0] || null,
+        product_name: item.product_name || item.products?.name || 'Unknown',
       }))
+    }
+
+    if (route.query.payment === 'stripe' && route.query.redirect_status === 'succeeded') {
+      await (supabase.from('orders') as any).update({ status: 'processed' }).eq('order_number', lookupNum.value.trim().toUpperCase())
+      success('Payment confirmed!')
     }
   }
   loading.value = false

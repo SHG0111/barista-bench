@@ -2,7 +2,7 @@ import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import { z } from 'zod'
 
 const deleteCartSchema = z.object({
-  productId: z.string().uuid('Invalid product ID format'),
+  productId: z.string().uuid('Invalid product ID format').optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: 'Please log in to remove items from cart' })
   }
 
-  const body = await readBody(event)
+  const body = await readBody(event) || {}
 
   const validation = deleteCartSchema.safeParse(body)
   if (!validation.success) {
@@ -21,15 +21,16 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: firstError })
   }
 
-
   const { productId } = validation.data
 
   const supabase = serverSupabaseServiceRole(event)
-  const { error } = await supabase
-    .from('cart_items')
-    .delete()
-    .eq('user_id', userId)
-    .eq('product_id', productId)
+  
+  let query = supabase.from('cart_items').delete().eq('user_id', userId)
+  if (productId) {
+    query = query.eq('product_id', productId)
+  }
+  
+  const { error } = await query
 
   if (error) {
     throw createError({ statusCode: 500, statusMessage: 'Failed to remove item from cart. Please try again.' })

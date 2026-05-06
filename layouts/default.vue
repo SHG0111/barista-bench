@@ -1,5 +1,6 @@
 <template>
   <div>
+    <PageLoader />
     <AppNav />
     <main>
       <slot />

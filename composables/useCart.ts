@@ -84,8 +84,17 @@ export const useCart = () => {
   }
 
   async function clearCart() {
-    if (!userId.value) return
-    items.value = []
+    if (!userId.value) {
+      items.value = []
+      return
+    }
+    try {
+      await api.post('/api/cart/delete', {})
+      items.value = []
+    } catch (err) {
+      console.error("clearCart error:", err)
+      items.value = []
+    }
   }
 
   if (process.client && !initialized.value) {
@@ -120,5 +129,6 @@ export const useCart = () => {
     removeFromCart,
     clearCart,
     getItemQuantity,
+    userId,
   }
 }

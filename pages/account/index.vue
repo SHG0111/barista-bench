@@ -396,18 +396,6 @@ onMounted(async () => {
   }
 
   try {
-    if (route.query.stripe_cb === 'true' && route.query.redirect_status === 'succeeded') {
-      const ordId = String(route.query.ord_id);
-      await supabase.from('orders').update({ status: 'processed' }).eq('order_number', ordId);
-      
-      const api = useApi()
-      api.post('/api/send-email', {
-        to: user.value.email,
-        subject: `Payment Received: Order ${ordId}`,
-        content: `Your payment was perfectly tracked on the server! Order ${ordId} is now processing.`
-      }).catch(e => console.error(e));
-    }
-
     const [{ data: p }, { data: o }, { data: s }] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.value.id).single(),
       supabase

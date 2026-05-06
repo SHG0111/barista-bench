@@ -1,5 +1,6 @@
 <template>
   <div class="flex min-h-screen bg-bg text-text font-body">
+    <PageLoader />
     <!-- Mobile Sidebar Overlay -->
     <div
       v-if="sidebarOpen"

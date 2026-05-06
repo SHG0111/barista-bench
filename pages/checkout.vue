@@ -358,7 +358,7 @@
                     @click="completeOrder"
                     :disabled="isProcessing"
                   >
-                    <span v-if="!isProcessing">PAY NOW</span>
+                    <span v-if="!isProcessing">{{ paymentMethod === 'cod' ? 'PLACE THE ORDER' : 'PAY NOW' }}</span>
                     <span v-else>PROCESSING...</span>
                   </button>
                 </div>
@@ -378,21 +378,43 @@
           <div class="sticky top-10 p-10 lg:pr-6 lg:pl-10 space-y-6">
             <!-- Items Box -->
             <div class="flex flex-col gap-4 pb-6 border-b border-border">
-              <div v-for="item in items" :key="item.id" class="flex items-center gap-4">
-                <div class="relative w-16 h-16 bg-white rounded-lg shrink-0 flex items-center justify-center">
-                  <div class="absolute -top-2 -right-2 bg-text-2/90 text-white w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold z-[2]">{{ item.quantity }}</div>
-                  <Icon name="solar:cart-broken" class="w-6 h-6 opacity-20 text-text" />
+              <template v-if="cartLoading">
+                <div v-for="i in 3" :key="i" class="flex items-center gap-4 animate-pulse">
+                  <div class="w-16 h-16 bg-surface-2 rounded-lg"></div>
+                  <div class="flex-1 space-y-2">
+                    <div class="h-4 bg-surface-2 rounded w-3/4"></div>
+                    <div class="h-3 bg-surface-2 rounded w-1/2"></div>
+                  </div>
+                  <div class="h-4 bg-surface-2 rounded w-16"></div>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-semibold text-text truncate">{{ item.products.name }}</div>
-                  <div class="text-[11px] text-text-3" v-if="item.products.series">
-                    {{ item.products.series }}
+              </template>
+              <template v-else>
+                <div v-for="item in items" :key="item.id" class="flex items-center gap-4">
+                  <div class="relative w-16 h-16 shrink-0">
+                    <div class="absolute -top-2 -left-2 bg-text text-white w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold z-[2] shadow-md">{{ item.quantity }}</div>
+                    <div class="w-16 h-16 bg-white rounded-lg overflow-hidden flex items-center justify-center">
+                      <NuxtImg
+                        v-if="item.products?.images?.length"
+                        :src="item.products.images[0]"
+                        :alt="item.products.name"
+                        class="w-full h-full object-cover"
+                        format="webp"
+                        loading="lazy"
+                      />
+                      <Icon v-else name="solar:cart-broken" class="w-6 h-6 opacity-20 text-text" />
+                    </div>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-semibold text-text truncate">{{ item.products.name }}</div>
+                    <div class="text-[11px] text-text-3" v-if="item.products.series">
+                      {{ item.products.series }}
+                    </div>
+                  </div>
+                  <div class="text-sm font-semibold text-text">
+                    {{ formatPrice(item.products.price * item.quantity) }}
                   </div>
                 </div>
-                <div class="text-sm font-semibold text-text">
-                  {{ formatPrice(item.products.price * item.quantity) }}
-                </div>
-              </div>
+              </template>
             </div>
 
             <div class="flex gap-3 pb-6 border-b border-border group">
@@ -404,9 +426,12 @@
             <div class="flex flex-col gap-3 pb-6 border-b border-border">
               <div class="flex justify-between text-sm text-text-2">
                 <span>Subtotal</span>
-                <span class="text-text font-medium">{{ formatPrice(subtotal) }}</span>
+                <span class="text-text font-medium">
+                  <span v-if="cartLoading" class="inline-block w-16 h-4 bg-surface-2 rounded animate-pulse"></span>
+                  <span v-else>{{ formatPrice(subtotal) }}</span>
+                </span>
               </div>
-              <div class="flex justify-between text-sm text-accent font-semibold" v-if="isBundle">
+              <div class="flex justify-between text-sm text-accent font-semibold" v-if="isBundle && !cartLoading">
                 <span>Bundle Discount (15%)</span>
                 <span>−{{ formatPrice(discount) }}</span>
               </div>
@@ -419,16 +444,22 @@
               </div>
               <div class="flex justify-between text-sm text-text-2">
                 <span>Taxes</span>
-                <span class="text-text font-medium">{{ step === 'information' ? 'Calculated at next step' : formatPrice(taxes) }}</span>
+                <span class="text-text font-medium">
+                  <span v-if="cartLoading" class="inline-block w-16 h-4 bg-surface-2 rounded animate-pulse"></span>
+                  <span v-else>{{ step === 'information' ? 'Calculated at next step' : formatPrice(taxes) }}</span>
+                </span>
               </div>
             </div>
 
             <!-- Final -->
             <div class="mt-6 flex justify-between items-baseline">
               <span class="text-base text-text">Total</span>
-              <div class="text-2xl font-bold text-text">{{
-                step !== 'information' ? formatPrice(finalTotal) : formatPrice(total)
-              }}</div>
+              <div class="text-2xl font-bold text-text">
+                <span v-if="cartLoading" class="inline-block w-24 h-7 bg-surface-2 rounded animate-pulse"></span>
+                <span v-else>{{
+                  step !== 'information' ? formatPrice(finalTotal) : formatPrice(total)
+                }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -445,8 +476,8 @@ import { z } from "zod";
 definePageMeta({ layout: "default" });
 
 const config = useRuntimeConfig();
-const { items, subtotal, discount, total, isBundle, fetchCart, clearCart } = useCart();
-const { formatPrice, convert, getStripeAmount: getStripeAmt, currency: selectedCurrency } = useCurrency();
+const { items, subtotal, discount, total, isBundle, fetchCart, clearCart, loading: cartLoading, userId } = useCart();
+const { formatPrice, convert, getStripeAmount: getStripeAmt, currency: selectedCurrency, setCurrency } = useCurrency();
 const user = useSupabaseUser();
 const supabase: any = useSupabaseClient();
 const toast = useToast();
@@ -455,7 +486,7 @@ const step = ref<"information" | "shipping" | "payment">("information");
 
 const form = reactive({
   email: "",
-  country: "AE",
+  country: "EG",
   firstName: "",
   lastName: "",
   address: "",
@@ -515,12 +546,25 @@ const countryToCities: Record<string, string[]> = {
   ],
 };
 
+const countryToCurrency: Record<string, string> = {
+  AE: "AED",
+  SA: "SAR",
+  QA: "QAR",
+  KW: "KWD",
+  BH: "BHD",
+  OM: "OMR",
+  JO: "JOD",
+  LB: "USD",
+  EG: "EGP",
+};
+
 const availableCities = computed(() => countryToCities[form.country] || []);
 
 watch(
   () => form.country,
-  () => {
+  (newCountry) => {
     form.city = "";
+    setCurrency(countryToCurrency[newCountry] || "EGP");
   },
 );
 
@@ -546,10 +590,16 @@ const isProcessing = ref(false);
 let stripeApp: any = null;
 let stripeElements: any = null;
 
-onMounted(() => {
+onMounted(async () => {
+  setCurrency(countryToCurrency[form.country] || "EGP");
   if (user.value) {
-    fetchCart();
+    await fetchCart();
     form.email = user.value.email || "";
+    if (items.value.length === 0) {
+      navigateTo("/cart");
+    }
+  } else {
+    navigateTo("/cart");
   }
 });
 
@@ -666,52 +716,79 @@ const initializeStripe = async () => {
   }
 };
 
+const generateOrderNumber = () => {
+  return "BB-" + Math.floor(10000000 + Math.random() * 90000000);
+};
+
+const buildShippingInfo = () => ({
+  name: `${form.firstName} ${form.lastName}`.trim(),
+  address: form.address + (form.apartment ? `, ${form.apartment}` : ""),
+  city: form.city,
+  state: form.state,
+  postal: form.zip,
+  country: form.country,
+  phone: form.phone,
+});
+
 const completeOrder = async () => {
   isProcessing.value = true;
   stripeError.value = "";
 
-  let orderId = "ORD-" + Math.floor(Math.random() * 1000000);
+  const orderNumber = generateOrderNumber();
+  const shippingInfo = buildShippingInfo();
 
-  if (user.value) {
-    const { error: dbError } = await supabase.from("orders").insert({
-      user_id: user.value.id,
-      order_number: orderId,
-      status: paymentMethod.value === "cod" ? "processed" : "placed",
-      subtotal: subtotal.value || total.value || 0,
-      discount: discount.value || 0,
-      shipping_cost: shippingCost.value || 0,
-      tax: taxes.value || 0,
-      total: finalTotal.value || total.value || 0,
-      placed_at: new Date().toISOString(),
-    });
-
-    if (dbError) {
-      console.error("❌ SUPABASE INSERT ERROR:", dbError);
-      toast.error(`Database Error: ${dbError.message}`);
-    } else {
-      console.log("✅ Order successfully saved to Supabase");
-      await clearCart(); 
-    }
-  }
+  const orderPayload = {
+    userId: userId.value,
+    orderNumber,
+    status: paymentMethod.value === "cod" ? "processed" : "placed",
+    items: items.value,
+    shippingInfo,
+    billingInfo: shippingInfo,
+    subtotal: subtotal.value,
+    discount: discount.value,
+    shippingCost: shippingCost.value,
+    tax: taxes.value,
+    total: finalTotal.value,
+  };
 
   if (paymentMethod.value === "cod") {
-    const api = useApi()
-    await api.post("/api/send-email", {
-      to: form.email || (user.value ? user.value.email : "guest@example.com"),
-      subject: `Order Confirmed: ${orderId}`,
-      content: `Your COD order for ${formatPrice(finalTotal.value)} is being processed.`,
-    }).catch((e) => console.error(e));
+    try {
+      const api = useApi();
+      const { data } = await api.post("/api/create-order", orderPayload);
 
-    setTimeout(() => {
-      window.location.href = user.value
-        ? "/account?tab=orders"
-        : "/shop?success=true";
-    }, 1500);
-    return;
+      if (data.success) {
+        await clearCart();
+
+        api.post("/api/send-email", {
+          to: form.email || user.value?.email || "guest@example.com",
+          subject: `Order Confirmed: ${orderNumber}`,
+          content: `Your COD order for ${formatPrice(finalTotal.value)} is confirmed and will be processed shortly.`,
+        }).catch((e) => console.error(e));
+
+        navigateTo(`/order/${orderNumber}`);
+        return;
+      }
+    } catch (err: any) {
+      console.error("COD order error:", err);
+      toast.error(err.response?.data?.statusMessage || "Failed to place order");
+      isProcessing.value = false;
+      return;
+    }
   }
 
   if (!stripeApp || !stripeElements) {
     toast.error("Secure checkout hasn't fully loaded. Please wait for the payment form to appear.");
+    isProcessing.value = false;
+    return;
+  }
+
+  try {
+    const api = useApi();
+    await api.post("/api/create-order", orderPayload);
+    await clearCart();
+  } catch (err: any) {
+    console.error("Order creation error:", err);
+    stripeError.value = err.response?.data?.statusMessage || "Failed to create order. Please try again.";
     isProcessing.value = false;
     return;
   }
@@ -721,20 +798,17 @@ const completeOrder = async () => {
     confirmParams: {
       return_url:
         window.location.origin +
-        (user.value
-          ? `/account?tab=orders&stripe_cb=true&ord_id=${orderId}`
-          : "/shop?success=true"),
+        `/order/${orderNumber}?payment=stripe`,
       payment_method_data: {
         billing_details: {
-          name: `${form.firstName} ${form.lastName}`.trim(),
-          email: form.email || (user.value ? user.value.email : ""),
+          name: shippingInfo.name,
+          email: form.email || user.value?.email || "",
           phone: form.phone,
           address: {
-            line1: form.address,
-            line2: form.apartment,
-            city: form.city,
-            state: form.state,
-            postal_code: form.zip,
+            line1: shippingInfo.address,
+            city: shippingInfo.city,
+            state: shippingInfo.state,
+            postal_code: shippingInfo.postal,
             country: form.country.toUpperCase(),
           },
         },
