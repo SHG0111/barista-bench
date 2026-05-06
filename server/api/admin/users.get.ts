@@ -1,4 +1,3 @@
-import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 
 export default defineEventHandler(async (event) => {
@@ -20,13 +19,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: 'Failed to fetch users' })
   }
 
-  const supabaseClient = createServerClient(
-    supabaseUrl,
-    config.supabaseSecretKey,
-    { cookies: { get: () => {} } }
-  )
-
-  const { data: profiles, error: profilesError } = await supabaseClient.from('profiles').select('*')
+  const { data: profiles, error: profilesError } = await supabaseAdmin.from('profiles').select('*')
   if (profilesError) {
     console.error('Error fetching profiles:', profilesError)
     throw createError({ statusCode: 500, message: 'Failed to fetch profiles' })

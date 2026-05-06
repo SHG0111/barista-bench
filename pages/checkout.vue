@@ -390,8 +390,7 @@
                   </div>
                 </div>
                 <div class="text-sm font-semibold text-text">
-                  {{ currency }}
-                  {{ (item.products.price * item.quantity).toFixed(2) }}
+                  {{ formatPrice(item.products.price * item.quantity) }}
                 </div>
               </div>
             </div>
@@ -405,34 +404,31 @@
             <div class="flex flex-col gap-3 pb-6 border-b border-border">
               <div class="flex justify-between text-sm text-text-2">
                 <span>Subtotal</span>
-                <span class="text-text font-medium">{{ currency }} {{ subtotal.toFixed(2) }}</span>
+                <span class="text-text font-medium">{{ formatPrice(subtotal) }}</span>
               </div>
               <div class="flex justify-between text-sm text-accent font-semibold" v-if="isBundle">
                 <span>Bundle Discount (15%)</span>
-                <span>−{{ currency }} {{ discount.toFixed(2) }}</span>
+                <span>−{{ formatPrice(discount) }}</span>
               </div>
               <div class="flex justify-between text-sm text-text-2">
                 <span>Shipping</span>
                 <span class="text-text font-medium">{{
                   step === 'information' ? 'Calculated at next step' : 
-                  (shippingCost === 0 ? "Free" : currency + " " + shippingCost.toFixed(2))
+                  (shippingCost === 0 ? "Free" : formatPrice(shippingCost))
                 }}</span>
               </div>
               <div class="flex justify-between text-sm text-text-2">
                 <span>Taxes</span>
-                <span class="text-text font-medium">{{ step === 'information' ? 'Calculated at next step' : currency + ' ' + taxes.toFixed(2) }}</span>
+                <span class="text-text font-medium">{{ step === 'information' ? 'Calculated at next step' : formatPrice(taxes) }}</span>
               </div>
             </div>
 
             <!-- Final -->
             <div class="mt-6 flex justify-between items-baseline">
               <span class="text-base text-text">Total</span>
-              <div class="flex items-baseline gap-2">
-                <span class="text-[12px] text-text-3">{{ currency }}</span>
-                <span class="text-2xl font-bold text-text">{{
-                  step !== 'information' ? finalTotal.toFixed(2) : total.toFixed(2)
-                }}</span>
-              </div>
+              <div class="text-2xl font-bold text-text">{{
+                step !== 'information' ? formatPrice(finalTotal) : formatPrice(total)
+              }}</div>
             </div>
           </div>
         </div>
@@ -444,11 +440,13 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from "vue";
 import { loadStripe } from "@stripe/stripe-js";
+import { z } from "zod";
 
 definePageMeta({ layout: "default" });
 
 const config = useRuntimeConfig();
 const { items, subtotal, discount, total, isBundle, fetchCart, clearCart } = useCart();
+const { formatPrice, convert, getStripeAmount: getStripeAmt, currency: selectedCurrency } = useCurrency();
 const user = useSupabaseUser();
 const supabase: any = useSupabaseClient();
 const toast = useToast();
@@ -466,6 +464,16 @@ const form = reactive({
   state: "",
   zip: "",
   phone: "",
+});
+
+const checkoutSchema = z.object({
+  email: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  address: z.string().min(5, "Please enter a complete address"),
+  city: z.string().min(2, "Please select or enter a city"),
+  zip: z.string().min(4, "Please enter a valid ZIP code"),
+  phone: z.string().min(8, "Please enter a valid phone number"),
 });
 
 const countryToCities: Record<string, string[]> = {
@@ -557,41 +565,15 @@ const finalTotal = computed(() => {
   return total.value + shippingCost.value + taxes.value;
 });
 
-const currency = computed(() => {
-  const map: Record<string, string> = {
-    AE: "AED",
-    SA: "SAR",
-    QA: "QAR",
-    KW: "KWD",
-    BH: "BHD",
-    OM: "OMR",
-    JO: "JOD",
-    LB: "USD",
-    EG: "EGP",
-  };
-  return map[form.country] || "USD";
-});
-
-const getStripeAmount = (total: number, cur: string) => {
-  const threeDecimal = ["bhd", "jod", "kwd", "omr"];
-  if (threeDecimal.includes(cur.toLowerCase())) return Math.round(total * 1000);
-  return Math.round(total * 100);
-};
-
 const setStep = (newStep: "information" | "shipping" | "payment") => {
   step.value = newStep;
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 const proceedToShipping = () => {
-  if (
-    !form.firstName ||
-    !form.lastName ||
-    !form.address ||
-    !form.city ||
-    !form.zip
-  ) {
-    toast.error("Please fill in all required shipping fields.");
+  const validation = checkoutSchema.safeParse(form);
+  if (!validation.success) {
+    toast.error(validation.error.issues[0]?.message ?? "Validation failed");
     return;
   }
   setStep("shipping");
@@ -616,7 +598,7 @@ const initializeStripe = async () => {
     return;
   }
 
-  const stripeAmount = getStripeAmount(finalTotal.value, currency.value);
+  const stripeAmount = getStripeAmt(finalTotal.value);
   
   if (finalTotal.value <= 0) {
     stripeError.value = "Total must be greater than 0 for online payments.";
@@ -625,9 +607,9 @@ const initializeStripe = async () => {
   }
 
   const restrictedCurrencies = ['KWD', 'BHD', 'JOD', 'OMR', 'LBP'];
-  const isRestricted = restrictedCurrencies.includes(currency.value.toUpperCase());
+  const isRestricted = restrictedCurrencies.includes(selectedCurrency.value.toUpperCase());
   
-  const processingCurrency = isRestricted ? 'usd' : currency.value.toLowerCase();
+  const processingCurrency = isRestricted ? 'usd' : selectedCurrency.value.toLowerCase();
   let processingAmount = stripeAmount;
 
   if (isRestricted) {
@@ -635,13 +617,12 @@ const initializeStripe = async () => {
   }
 
   try {
-    const { clientSecret } = await $fetch("/api/create-payment-intent", {
-      method: "POST",
-      body: {
-        amount: processingAmount,
-        currency: processingCurrency,
-      },
-    });
+    const api = useApi()
+    const { data } = await api.post("/api/create-payment-intent", {
+      amount: processingAmount,
+      currency: processingCurrency,
+    })
+    const { clientSecret } = data;
 
     stripeApp = await loadStripe(config.public.stripePublishableKey);
     if (!stripeApp) throw new Error("Stripe failed to load");
@@ -678,7 +659,7 @@ const initializeStripe = async () => {
   } catch (err: any) {
     console.error(err);
     stripeError.value =
-      err.data?.statusMessage ||
+      err.response?.data?.statusMessage ||
       err.message ||
       "Failed to initialize Stripe checkout.";
     stripeLoading.value = false;
@@ -714,13 +695,11 @@ const completeOrder = async () => {
   }
 
   if (paymentMethod.value === "cod") {
-    await $fetch("/api/send-email", {
-      method: "POST",
-      body: {
-        to: form.email || (user.value ? user.value.email : "guest@example.com"),
-        subject: `Order Confirmed: ${orderId}`,
-        content: `Your COD order for ${finalTotal.value} ${currency.value} is being processed.`,
-      },
+    const api = useApi()
+    await api.post("/api/send-email", {
+      to: form.email || (user.value ? user.value.email : "guest@example.com"),
+      subject: `Order Confirmed: ${orderId}`,
+      content: `Your COD order for ${formatPrice(finalTotal.value)} is being processed.`,
     }).catch((e) => console.error(e));
 
     setTimeout(() => {
@@ -732,7 +711,7 @@ const completeOrder = async () => {
   }
 
   if (!stripeApp || !stripeElements) {
-    toast.error("Secure checkout hasn't fully loaded.");
+    toast.error("Secure checkout hasn't fully loaded. Please wait for the payment form to appear.");
     isProcessing.value = false;
     return;
   }

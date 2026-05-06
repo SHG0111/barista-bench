@@ -31,8 +31,8 @@
           <h5 class="text-[10.5px] font-bold tracking-[0.1em] uppercase text-text-3 mb-3.5 font-body">Price Range</h5>
           <div class="space-y-2.5">
             <div class="flex justify-between text-[12px] text-text-2">
-              <span>${{ priceMin }}</span>
-              <span>${{ priceMax }}+</span>
+              <span>{{ formatPrice(priceMin) }}</span>
+              <span>{{ formatPrice(priceMax) }}+</span>
             </div>
             <input
               type="range"
@@ -152,6 +152,7 @@ const route = useRoute();
 const router = useRouter();
 const { addToCart } = useCart();
 const { success } = useToast();
+const { formatPrice } = useCurrency();
 
 const products = ref<any[]>([]);
 const categories = ref<any[]>([]);

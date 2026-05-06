@@ -1,3 +1,5 @@
+import type { Profiles } from "~/types/database.types";
+
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const user = useSupabaseUser();
   
@@ -6,7 +8,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   }
 
   if (!user.value.id) {
-    return
+    return;
   }
 
   const adminEmail = "admin@bench.bb";
@@ -18,14 +20,18 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo("/admin");
   }
 
-  const client = useSupabaseClient();
-  const { data: profile } = await client
-    .from("profiles")
-    .select("role")
-    .eq("id", user.value.id)
-    .single();
+  try {
+    const client = useSupabaseClient();
+    const { data: profile } = await client
+      .from("profiles")
+      .select("role")
+      .eq("id", user.value.id)
+      .single();
 
-  if (profile?.role === "admin") {
-    return navigateTo("/admin");
+    if (profile && (profile as Profiles).role === "admin") {
+      return navigateTo("/admin");
+    }
+  } catch (err) {
+    console.error('block-admin middleware error:', err);
   }
 });

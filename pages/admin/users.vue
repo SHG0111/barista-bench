@@ -255,15 +255,25 @@ definePageMeta({
 })
 
 const client = useSupabaseClient()
+const api = useApi()
 const searchQuery = ref('')
 const activeTab = ref('all')
+const users = ref([])
 
-const { data: users, refresh } = await useFetch('/api/admin/users', {
-  default: () => []
-})
+const loadUsers = async () => {
+  try {
+    const { data } = await api.get('/api/admin/users')
+    users.value = data || []
+  } catch (err) {
+    console.error('Failed to load users:', err)
+    users.value = []
+  }
+}
+
+await loadUsers()
 
 const refreshUsers = async () => {
-  await refresh()
+  await loadUsers()
 }
 
 const totalUsers = computed(() => users.value?.length || 0)
@@ -346,10 +356,7 @@ const confirmModal = ref(null)
 
 const verifyAccount = async (profile) => {
   try {
-    await $fetch('/api/admin/users/update', {
-      method: 'POST',
-      body: { id: profile.id, status: 'active' }
-    })
+    await api.post('/api/admin/users/update', { id: profile.id, status: 'active' })
     refreshUsers()
   } catch (err) {
     console.error('Error verifying account:', err)
@@ -359,10 +366,7 @@ const verifyAccount = async (profile) => {
 const toggleSuspend = async (profile) => {
   const newStatus = profile.status === 'suspended' ? 'active' : 'suspended'
   try {
-    await $fetch('/api/admin/users/update', {
-      method: 'POST',
-      body: { id: profile.id, status: newStatus }
-    })
+    await api.post('/api/admin/users/update', { id: profile.id, status: newStatus })
     refreshUsers()
   } catch (err) {
     console.error('Error toggling suspend:', err)
@@ -375,7 +379,7 @@ const deleteUser = async (profile) => {
   if (!confirmed) return
 
   try {
-    await $fetch(`/api/admin/users/${profile.id}`, { method: 'DELETE' })
+    await api.delete(`/api/admin/users/${profile.id}`)
     refreshUsers()
   } catch (err) {
     console.error('Error deleting user:', err)

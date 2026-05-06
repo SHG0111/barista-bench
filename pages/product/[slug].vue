@@ -45,7 +45,7 @@
         </div>
 
         <h1 class="pdp-title">{{ product.name }}</h1>
-        <div class="pdp-price">${{ product.price.toFixed(2) }}</div>
+        <div class="pdp-price">{{ formatPrice(product.price) }}</div>
         <p class="pdp-desc">{{ product.description }}</p>
 
         <!-- Compatibility Checker -->
@@ -392,6 +392,7 @@ const supabase: any = useSupabaseClient();
 const user = useSupabaseUser();
 const { addToCart } = useCart();
 const { success, error } = useToast();
+const { formatPrice } = useCurrency();
 
 const product = ref<any>(null);
 const machines = ref<any[]>([]);

@@ -1,6 +1,5 @@
 <template>
   <NuxtLayout>
-    <!-- Email Confirmation Banner -->
     <div v-if="showEmailBanner" class="sticky top-0 z-50 bg-accent/10 border-b border-accent/20 px-4 py-3">
       <div class="container mx-auto flex items-center justify-between gap-4">
         <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -24,7 +23,6 @@
     </div>
     <NuxtPage />
   </NuxtLayout>
-  <ToastContainer />
 </template>
 
 <script setup>

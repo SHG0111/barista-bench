@@ -705,7 +705,8 @@ const deleteProduct = async () => {
   if (!productToDelete.value) return
   
   try {
-    await $fetch(`/api/admin/products/${productToDelete.value.id}`, { method: 'DELETE' })
+    const api = useApi()
+    await api.delete(`/api/admin/products/${productToDelete.value.id}`)
     showDeleteModal.value = false
     productToDelete.value = null
     await refresh()
@@ -945,26 +946,26 @@ const uploadCsv = async () => {
   uploadSuccess.value = ''
   
   try {
+    const api = useApi()
     const formData = new FormData()
     formData.append('file', selectedFile.value)
     
-    const res = await $fetch('/api/admin/products/import', {
-      method: 'POST',
-      body: formData
+    const res = await api.post('/api/admin/products/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
     })
     
-    if (res.success) {
+    if (res.data.success) {
       await refresh()
-      if (res.count > 0) {
-        uploadSuccess.value = `Successfully imported ${res.count} product${res.count === 1 ? '' : 's'}!`
+      if (res.data.count > 0) {
+        uploadSuccess.value = `Successfully imported ${res.data.count} product${res.data.count === 1 ? '' : 's'}!`
         setTimeout(() => closeCsvModal(), 1500)
       }
-      if (res.errors) {
-        uploadError.value = res.errors.join('; ')
+      if (res.data.errors) {
+        uploadError.value = res.data.errors.join('; ')
       }
     }
   } catch (err) {
-    uploadError.value = err.data?.message || err.message || 'Failed to upload CSV'
+    uploadError.value = err.response?.data?.message || err.message || 'Failed to upload CSV'
     console.error('Upload error:', err)
   } finally {
     uploading.value = false

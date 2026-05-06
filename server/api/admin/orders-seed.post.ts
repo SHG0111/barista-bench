@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const { createClient } = await import('@supabase/supabase-js')
-  const supabase = createClient(config.supabaseUrl!, config.supabaseSecretKey!)
+  const supabase = createClient(config.public.supabaseUrl as string, config.supabaseSecretKey as string)
 
   const { data: users } = await supabase.from('profiles').select('id, full_name').limit(5)
 

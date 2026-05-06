@@ -1,4 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
+import { z } from 'zod'
+
+const signupSchema = z.object({
+  email: z.string().email('Please enter a valid email address').min(1, 'Email is required').transform(e => e.trim().toLowerCase()),
+  password: z.string().min(8, 'Password must be at least 8 characters').regex(/[a-zA-Z]/, 'Password must contain at least one letter').regex(/[^a-zA-Z0-9]/, 'Password must contain at least one symbol'),
+  fullName: z.string().min(2, 'Full name must be at least 2 characters').max(100, 'Full name is too long'),
+})
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -6,17 +13,19 @@ export default defineEventHandler(async (event) => {
   const serviceKey = process.env.SUPABASE_SECRET_KEY || config.supabaseSecretKey
 
   if (!supabaseUrl || !serviceKey) {
-    throw createError({ statusCode: 500, statusMessage: 'Supabase config missing' })
+    throw createError({ statusCode: 500, statusMessage: 'Supabase configuration is missing' })
   }
 
   const body = await readBody(event)
-  const { email, password, fullName } = body
 
-  if (!email || !password) {
-    throw createError({ statusCode: 400, statusMessage: 'email and password are required' })
+  const validation = signupSchema.safeParse(body)
+  if (!validation.success) {
+    const firstError = validation.error.issues[0]
+    throw createError({ statusCode: 400, statusMessage: firstError?.message ?? 'Validation failed' })
   }
 
-  const normalizedEmail = email.trim().toLowerCase()
+  const { email, password, fullName } = validation.data
+
   const origin = getRequestURL(event).origin
 
   const supabase = createClient(supabaseUrl, serviceKey, {
@@ -25,11 +34,11 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await supabase.auth.admin.generateLink({
     type: 'signup',
-    email: normalizedEmail,
+    email,
+    password,
     options: {
-      password,
-      data: { full_name: fullName?.trim() || '' },
-      redirect_to: `${origin}/auth/confirm`,
+      data: { full_name: fullName },
+      redirectTo: `${origin}/auth/confirm`,
     },
   })
 
@@ -41,27 +50,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
-  const confirmUrl = data.properties?.action_link || data.action_link
+  const confirmUrl = data.properties?.action_link
   if (!confirmUrl) {
     throw createError({ statusCode: 500, statusMessage: 'No confirmation URL returned' })
   }
-
-  await sendMailtrapEmail(
-    normalizedEmail,
-    'Confirm your Barista Bench account',
-    `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-        <h2 style="color: #333;">Welcome to Barista Bench!</h2>
-        <p style="color: #666; line-height: 1.6;">Click the button below to confirm your email address.</p>
-        <a href="${confirmUrl}"
-           style="display: inline-block; background: #000; color: #fff; padding: 14px 28px;
-                  text-decoration: none; border-radius: 6px; font-weight: 600; margin: 24px 0;">
-          Confirm Email
-        </a>
-        <p style="color: #999; font-size: 12px; margin-top: 32px;">If you didn't create an account, ignore this email.</p>
-      </div>
-    `,
-  )
 
   return { success: true, user_id: data.user?.id }
 })

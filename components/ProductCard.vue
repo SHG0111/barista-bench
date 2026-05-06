@@ -49,7 +49,7 @@
       <h3 class="text-[15px] font-semibold mb-1 leading-tight text-text">{{ product.name }}</h3>
       <p class="text-[12px] text-text-2 leading-[1.5] mb-3">{{ product.tagline }}</p>
       <div class="flex items-center justify-between flex-wrap gap-2">
-        <span class="text-[16px] font-bold text-text">${{ product.price }}</span>
+        <span class="text-[16px] font-bold text-text">{{ formatPrice(product.price) }}</span>
         <div v-if="product.tags?.length" class="flex gap-[5px]">
           <span v-for="tag in product.tags.slice(0,2)" :key="tag" class="inline-block px-2.5 py-0.5 bg-surface-2 rounded-full text-[11px] font-medium text-text-2 uppercase tracking-wide">{{ tag }}</span>
         </div>
@@ -65,6 +65,8 @@ const router = useRouter()
 function navigate() {
   router.push(`/product/${props.product.slug}`)
 }
+
+const { formatPrice } = useCurrency()
 
 const coverImage = computed(() => {
   const images = props.product.images as string[] | undefined
@@ -94,7 +96,7 @@ const cartQty = computed(() => {
 
 const addToCart = async () => {
   const id = props.product?.id
-  if (!id) {
+  if (!id || id === 'undefined' || id === 'null') {
     console.error('ProductCard - product missing id:', props.product)
     return
   }
@@ -106,7 +108,7 @@ const addToCart = async () => {
 
 const adjust = async (delta: number) => {
   const id = props.product?.id
-  if (!id) return
+  if (!id || id === 'undefined' || id === 'null') return
   const newQty = Math.max(0, cartQty.value + delta)
   if (newQty === 0) {
     await removeFromCart(id)

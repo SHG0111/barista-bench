@@ -1,14 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
+import { z } from 'zod'
 
 function parseCSV(text: string) {
   const lines = text.replace(/\r/g, '').split('\n').filter(line => line.trim())
   if (lines.length < 2) return []
 
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase())
+  const headers = lines[0]!.split(',').map(h => h.trim().toLowerCase())
   
   const rows: Record<string, string>[] = []
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i]
+  for (const line of lines.slice(1)) {
     const values: string[] = []
     let current = ''
     let inQuotes = false
@@ -41,14 +41,19 @@ export default defineEventHandler(async (event) => {
   
   const file = formData?.find(item => item.name === 'file')
   if (!file) {
-    throw createError({ statusCode: 400, message: 'No file provided' })
+    throw createError({ statusCode: 400, message: 'No file provided. Please select a CSV file to upload.' })
+  }
+
+  const fileName = file.filename || ''
+  if (!fileName.endsWith('.csv')) {
+    throw createError({ statusCode: 400, message: 'Only CSV files are accepted. Please upload a valid .csv file.' })
   }
 
   const csvContent = Buffer.from(file.data).toString('utf-8')
   const rows = parseCSV(csvContent)
   
   if (rows.length === 0) {
-    throw createError({ statusCode: 400, message: 'CSV file has no data rows' })
+    throw createError({ statusCode: 400, message: 'CSV file is empty or has no data rows. Please check your file and try again.' })
   }
 
   const supabaseAdmin = createClient(config.public.supabaseUrl, config.supabaseSecretKey, {
@@ -62,15 +67,16 @@ export default defineEventHandler(async (event) => {
   const { data: categories } = await supabaseAdmin.from('categories').select('id, name, slug')
 
   // Build category lookup maps
-  const categoryById: Record<string, { name: string; slug: string }> = {}
-  const categoryByName: Record<string, { id: string; slug: string }> = {}
-  const categoryBySlug: Record<string, { id: string; name: string }> = {}
+  const categoryById: Record<string, { id: string; name: string; slug: string }> = {}
+  const categoryByName: Record<string, { id: string; name: string; slug: string }> = {}
+  const categoryBySlug: Record<string, { id: string; name: string; slug: string }> = {}
   
   if (categories) {
     categories.forEach(cat => {
-      categoryById[cat.id] = { name: cat.name, slug: cat.slug }
-      categoryByName[cat.name.toLowerCase()] = { id: cat.id, slug: cat.slug }
-      categoryBySlug[cat.slug.toLowerCase()] = { id: cat.id, name: cat.name }
+      const entry = { id: cat.id, name: cat.name, slug: cat.slug }
+      categoryById[cat.id] = entry
+      categoryByName[cat.name.toLowerCase()] = entry
+      categoryBySlug[cat.slug.toLowerCase()] = entry
     })
   }
 
@@ -114,9 +120,10 @@ export default defineEventHandler(async (event) => {
 
   const getNextSku = (categoryId: string | null) => {
     let prefix = 'MISC'
-    if (categoryId && categoryById[categoryId]) {
-      const name = categoryById[categoryId].name.toLowerCase()
-      const slug = categoryById[categoryId].slug.toLowerCase()
+    const cat = categoryId ? categoryById[categoryId] : null
+    if (cat) {
+      const name = cat.name.toLowerCase()
+      const slug = cat.slug.toLowerCase()
       for (const [key, val] of Object.entries(categoryPrefixes)) {
         if (name.includes(key) || slug.includes(key)) {
           prefix = val
@@ -134,18 +141,21 @@ export default defineEventHandler(async (event) => {
     const input = categoryInput.trim()
     
     // Try matching by direct ID first (UUID)
-    if (categoryById[input]) {
-      return { id: input, name: categoryById[input].name }
+    const byId = categoryById[input]
+    if (byId) {
+      return { id: input, name: byId.name }
     }
     
     // Try matching by slug
-    if (categoryBySlug[input.toLowerCase()]) {
-      return { id: categoryBySlug[input.toLowerCase()].id, name: categoryBySlug[input.toLowerCase()].name }
+    const bySlug = categoryBySlug[input.toLowerCase()]
+    if (bySlug) {
+      return { id: bySlug.id, name: bySlug.name }
     }
     
     // Try matching by name
-    if (categoryByName[input.toLowerCase()]) {
-      return { id: categoryByName[input.toLowerCase()].id, name: categoryByName[input.toLowerCase()].name }
+    const byName = categoryByName[input.toLowerCase()]
+    if (byName) {
+      return { id: byName.id, name: byName.name }
     }
     
     // Try partial match
@@ -161,12 +171,12 @@ export default defineEventHandler(async (event) => {
   let count = 0
   const errors: string[] = []
 
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i]
-    console.log(`Row ${i + 1} data:`, row)
+  for (const [idx, row] of rows.entries()) {
+    const rowNum = idx + 1
+    console.log(`Row ${rowNum} data:`, row)
     
     if (!row.name) {
-      errors.push(`Row ${i + 1}: missing name`)
+      errors.push(`Row ${rowNum}: missing name`)
       continue
     }
 
@@ -175,7 +185,7 @@ export default defineEventHandler(async (event) => {
     // Resolve category from database
     const categoryInput = row.category_name || row.category_slug || row.category || row.category_id || ''
     const category = resolveCategoryId(categoryInput)
-    console.log(`Row ${i + 1} category resolution: input="${categoryInput}" => id=${category.id} name=${category.name}`)
+    console.log(`Row ${rowNum} category resolution: input="${categoryInput}" => id=${category.id} name=${category.name}`)
     
     // Auto-generate SKU if not provided
     const sku = row.sku || getNextSku(category.id)
@@ -221,14 +231,14 @@ export default defineEventHandler(async (event) => {
       sku,
       tagline: row.tagline || '',
       description: row.description || '',
-      price: parseFloat(row.price) || 0,
+      price: parseFloat(row.price || '0') || 0,
       series: row.series || null,
       images: images.length > 0 ? images : [],
       specs: specs,
       tags: tags.length > 0 ? tags : [],
       materials: materials.length > 0 ? materials : [],
-      stock_count: parseInt(row.stock_count) || 0,
-      in_stock: (parseInt(row.stock_count) || 0) > 0,
+      stock_count: parseInt(row.stock_count || '0') || 0,
+      in_stock: (parseInt(row.stock_count || '0') || 0) > 0,
       is_bestseller: row.is_bestseller === 'true' || row.is_bestseller === '1',
       created_at: new Date().toISOString()
     }
@@ -240,12 +250,12 @@ export default defineEventHandler(async (event) => {
     const { error } = await supabaseAdmin.from('products').insert(productData)
 
     if (error) {
-      console.error(`Row ${i + 1} error:`, error)
+      console.error(`Row ${rowNum} error:`, error)
       let message = error.message
       if (error.code === '23505' && error.message.includes('products_slug_key')) {
         continue
       }
-      errors.push(`Row ${i + 1} (${row.name}): ${message}`)
+      errors.push(`Row ${rowNum} (${row.name}): ${message}`)
     } else {
       count++
     }

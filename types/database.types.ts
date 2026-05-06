@@ -12,7 +12,7 @@ export type OrderStatus = 'placed' | 'processed' | 'in_transit' | 'out_for_deliv
 export type ReturnStatus = 'pending' | 'approved' | 'rejected' | 'completed'
 export type ReturnResolution = 'refund' | 'exchange' | 'store_credit'
 
-export interface profiles {
+export interface Profiles {
   id: string
   full_name: string | null
   avatar_url: string | null
@@ -22,9 +22,10 @@ export interface profiles {
   courses_completed: number
   created_at: string
   updated_at: string
+  role?: string
 }
 
-export interface categories {
+export interface Categories {
   id: string
   name: string
   slug: string
@@ -32,7 +33,7 @@ export interface categories {
   sort_order: number
 }
 
-export interface products {
+export interface Products {
   id: string
   category_id: string | null
   name: string
@@ -56,12 +57,12 @@ export interface products {
   created_at: string
 }
 
-export interface products_with_category extends products {
+export interface Products_with_category extends Products {
   category_name: string | null
   category_slug: string | null
 }
 
-export interface machine_models {
+export interface Machine_models {
   id: string
   brand: string
   name: string
@@ -69,7 +70,7 @@ export interface machine_models {
   portafilter_size: number | null
 }
 
-export interface orders {
+export interface Orders {
   id: string
   order_number: string
   user_id: string | null
@@ -88,7 +89,7 @@ export interface orders {
   updated_at: string
 }
 
-export interface order_items {
+export interface Order_items {
   id: string
   order_id: string
   product_id: string | null
@@ -100,7 +101,7 @@ export interface order_items {
   total_price: number
 }
 
-export interface cart_items {
+export interface Cart_items {
   id: string
   user_id: string | null
   product_id: string | null
@@ -108,14 +109,14 @@ export interface cart_items {
   added_at: string
 }
 
-export interface saved_tools {
+export interface Saved_tools {
   id: string
   user_id: string | null
   product_id: string | null
   saved_at: string
 }
 
-export interface reviews {
+export interface Reviews {
   id: string
   product_id: string | null
   user_id: string | null
@@ -128,7 +129,7 @@ export interface reviews {
   created_at: string
 }
 
-export interface returns {
+export interface Returns {
   id: string
   order_id: string | null
   user_id: string | null
@@ -141,7 +142,7 @@ export interface returns {
   updated_at: string
 }
 
-export interface bundle_configs {
+export interface Bundle_configs {
   id: string
   user_id: string | null
   name: string
@@ -155,64 +156,64 @@ export type Database = {
   public: {
     Tables: {
       profiles: {
-        Row: profiles
-        Insert: Omit<profiles, 'created_at' | 'updated_at'>
-        Update: Partial<Omit<profiles, 'id'>>
+        Row: Profiles
+        Insert: Omit<Profiles, 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Profiles, 'id'>>
       }
       categories: {
-        Row: categories
-        Insert: Omit<categories, 'id'>
-        Update: Partial<Omit<categories, 'id'>>
+        Row: Categories
+        Insert: Omit<Categories, 'id'>
+        Update: Partial<Omit<Categories, 'id'>>
       }
       products: {
-        Row: products
-        Insert: Omit<products, 'id' | 'created_at'>
-        Update: Partial<Omit<products, 'id' | 'created_at'>>
+        Row: Products
+        Insert: Omit<Products, 'id' | 'created_at'>
+        Update: Partial<Omit<Products, 'id' | 'created_at'>>
       }
       machine_models: {
-        Row: machine_models
-        Insert: Omit<machine_models, 'id'>
-        Update: Partial<Omit<machine_models, 'id'>>
+        Row: Machine_models
+        Insert: Omit<Machine_models, 'id'>
+        Update: Partial<Omit<Machine_models, 'id'>>
       }
       orders: {
-        Row: orders
-        Insert: Omit<orders, 'id' | 'placed_at' | 'updated_at'>
-        Update: Partial<Omit<orders, 'id' | 'order_number'>>
+        Row: Orders
+        Insert: Omit<Orders, 'id' | 'placed_at' | 'updated_at'>
+        Update: Partial<Omit<Orders, 'id' | 'order_number'>>
       }
       order_items: {
-        Row: order_items
-        Insert: Omit<order_items, 'id'>
-        Update: Partial<Omit<order_items, 'id'>>
+        Row: Order_items
+        Insert: Omit<Order_items, 'id'>
+        Update: Partial<Omit<Order_items, 'id'>>
       }
       cart_items: {
-        Row: cart_items
-        Insert: Omit<cart_items, 'id' | 'added_at'>
-        Update: Partial<Omit<cart_items, 'id'>>
+        Row: Cart_items
+        Insert: Omit<Cart_items, 'id' | 'added_at'>
+        Update: Partial<Omit<Cart_items, 'id'>>
       }
       saved_tools: {
-        Row: saved_tools
-        Insert: Omit<saved_tools, 'id' | 'saved_at'>
-        Update: Partial<Omit<saved_tools, 'id'>>
+        Row: Saved_tools
+        Insert: Omit<Saved_tools, 'id' | 'saved_at'>
+        Update: Partial<Omit<Saved_tools, 'id'>>
       }
       reviews: {
-        Row: reviews
-        Insert: Omit<reviews, 'id' | 'created_at'>
-        Update: Partial<Omit<reviews, 'id' | 'created_at'>>
+        Row: Reviews
+        Insert: Omit<Reviews, 'id' | 'created_at'>
+        Update: Partial<Omit<Reviews, 'id' | 'created_at'>>
       }
       returns: {
-        Row: returns
-        Insert: Omit<returns, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<returns, 'id' | 'order_id' | 'user_id'>>
+        Row: Returns
+        Insert: Omit<Returns, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Returns, 'id' | 'order_id' | 'user_id'>>
       }
       bundle_configs: {
-        Row: bundle_configs
-        Insert: Omit<bundle_configs, 'id' | 'saved_at'>
-        Update: Partial<Omit<bundle_configs, 'id' | 'user_id'>>
+        Row: Bundle_configs
+        Insert: Omit<Bundle_configs, 'id' | 'saved_at'>
+        Update: Partial<Omit<Bundle_configs, 'id' | 'user_id'>>
       }
     }
     Views: {
       products_with_category: {
-        Row: products_with_category
+        Row: Products_with_category
       }
     }
   }

@@ -108,6 +108,8 @@
 </template>
 
 <script setup lang="ts">
+import { z } from 'zod'
+
 definePageMeta({ layout: 'clean' })
 
 const supabase = useSupabaseClient()
@@ -127,6 +129,21 @@ const registeredEmail = ref('')
 const form = reactive({ email: '', password: '', fullName: '' })
 
 const route = useRoute()
+
+const loginSchema = z.object({
+  email: z.string().email('Please enter a valid email address').min(1, 'Email is required'),
+  password: z.string().min(1, 'Password is required'),
+})
+
+const registerSchema = z.object({
+  fullName: z.string().min(2, 'Full name must be at least 2 characters').max(100, 'Full name is too long'),
+  email: z.string().email('Please enter a valid email address').min(1, 'Email is required'),
+  password: z.string().min(8, 'Password must be at least 8 characters').regex(/[a-zA-Z]/, 'Password must contain at least one letter').regex(/[^a-zA-Z0-9]/, 'Password must contain at least one symbol'),
+})
+
+const forgotSchema = z.object({
+  email: z.string().email('Please enter a valid email address').min(1, 'Email is required'),
+})
 
 async function resendConfirmation(email: string) {
   resending.value = true
@@ -193,15 +210,26 @@ onMounted(() => {
 async function handleSubmit() {
   authError.value = ''
   authSuccess.value = ''
+
+  let validation
+  if (mode.value === 'forgot') {
+    validation = forgotSchema.safeParse({ email: form.email })
+  } else if (mode.value === 'login') {
+    validation = loginSchema.safeParse({ email: form.email, password: form.password })
+  } else {
+    validation = registerSchema.safeParse({ fullName: form.fullName, email: form.email, password: form.password })
+  }
+
+  if (!validation.success) {
+    authError.value = validation.error.issues[0]?.message ?? "Validation failed"
+    return
+  }
+
   loading.value = true
+
   if (mode.value === 'forgot') {
     if (resetCooldown.value > 0) {
       authError.value = `Please wait ${resetCooldown.value}s before requesting another reset link.`
-      loading.value = false
-      return
-    }
-    if (!form.email.trim()) {
-      authError.value = 'Please enter your email address.'
       loading.value = false
       return
     }
@@ -255,39 +283,17 @@ async function handleSubmit() {
       }
     }
   } else {
-    if (!form.fullName.trim()) {
-      authError.value = 'Please enter your full name.'
-      loading.value = false
-      return
-    }
-    if (form.password.length < 8) {
-      authError.value = 'Password must be at least 8 characters long.'
-      loading.value = false
-      return
-    }
-    if (!/[a-zA-Z]/.test(form.password)) {
-      authError.value = 'Password must contain at least one letter.'
-      loading.value = false
-      return
-    }
-    if (!/[^a-zA-Z0-9]/.test(form.password)) {
-      authError.value = 'Password must contain at least one symbol.'
-      loading.value = false
-      return
-    }
     const normalizedEmail = form.email.trim().toLowerCase()
     try {
-      await $fetch('/api/auth/signup', {
-        method: 'POST',
-        body: { email: normalizedEmail, password: form.password, fullName: form.fullName.trim() }
-      })
+      const api = useApi()
+      await api.post('/api/auth/signup', { email: normalizedEmail, password: form.password, fullName: form.fullName.trim() })
       authSuccess.value = 'Account created! Please confirm your email to continue.'
       registeredEmail.value = normalizedEmail
       showResendBtn.value = true
       mode.value = 'login'
       form.password = ''
     } catch (err: any) {
-      const msg = err?.data?.statusMessage || err?.data?.message || err?.message || ''
+      const msg = err?.response?.data?.statusMessage || err?.response?.data?.message || err?.message || ''
       if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('duplicate')) {
         authError.value = 'This email is already registered. Please sign in instead.'
       } else {

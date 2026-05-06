@@ -106,7 +106,7 @@
                     <div>
                       <span class="badge" :class="statusBadge(o.status)">{{ o.status }}</span>
                     </div>
-                    <span class="text-[14px] font-bold text-text">${{ o.total?.toFixed(2) }}</span>
+                    <span class="text-[14px] font-bold text-text">{{ formatPrice(o.total) }}</span>
                     <NuxtLink :to="`/order/${o.order_number}`" class="btn btn-ghost btn-sm px-2"><IconEye /></NuxtLink>
                   </div>
                 </div>
@@ -140,7 +140,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                       <div class="text-[13.5px] font-semibold text-text truncate mb-0.5">{{ item.products?.name }}</div>
-                      <div class="text-[12px] text-accent font-bold mb-2">${{ item.products?.price }}</div>
+                      <div class="text-[12px] text-accent font-bold mb-2">{{ formatPrice(item.products?.price) }}</div>
                       <button class="btn btn-accent btn-sm" @click="addSavedToCart(item)">ADD TO CART</button>
                     </div>
                     <button class="p-1 rounded text-text-3 hover:text-red hover:bg-red-bg transition-all duration-150" @click="removeSaved(item)">
@@ -169,7 +169,7 @@
                     <div>
                       <span class="badge" :class="statusBadge(o.status)">{{ o.status }}</span>
                     </div>
-                    <span class="text-[14px] font-bold text-text">${{ o.total?.toFixed(2) }}</span>
+                    <span class="text-[14px] font-bold text-text">{{ formatPrice(o.total) }}</span>
                     <NuxtLink :to="`/order/${o.order_number}`" class="btn btn-ghost btn-sm px-2"><IconEye /></NuxtLink>
                   </div>
                 </div>
@@ -265,11 +265,14 @@
 </template>
 
 <script setup lang="ts">
+import { z } from 'zod'
+
 definePageMeta({ middleware: ["auth", "block-admin"] });
 
 const supabase: any = useSupabaseClient();
 const user = useSupabaseUser();
 const { addToCart } = useCart();
+const { formatPrice } = useCurrency();
 const toast = useToast();
 const route = useRoute();
 
@@ -282,6 +285,15 @@ const ordersLoading = ref(true);
 const settingsForm = reactive({ full_name: "" });
 const passwordForm = reactive({ new: "", confirm: "" });
 const changingPassword = ref(false);
+
+const profileSchema = z.object({
+  full_name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name is too long'),
+})
+
+const passwordSchema = z.object({
+  new: z.string().min(6, 'Password must be at least 6 characters'),
+  confirm: z.string(),
+}).refine(data => data.new === data.confirm, { message: 'Passwords do not match' })
 
 const firstName = computed(() => {
   const name = profile.value?.full_name || 
@@ -330,6 +342,13 @@ async function removeSaved(item: any) {
 }
 async function saveSettings() {
   if (!user.value) return;
+
+  const validation = profileSchema.safeParse(settingsForm)
+  if (!validation.success) {
+    toast.error(validation.error.issues[0]?.message || 'Validation failed')
+    return
+  }
+
   saving.value = true;
   await supabase
     .from("profiles")
@@ -344,15 +363,12 @@ async function saveSettings() {
 }
 
 async function updatePassword() {
-  if (!passwordForm.new || passwordForm.new !== passwordForm.confirm) {
-    supabase.auth.updateUser({ password: 'dummy' });
-    toast.error("Passwords do not match or are empty");
-    return;
+  const validation = passwordSchema.safeParse(passwordForm)
+  if (!validation.success) {
+    toast.error(validation.error.issues[0]?.message || 'Validation failed')
+    return
   }
-  if (passwordForm.new.length < 6) {
-    toast.error("Password must be at least 6 characters");
-    return;
-  }
+
   changingPassword.value = true;
   const { error } = await supabase.auth.updateUser({
     password: passwordForm.new,
@@ -384,13 +400,11 @@ onMounted(async () => {
       const ordId = String(route.query.ord_id);
       await supabase.from('orders').update({ status: 'processed' }).eq('order_number', ordId);
       
-      $fetch('/api/send-email', {
-        method: 'POST',
-        body: {
-          to: user.value.email,
-          subject: `Payment Received: Order ${ordId}`,
-          content: `Your payment was perfectly tracked on the server! Order ${ordId} is now processing.`
-        }
+      const api = useApi()
+      api.post('/api/send-email', {
+        to: user.value.email,
+        subject: `Payment Received: Order ${ordId}`,
+        content: `Your payment was perfectly tracked on the server! Order ${ordId} is now processing.`
       }).catch(e => console.error(e));
     }
 

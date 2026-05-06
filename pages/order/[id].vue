@@ -77,7 +77,7 @@
                   <div class="oi-variant" v-if="item.variant_info?.color">{{ item.variant_info.color }}</div>
                   <div class="badge badge-gray" style="margin-top:6px;font-size:10px">QTY: {{ item.quantity }}</div>
                 </div>
-                <div class="oi-price">${{ item.total_price.toFixed(2) }}</div>
+                <div class="oi-price">{{ formatPrice(item.total_price) }}</div>
               </div>
             </div>
             <hr class="divider" />
@@ -90,9 +90,8 @@
               </div>
               <div>
                 <div class="ab-label">BILLING SUMMARY</div>
-                <div class="billing-row"><span>Subtotal</span><span>${{ order.subtotal?.toFixed(2) }}</span></div>
-                <div class="billing-row green"><span>Shipping</span><span>Free</span></div>
-                <div class="billing-row total-row"><span>Total</span><span>${{ order.total?.toFixed(2) }}</span></div>
+                <div class="billing-row"><span>Subtotal</span><span>{{ formatPrice(order.subtotal) }}</span></div>
+                <div class="billing-row total-row"><span>Total</span><span>{{ formatPrice(order.total) }}</span></div>
               </div>
             </div>
           </div>
@@ -142,6 +141,7 @@ const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const route = useRoute()
 const { success } = useToast()
+const { formatPrice } = useCurrency()
 
 const order = ref<any>(null)
 const lookupNum = ref((route.params.id as string) || '')
@@ -197,9 +197,10 @@ async function lookupOrder() {
   if (error || !data) {
     lookupError.value = 'Order not found. Please check the order number.'
   } else {
+    const rawData = data as any
     order.value = {
-      ...data,
-      order_items: (data.order_items || []).map((item: any) => ({
+      ...rawData,
+      order_items: (rawData.order_items || []).map((item: any) => ({
         ...item,
         product_image: item.products?.image || null
       }))

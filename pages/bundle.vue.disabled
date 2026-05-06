@@ -1,6 +1,5 @@
-<template>
+<!-- <template>
   <div class="pt-[56px] min-h-screen bg-bg">
-    <!-- Mini nav bar -->
     <div class="bg-surface border-b border-border h-[52px] flex items-center justify-between px-8">
       <NuxtLink to="/shop" class="flex items-center gap-2 no-underline text-text text-[12px] font-bold tracking-[0.1em]">
         <div class="w-6 h-6 bg-text rounded-[4px] flex items-center justify-center">
@@ -15,9 +14,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-0 min-h-[calc(100vh-52px-56px-56px)]">
-      <!-- Main -->
       <div class="p-10 lg:p-12 lg:px-12">
-        <!-- Steps -->
         <div class="mb-9">
           <div class="flex items-center justify-center md:justify-start gap-3 md:gap-0">
             <div
@@ -61,7 +58,7 @@
               :key="p.id"
               class="group bg-surface rounded-lg pb-4 cursor-pointer relative transition-all duration-180 ease-default hover:shadow-md"
               :class="{ 'ring-2 ring-text': selectedItems[steps[currentStep].key]?.id === p.id }"
-              @click="selectItem(p)"
+              @click="selectItem(steps[currentStep].key, p)"
             >
               <div
                 class="absolute top-3.5 right-3.5 w-6 h-6 bg-text rounded-full text-white text-[12px] font-bold flex items-center justify-center z-10"
@@ -83,7 +80,7 @@
               <div class="px-4 pt-4">
                 <div class="flex justify-between items-baseline mb-1.5">
                   <h3 class="text-[16px] font-semibold text-text truncate pr-2">{{ p.name }}</h3>
-                  <span class="text-[15px] font-bold text-text shrink-0">${{ p.price }}</span>
+                  <span class="text-[15px] font-bold text-text shrink-0">{{ formatPrice(p.price) }}</span>
                 </div>
                 <p class="text-[12.5px] text-text-2 leading-[1.6] mb-2.5 line-clamp-2">{{ p.tagline }}</p>
                 <div class="flex gap-1.5 mb-3 flex-wrap">
@@ -103,7 +100,6 @@
           </div>
         </div>
 
-        <!-- Nav buttons -->
         <div class="flex flex-col sm:flex-row justify-between items-center mt-10 pt-7 border-t border-border gap-4">
           <button
             class="btn btn-ghost w-full sm:w-auto"
@@ -115,10 +111,7 @@
           <button
             class="btn btn-primary btn-lg w-full sm:w-auto"
             @click="nextStep"
-            :disabled="
-              !selectedItems[steps[currentStep].key] &&
-              currentStep < steps.length - 1
-            "
+            :disabled="!selectedItems[steps[currentStep].key] && currentStep < steps.length - 1"
           >
             {{
               currentStep === steps.length - 1
@@ -129,7 +122,6 @@
         </div>
       </div>
 
-      <!-- Sidebar summary -->
       <div class="bg-white p-8 lg:px-6 lg:border-l border-border/50">
         <div class="space-y-5">
           <h3 class="text-[18px] font-display font-semibold text-text mb-1">YOUR BUNDLE</h3>
@@ -142,7 +134,7 @@
                 <div class="w-8 h-8 rounded-md bg-[#333] shrink-0"></div>
                 <div class="min-w-0">
                   <div class="text-[12.5px] text-text font-medium truncate">{{ selectedItems[step.key].name }}</div>
-                  <div class="text-[12px] text-accent font-bold">${{ selectedItems[step.key].price }}</div>
+                  <div class="text-[12px] text-accent font-bold">{{ formatPrice(selectedItems[step.key].price) }}</div>
                 </div>
                 <button class="ml-auto border-none bg-transparent cursor-pointer text-[#555] p-1 opacity-60 hover:opacity-100 transition-opacity" @click="removeItem(step.key)">
                   🗑
@@ -157,15 +149,15 @@
           <div class="flex flex-col gap-2">
             <div class="flex justify-between text-[13px] text-[#777] font-medium">
               <span>Subtotal</span>
-              <span>${{ bundleSubtotal.toFixed(2) }}</span>
+              <span>{{ formatPrice(bundleSubtotal) }}</span>
             </div>
-            <div class="flex justify-between text-[13px] text-accent font-bold">
+            <div class="flex justify-between text-[13px] text-accent font-semibold" v-if="isBundle">
               <span>Bundle Discount (15%)</span>
-              <span>−${{ bundleDiscount.toFixed(2) }}</span>
+              <span>−{{ formatPrice(bundleDiscount) }}</span>
             </div>
-            <div class="flex justify-between text-text text-[18px] font-bold mt-1">
+            <div class="flex justify-between text-[15px] font-bold text-text pt-3 border-t border-border">
               <span>Total</span>
-              <span>${{ bundleTotal.toFixed(2) }}</span>
+              <span>{{ formatPrice(bundleTotal) }}</span>
             </div>
           </div>
 
@@ -183,9 +175,8 @@
       </div>
     </div>
 
-    <!-- Footer mini -->
     <div class="bg-surface border-t border-border flex flex-col md:flex-row items-center gap-4 md:gap-10 p-6 md:px-12 text-[12.5px] font-bold tracking-[0.04em] text-text">
-      <span class="flex items-center gap-2">✈ FREE SHIPPING <span class="text-[#555] font-medium">On orders over $150</span></span>
+      <span class="flex items-center gap-2">✈ FREE SHIPPING <span class="text-[#555] font-medium">On orders over {{ formatPrice(150) }}</span></span>
       <span class="flex items-center gap-2">⊙ EXPERT SUPPORT <span class="text-[#555] font-medium">Barista-led help desk</span></span>
       <div class="flex gap-2 ml-0 md:ml-auto">
         <span v-for="pay in ['VISA', 'MC', 'PP']" :key="pay" class="border border-border rounded px-2 py-0.5 text-[10px] font-bold text-text-3">{{ pay }}</span>
@@ -199,37 +190,18 @@ import { ref, onMounted, computed } from 'vue';
 const supabase = useSupabaseClient();
 const { addToCart, isBundle } = useCart();
 const { success, error } = useToast();
+const { formatPrice } = useCurrency();
 
 const currentStep = ref(0);
 const selectedItems = ref<Record<string, any>>({});
 const allProducts = ref<any[]>([]);
 
 const steps = [
-  {
-    key: "grinder",
-    label: "Grinder",
-    title: "Select your grinder",
-    categorySlug: "manual-grinders",
-  },
-  {
-    key: "portafilter",
-    label: "Portafilter",
-    title: "Select your portafilter",
-    categorySlug: "portafilters",
-  },
-  {
-    key: "tamper",
-    label: "Tamper",
-    title: "Select your tamper",
-    categorySlug: "tampers",
-  },
-  {
-    key: "finish",
-    label: "Finish",
-    title: "Add finishing touches",
-    categorySlug: "distribution-tools",
-  },
-];
+  { key: 'grinder', label: 'Grinder', title: 'Select your grinder', categorySlug: 'manual-grinders' },
+  { key: 'portafilter', label: 'Portafilter', title: 'Select your portafilter', categorySlug: 'portafilters' },
+  { key: 'tamper', label: 'Tamper', title: 'Select your tamper', categorySlug: 'tampers' },
+  { key: 'finish', label: 'Finish', title: 'Add finishing touches', categorySlug: 'distribution-tools' },
+] as const;
 
 const stepProducts = computed(() => {
   const cat = steps[currentStep.value].categorySlug;
@@ -237,22 +209,14 @@ const stepProducts = computed(() => {
 });
 
 const bundleSubtotal = computed(() =>
-  Object.values(selectedItems.value).reduce(
-    (s, p: any) => s + parseFloat(p.price),
-    0,
-  ),
+  Object.values(selectedItems.value).reduce((s, p: any) => s + parseFloat(p.price), 0),
 );
 const bundleDiscount = computed(() => bundleSubtotal.value * 0.15);
 const bundleTotal = computed(() => bundleSubtotal.value - bundleDiscount.value);
-const hasMinimumItems = computed(
-  () => Object.keys(selectedItems.value).length >= 2,
-);
+const hasMinimumItems = computed(() => Object.keys(selectedItems.value).length >= 2);
 
-function selectItem(product: any) {
-  selectedItems.value = {
-    ...selectedItems.value,
-    [steps[currentStep.value].key]: product,
-  };
+function selectItem(key: string, product: any) {
+  selectedItems.value = { ...selectedItems.value, [key]: product };
 }
 
 function removeItem(key: string) {
@@ -268,25 +232,29 @@ function nextStep() {
 
 async function addKitToCart() {
   if (!hasMinimumItems.value) {
-    error("Select at least 2 items");
+    error('Select at least 2 items');
     return;
   }
-  isBundle.value = true; // Activate bundle discount
+  isBundle.value = true;
+  let failed = false;
   for (const item of Object.values(selectedItems.value) as any[]) {
-    await addToCart(item.id);
+    const ok = await addToCart(item.id);
+    if (!ok) { failed = true; break; }
   }
-  success(
-    `Kit added to cart — ${bundleTotal.value.toFixed(2)} with 15% bundle discount`,
-  );
-  await navigateTo("/checkout");
+  if (failed) {
+    error('Failed to add kit to cart. Please try again.');
+    return;
+  }
+  success(`Kit added to cart — ${formatPrice(bundleTotal.value)} with 15% bundle discount`);
+  await navigateTo('/checkout');
 }
 
 onMounted(async () => {
-  const { data } = await supabase.from("products_with_category").select("*");
+  const { data } = await supabase.from('products_with_category').select('*');
   if (data) allProducts.value = data;
 });
 </script>
 
 <style scoped>
 /* All styles handled via Tailwind CSS utility classes */
-</style>
+</style> -->

@@ -1,9 +1,14 @@
 export const useCart = () => {
-  const supabase = useSupabaseClient<any>()
   const user = useSupabaseUser()
   const items = useState<any[]>("cart-items", () => [])
   const loading = useState("cart-loading", () => false)
   const isBundle = useState("is-bundle-cart", () => false)
+  const api = useApi()
+  const initialized = useState<boolean>("cart-initialized", () => false)
+
+  const userId = computed(() => {
+    return user.value?.id || user.value?.sub || user.value?.user_metadata?.id || null
+  })
 
   const count = computed(() => items.value.reduce((s: number, i: any) => s + i.quantity, 0))
   const subtotal = computed(() =>
@@ -18,16 +23,15 @@ export const useCart = () => {
   }
 
   async function fetchCart() {
-    if (!user.value?.id) {
+    if (!userId.value) {
       return
     }
     loading.value = true
     try {
-      const data = await $fetch('/api/cart', {
-        credentials: 'include',
-      })
-      items.value = data || []
-      console.log('Cart fetched successfully:', items.value.length, 'items')
+      const res = await api.get('/api/cart')
+      console.log('Cart fetched successfully:', res.data)
+      const cartData = res.data?.items ?? res.data
+      items.value = Array.isArray(cartData) ? cartData : []
     } catch (err) {
       console.error("fetchCart error:", err)
       items.value = []
@@ -36,22 +40,18 @@ export const useCart = () => {
   }
 
   async function addToCart(productId: string, quantity = 1) {
-    if (!user.value) {
+    if (!userId.value) {
       navigateTo("/auth/login")
       return false
     }
 
     if (!productId) {
-      console.error('useCart - addToCart called with invalid productId:', productId)
       return false
     }
 
     try {
-      await $fetch('/api/cart', {
-        method: 'POST',
-        credentials: 'include',
-        body: { productId, quantity }
-      })
+      const res = await api.post('/api/cart', { productId, quantity })
+      console.log('Cart added successfully:', res.data)
       await fetchCart()
       return true
     } catch (err) {
@@ -61,15 +61,11 @@ export const useCart = () => {
   }
 
   async function updateQuantity(productId: string, quantity: number) {
-    if (!user.value) return
+    if (!userId.value) return
     if (quantity <= 0) return removeFromCart(productId)
 
     try {
-      await $fetch('/api/cart/update', {
-        method: 'POST',
-        credentials: 'include',
-        body: { productId, quantity }
-      })
+      await api.post('/api/cart/update', { productId, quantity })
       await fetchCart()
     } catch (err) {
       console.error("updateQuantity error:", err)
@@ -77,14 +73,10 @@ export const useCart = () => {
   }
 
   async function removeFromCart(productId: string) {
-    if (!user.value) return
+    if (!userId.value) return
 
     try {
-      await $fetch('/api/cart/delete', {
-        method: 'POST',
-        credentials: 'include',
-        body: { productId }
-      })
+      await api.post('/api/cart/delete', { productId })
       await fetchCart()
     } catch (err) {
       console.error("removeFromCart error:", err)
@@ -92,24 +84,27 @@ export const useCart = () => {
   }
 
   async function clearCart() {
-    if (!user.value) return
+    if (!userId.value) return
     items.value = []
   }
 
-  watch(() => user.value?.id, async (newId) => {
-    if (newId) {
-      await fetchCart()
-    } else {
-      items.value = []
-    }
-  })
+  if (process.client && !initialized.value) {
+    initialized.value = true
+    watch(userId, async (newId) => {
+      if (newId) {
+        await fetchCart()
+      } else {
+        items.value = []
+      }
+    })
 
-  onMounted(async () => {
-    await new Promise(r => setTimeout(r, 500))
-    if (user.value?.id) {
-      await fetchCart()
-    }
-  })
+    onMounted(async () => {
+      await new Promise(r => setTimeout(r, 500))
+      if (userId.value) {
+        await fetchCart()
+      }
+    })
+  }
 
   return {
     items,

@@ -69,11 +69,19 @@
 </template>
 
 <script setup lang="ts">
+import { z } from 'zod'
+
 const email = ref("");
-const { success } = useToast();
+const { success, error } = useToast();
+
+const emailSchema = z.string().email('Please enter a valid email address')
 
 function subscribe() {
-  if (!email.value) return;
+  const validation = emailSchema.safeParse(email.value)
+  if (!validation.success) {
+    error(validation.error.issues[0]?.message ?? "Validation failed")
+    return
+  }
   success("You're on the list — welcome to the bench.");
   email.value = "";
 }

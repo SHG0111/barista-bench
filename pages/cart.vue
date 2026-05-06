@@ -77,7 +77,7 @@
             </div>
 
             <div class="text-[18px] font-bold text-text shrink-0">
-              ${{ ((item.products?.price || 0) * item.quantity).toFixed(2) }}
+              {{ formatPrice((item.products?.price || 0) * item.quantity) }}
             </div>
           </div>
         </div>
@@ -88,12 +88,12 @@
             
             <div class="flex justify-between mb-4 text-sm text-text-2">
               <span>Subtotal</span>
-              <span class="text-text font-medium">${{ subtotal.toFixed(2) }}</span>
+              <span class="text-text font-medium">{{ formatPrice(subtotal) }}</span>
             </div>
             
             <div class="flex justify-between mb-4 text-sm text-accent font-semibold" v-if="isBundle">
               <span>Bundle Discount (15%)</span>
-              <span>−${{ discount.toFixed(2) }}</span>
+              <span>−{{ formatPrice(discount) }}</span>
             </div>
             
             <div class="flex justify-between mb-4 text-sm text-text-2">
@@ -108,7 +108,7 @@
 
             <div class="flex justify-between mt-6 pt-5 border-t border-border text-[18px] font-bold text-text">
               <span class="text-[15px]">Estimated Total</span>
-              <span>${{ total.toFixed(2) }}</span>
+              <span>{{ formatPrice(total) }}</span>
             </div>
 
             <NuxtLink to="/checkout" class="flex items-center justify-center w-full p-4.5 text-[12px] font-bold tracking-[0.1em] uppercase bg-accent text-white border-none rounded cursor-pointer no-underline transition-all duration-200 mt-8 hover:bg-[#a67243] hover:-translate-y-0.5">PROCEED TO CHECKOUT</NuxtLink>
@@ -133,63 +133,23 @@
 definePageMeta({ layout: 'default' })
 
 const user = useSupabaseUser()
-
-const items = ref<any[]>([])
-const loading = ref(false)
-const isBundle = ref(false)
-
-const subtotal = computed(() =>
-  items.value.reduce((s, i) => s + (i.products?.price || 0) * i.quantity, 0)
-)
-const discount = computed(() => isBundle.value ? subtotal.value * 0.15 : 0)
-const total = computed(() => subtotal.value - discount.value)
-
-async function fetchCart() {
-  loading.value = true
-  try {
-    const data = await $fetch('/api/cart')
-    items.value = data || []
-  } catch (err) {
-    console.error('Cart fetch error:', err)
-    items.value = []
-  }
-  loading.value = false
-}
+const { items, count, subtotal, discount, total, isBundle, loading, fetchCart, updateQuantity, removeFromCart } = useCart()
+const { formatPrice } = useCurrency()
 
 async function updateQty(item: any, newQty: number) {
   if (newQty <= 0) return removeItem(item)
-  
-  try {
-    await $fetch('/api/cart/update', {
-      method: 'POST',
-      body: { productId: item.product_id, quantity: newQty }
-    })
-    item.quantity = newQty
-  } catch (err) {
-    console.error('Update error:', err)
-  }
+  await updateQuantity(item.product_id, newQty)
 }
 
 async function removeItem(item: any) {
-  try {
-    await $fetch('/api/cart/delete', {
-      method: 'POST',
-      body: { productId: item.product_id }
-    })
-    items.value = items.value.filter(i => i.id !== item.id)
-  } catch (err) {
-    console.error('Delete error:', err)
-  }
+  await removeFromCart(item.product_id)
 }
 
-watch(user, async (newUser) => {
-  if (newUser?.id) {
+onMounted(async () => {
+  if (user.value?.id) {
     await fetchCart()
-  } else {
-    items.value = []
-    loading.value = false
   }
-}, { immediate: true })
+})
 </script>
 
 <style scoped>

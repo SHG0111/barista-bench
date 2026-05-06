@@ -1,12 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
+import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const id = getRouterParam(event, 'id')
   
-  if (!id) {
-    throw createError({ statusCode: 400, message: 'Product ID is required' })
+  const idSchema = z.string().uuid('Invalid product ID format')
+  const validation = idSchema.safeParse(id)
+  if (!validation.success) {
+    const firstError = validation.error.issues[0]
+    throw createError({ statusCode: 400, message: firstError?.message ?? 'Validation failed' })
   }
+
+  const validatedId = validation.data
 
   const supabaseAdmin = createClient(config.public.supabaseUrl, config.supabaseSecretKey, {
     auth: {
@@ -18,11 +24,11 @@ export default defineEventHandler(async (event) => {
   const { data: product } = await supabaseAdmin
     .from('products_with_category')
     .select('images, category_slug')
-    .eq('id', id)
+    .eq('id', validatedId)
     .single()
 
   if (product?.images?.length) {
-    const paths = product.images.map(url => {
+    const paths = product.images.map((url: string) => {
       const prefix = '/storage/v1/object/public/products/'
       const idx = url.indexOf(prefix)
       return idx !== -1 ? url.substring(idx + prefix.length) : null
@@ -34,9 +40,9 @@ export default defineEventHandler(async (event) => {
   }
 
   const categoryFolder = product?.category_slug || 'uncategorized'
-  await supabaseAdmin.storage.from('products').remove([`${categoryFolder}/${id}`])
+  await supabaseAdmin.storage.from('products').remove([`${categoryFolder}/${validatedId}`])
 
-  const { error } = await supabaseAdmin.from('products').delete().eq('id', id)
+  const { error } = await supabaseAdmin.from('products').delete().eq('id', validatedId)
 
   if (error) {
     throw createError({ statusCode: 500, message: error.message })

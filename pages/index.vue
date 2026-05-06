@@ -299,7 +299,7 @@ onMounted(async () => {
 });
 
 async function addToCartNow(id: string) {
-  const ok = await useCart().addToCart(id);
+  const ok = await addToCart(id);
   if (ok) success("Added to your bag");
 }
 </script>

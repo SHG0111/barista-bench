@@ -74,7 +74,7 @@
                     {{ item.product_sku }}
                   </div>
                 </div>
-                <div class="ri-price">${{ item.total_price?.toFixed(2) }}</div>
+                <div class="ri-price">{{ formatPrice(item.total_price) }}</div>
               </div>
             </div>
           </div>
@@ -321,6 +321,7 @@
 const supabase: any = useSupabaseClient();
 const user = useSupabaseUser();
 const { success, error } = useToast();
+const { formatPrice } = useCurrency();
 
 const activeOrder = ref<any>(null);
 const lookupNum = ref("");

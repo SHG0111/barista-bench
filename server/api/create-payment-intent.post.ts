@@ -1,24 +1,34 @@
 import Stripe from 'stripe';
+import { z } from 'zod';
+
+const paymentIntentSchema = z.object({
+  amount: z.number().int().min(50, 'Minimum payment amount is 50 cents'),
+  currency: z.string().min(3, 'Invalid currency code').max(3, 'Invalid currency code').default('usd'),
+});
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
 
-  // Handle missing configuration gracefully
   if (!config.stripeSecretKey || config.stripeSecretKey.startsWith('sk_test_12345')) {
-    // If the key is just the placeholder, bypass creation to avoid 500 error on client.
-    // Instead, throw a clear instruction.
     throw createError({
       statusCode: 400,
-      statusMessage: "Stripe Secret Key is not configured. Please add your real SK to .env file",
+      statusMessage: 'Stripe Secret Key is not configured. Please add your real SK to .env file',
     });
   }
+
+  const body = await readBody(event);
+
+  const validation = paymentIntentSchema.safeParse(body);
+  if (!validation.success) {
+    const errorMessages = validation.error.issues.map(issue => issue.message)
+    throw createError({ statusCode: 400, statusMessage: 'Validation failed', data: { errors: errorMessages } });
+  }
+
+  const { amount, currency } = validation.data;
 
   const stripe = new Stripe(config.stripeSecretKey as string);
 
   try {
-    const body = await readBody(event);
-    const { amount, currency = 'usd' } = body;
-
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency,
@@ -31,7 +41,7 @@ export default defineEventHandler(async (event) => {
   } catch (error: any) {
     throw createError({
       statusCode: 500,
-      statusMessage: error.message,
+      statusMessage: 'Payment processing failed. Please try again.',
     });
   }
 });
