@@ -153,56 +153,86 @@
 
       <!-- Recent Activity -->
       <div class="glass-card rounded-2xl flex flex-col shadow-sm">
-        <div class="p-8 border-b border-surface-2">
-          <h4 class="font-display text-xl font-bold text-text">
-            Recent Activity
-          </h4>
-          <p class="text-xs text-text-2 mt-1">Real-time updates</p>
-        </div>
-
-        <div class="flex-1 p-6 space-y-6">
-          <div
-            v-for="activity in recentActivities"
-            :key="activity.id"
-            class="flex gap-4"
-          >
-            <div
-              :class="[
-                'w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold',
-                activity.color,
-              ]"
-            >
-              {{ activity.icon }}
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-text font-display">
-                {{ activity.title }}
-              </p>
-              <p class="text-xs text-text-2 mt-0.5">
-                {{ activity.description }}
-              </p>
-              <p class="text-xs text-text-3 mt-1 font-mono italic">
-                {{ activity.time }}
-              </p>
-            </div>
+        <div class="p-8 border-b border-surface-2 flex items-center justify-between">
+          <div>
+            <h4 class="font-display text-xl font-bold text-text">
+              Recent Activity
+            </h4>
+            <p class="text-xs text-text-2 mt-1">Real-time updates</p>
+          </div>
+          <div v-if="notifications.length > 0" class="flex items-center gap-1.5 bg-accent/10 text-accent px-2.5 py-1 rounded-full text-[10px] font-bold">
+            <Icon name="solar:bell-broken" class="w-3.5 h-3.5" />
+            {{ notifications.length }}
           </div>
         </div>
 
-        <div class="p-6 bg-surface-2/50 text-center">
-          <button
-            class="text-[11px] font-bold uppercase tracking-widest text-accent hover:text-accent-hover transition"
-          >
-            VIEW ALL NOTIFICATIONS
-          </button>
+        <div v-if="notifPending" class="flex-1 p-8 flex items-center justify-center">
+          <div class="flex flex-col items-center gap-3">
+            <svg class="animate-spin w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-xs text-text-3 font-medium">Loading activity...</p>
+          </div>
         </div>
+
+        <div v-else-if="notifications.length === 0" class="flex-1 p-8 flex items-center justify-center">
+          <div class="flex flex-col items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-surface-2 flex items-center justify-center">
+              <Icon name="solar:bell-off-broken" class="w-6 h-6 text-text-3" />
+            </div>
+            <p class="text-sm font-semibold text-text-2">No recent activity</p>
+            <p class="text-xs text-text-3 text-center max-w-[200px]">Activity notifications will appear here as events occur.</p>
+          </div>
+        </div>
+
+        <div v-else class="flex-1 divide-y divide-surface-2 overflow-y-auto max-h-[380px] custom-scroll">
+          <NuxtLink
+            v-for="n in displayedNotifications"
+            :key="n.id"
+            :to="n.link || '#'"
+            class="flex gap-4 p-5 hover:bg-accent/5 transition-all group"
+          >
+            <div
+              :class="[
+                'w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center',
+                iconBgMap[n.type] || 'bg-surface-2 text-text-3',
+              ]"
+            >
+              <Icon :name="n.icon || 'solar:info-circle-broken'" class="w-5 h-5" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-bold text-text font-display group-hover:text-accent transition-colors">
+                {{ n.title }}
+              </p>
+              <p class="text-xs text-text-2 mt-0.5 line-clamp-2">
+                {{ n.description }}
+              </p>
+              <p class="text-[10px] text-text-3 mt-1.5 font-mono">
+                {{ timeAgo(n.created_at) }}
+              </p>
+            </div>
+          </NuxtLink>
+        </div>
+
+        <NuxtLink
+          to="/admin/notifications"
+          class="p-5 bg-surface-2/50 text-center block hover:bg-surface-2 transition-all"
+        >
+          <span class="text-[11px] font-bold uppercase tracking-widest text-accent hover:text-accent-hover transition">
+            VIEW ALL NOTIFICATIONS
+          </span>
+        </NuxtLink>
       </div>
     </div>
 
     <!-- Recent Orders Table -->
-    <div class="glass-card rounded-2xl overflow-hidden shadow-sm">
-      <div
-        class="p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-2"
-      >
+    <AdminTable
+      :headers="orderHeaders"
+      :items="recentOrders"
+      :loading="pending"
+    >
+      <template #controls>
         <div>
           <h4 class="font-display text-xl font-bold text-text">
             Recent Orders
@@ -217,107 +247,68 @@
           <Icon name="solar:file-bold-broken" class="w-4 h-4" />
           Export CSV
         </button>
-      </div>
+      </template>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="border-b border-border bg-surface-2">
-            <tr>
-              <th
-                class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest"
+      <template #default="{ items }">
+        <tr
+          v-for="order in items"
+          :key="order.id"
+          class="group hover:bg-accent/5 transition-all"
+        >
+          <td class="px-8 py-5">
+            <span class="font-mono text-xs font-bold text-accent">{{ order.order_number }}</span>
+          </td>
+          <td class="px-8 py-5">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-bold bg-accent/10 text-accent"
               >
-                Order ID
-              </th>
-              <th
-                class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest"
-              >
-                Customer
-              </th>
-              <th
-                class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest"
-              >
-                Product
-              </th>
-              <th
-                class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest"
-              >
-                Amount
-              </th>
-              <th
-                class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest"
-              >
-                Status
-              </th>
-              <th
-                class="px-8 py-4 text-[10px] font-bold text-text-3 uppercase tracking-widest text-right"
-              >
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-surface-2">
-            <tr
-              v-for="order in recentOrders"
-              :key="order.id"
-              class="group hover:bg-accent/5 transition-all"
+                {{ (order.customer_name || 'G').charAt(0) }}
+              </div>
+              <span class="text-sm font-semibold text-text">{{
+                order.customer_name
+              }}</span>
+            </div>
+          </td>
+          <td class="px-8 py-5 text-sm text-text-2 font-medium">
+            {{ order.product }}
+          </td>
+          <td class="px-8 py-5 text-sm font-extrabold text-text">
+            ${{ order.total }}
+          </td>
+          <td class="px-8 py-5">
+            <span
+              :class="[
+                'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight',
+                statusClassMap[order.status] || 'bg-surface-2 text-text-3',
+              ]"
             >
-              <td class="px-8 py-5 text-sm font-bold text-text">
-                {{ order.order_id }}
-              </td>
-              <td class="px-8 py-5">
-                <div class="flex items-center gap-3">
-                  <div
-                    :class="[
-                      'w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-bold',
-                      order.avatarColor,
-                    ]"
-                  >
-                    {{ order.customer.charAt(0) }}
-                  </div>
-                  <span class="text-sm font-semibold text-text">{{
-                    order.customer
-                  }}</span>
-                </div>
-              </td>
-              <td class="px-8 py-5 text-sm text-text-2 font-medium">
-                {{ order.product }}
-              </td>
-              <td class="px-8 py-5 text-sm font-extrabold text-text">
-                ${{ order.amount }}
-              </td>
-              <td class="px-8 py-5">
-                <span
-                  :class="[
-                    'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight',
-                    getStatusClass(order.status),
-                  ]"
-                >
-                  {{ order.status }}
-                </span>
-              </td>
-              <td class="px-8 py-5 text-right">
-                <button
-                  class="text-text-3 group-hover:text-accent transition-colors"
-                >
-                  ● ● ●
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+              {{ order.status.replace(/_/g, ' ') }}
+            </span>
+          </td>
+          <td class="px-8 py-5 text-right">
+            <NuxtLink
+              :to="`/order/${order.id}`"
+              class="text-text-3 hover:text-accent transition-colors inline-flex p-1"
+              title="View details"
+            >
+              <Icon name="solar:eye-broken" class="w-4 h-4" />
+            </NuxtLink>
+          </td>
+        </tr>
+      </template>
+    </AdminTable>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 definePageMeta({
   layout: "admin",
   middleware: "admin",
 });
 
 const activeTab = ref("last30");
-const chartType = ref("instore");
+const chartType = ref<"instore" | "subscription">("instore");
 
 const metrics = ref([
   {
@@ -375,79 +366,73 @@ const revenueStats = {
   ],
 };
 
-/**
- * Computes the chart data based on the selected chartType toggle.
- * This makes the dashboard feel interactive even with mock data.
- */
 const activeChartData = computed(() => {
   return revenueStats[chartType.value] || revenueStats.instore;
 });
 
-const recentActivities = ref([
-  {
-    id: 1,
-    icon: "📦",
-    title: "New wholesale order",
-    description: "Roast & Ground • $1,200.00",
-    time: "2 mins ago",
-    color: "bg-accent/10 text-accent",
-  },
-  {
-    id: 2,
-    icon: "👤",
-    title: "Sarah Chen joined",
-    description: "Location: Brooklyn Heights",
-    time: "18 mins ago",
-    color: "bg-surface-3/20 text-text-2",
-  },
-  {
-    id: 3,
-    icon: "✓",
-    title: "Merchant verified",
-    description: "Central Roast Co. is now active",
-    time: "1 hour ago",
-    color: "bg-surface-3/10 text-text",
-  },
-]);
+const { data: notifData, pending: notifPending, refresh: refreshNotifs } = await useFetch('/api/admin/notifications', {
+  transform: (data: any) => data || [],
+})
 
-const recentOrders = ref([
-  {
-    id: 1,
-    order_id: "#ORD-9021",
-    customer: "James Brews",
-    product: "Signature Espresso (5kg)",
-    amount: "245.00",
-    status: "SHIPPED",
-    avatarColor: "bg-accent/10 text-accent",
-  },
-  {
-    id: 2,
-    order_id: "#ORD-9022",
-    customer: "Aroma Loft",
-    product: "Cold Brew Kit x 12",
-    amount: "512.40",
-    status: "PENDING",
-    avatarColor: "bg-surface-3/20 text-text-2",
-  },
-  {
-    id: 3,
-    order_id: "#ORD-9023",
-    customer: "Grind Central",
-    product: "Decaf Swiss Water (10kg)",
-    amount: "430.00",
-    status: "ALERT",
-    avatarColor: "bg-red/10 text-red",
-  },
-]);
+let notifInterval: ReturnType<typeof setInterval> | null = null
+onMounted(() => {
+  notifInterval = setInterval(() => refreshNotifs(), 30000)
+})
+onUnmounted(() => {
+  if (notifInterval) clearInterval(notifInterval)
+})
 
-const getStatusClass = (status) => {
-  const classes = {
-    SHIPPED: "bg-accent/10 text-accent",
-    PENDING: "bg-surface-2 text-text-3",
-    ALERT: "bg-red/10 text-red",
-  };
-  return classes[status] || "bg-surface-2 text-text-2";
-};
+const notifications = computed(() => notifData.value || [])
+
+const displayedNotifications = computed(() => notifications.value.slice(0, 15))
+
+const iconBgMap: Record<string, string> = {
+  order: 'bg-accent/10 text-accent',
+  user: 'bg-blue-50 text-blue-700',
+  payment: 'bg-emerald-50 text-emerald-700',
+  alert: 'bg-red-50 text-red-600',
+  return: 'bg-orange-50 text-orange-700',
+  review: 'bg-violet-50 text-violet-700',
+}
+
+function timeAgo(dateStr: string): string {
+  const now = Date.now()
+  const then = new Date(dateStr).getTime()
+  const diff = now - then
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'Just now'
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days}d ago`
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+const orderHeaders = [
+  { key: 'order', label: 'Order ID' },
+  { key: 'customer', label: 'Customer' },
+  { key: 'product', label: 'Product' },
+  { key: 'amount', label: 'Amount' },
+  { key: 'status', label: 'Status' },
+  { key: 'actions', label: 'Actions', align: 'right' },
+]
+
+const { data: orders, pending, error: ordersErr } = await useFetch('/api/admin/recent-orders', {
+  transform: (data: any) => data || [],
+})
+
+const recentOrders = computed(() => orders.value || [])
+
+const statusClassMap: Record<string, string> = {
+  placed: 'bg-slate-100 text-slate-600',
+  processed: 'bg-blue-100 text-blue-700',
+  in_transit: 'bg-amber-100 text-amber-700',
+  out_for_delivery: 'bg-violet-100 text-violet-700',
+  delivered: 'bg-emerald-100 text-emerald-700',
+  cancelled: 'bg-red-100 text-red-700',
+  returned: 'bg-orange-100 text-orange-700',
+}
 </script>
 
 <style scoped>
@@ -455,5 +440,22 @@ const getStatusClass = (status) => {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(226, 232, 240, 1);
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
 }
 </style>

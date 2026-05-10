@@ -152,6 +152,23 @@ export interface Bundle_configs {
   saved_at: string
 }
 
+export interface Notification {
+  id: string
+  type: string
+  icon: string | null
+  title: string
+  description: string | null
+  link: string | null
+  created_at: string
+}
+
+export interface NotificationRead {
+  id: string
+  notification_id: string
+  user_id: string
+  read_at: string
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -209,6 +226,16 @@ export type Database = {
         Row: Bundle_configs
         Insert: Omit<Bundle_configs, 'id' | 'saved_at'>
         Update: Partial<Omit<Bundle_configs, 'id' | 'user_id'>>
+      }
+      notifications: {
+        Row: Notification
+        Insert: Omit<Notification, 'id' | 'created_at'>
+        Update: Partial<Omit<Notification, 'id'>>
+      }
+      notification_reads: {
+        Row: NotificationRead
+        Insert: Omit<NotificationRead, 'id' | 'read_at'>
+        Update: Partial<Omit<NotificationRead, 'id'>>
       }
     }
     Views: {

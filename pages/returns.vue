@@ -413,6 +413,15 @@ async function nextReturnStep() {
     resolution: returnResolution.value,
     notes: returnNotes.value,
   });
+  await $fetch('/api/notification-create', {
+    method: 'POST',
+    body: {
+      type: 'return',
+      title: 'Return request filed',
+      description: `Return initiated for order ${activeOrder.value.order_number} — Reason: ${returnReason.value}`,
+      link: '/returns',
+    },
+  }).catch(() => {});
   success("Return request submitted. Check your email for the prepaid label.");
   cancelReturn();
   submitting.value = false;

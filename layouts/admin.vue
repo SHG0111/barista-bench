@@ -35,7 +35,7 @@
 <script setup>
 import { navigateTo } from "#app";
 import AdminSidebar from "@/pages/admin/components/Sidebar.vue";
-import AdminNavbar from "@/components/AdminNavbar.vue";
+import AdminNavbar from "~/pages/admin/components/AdminNavbar.vue";
 const route = useRoute();
 const client = useSupabaseClient();
 const user = useSupabaseUser();
@@ -44,7 +44,7 @@ const sidebarOpen = ref(true);
 const { data: profile } = await useAsyncData(
   "admin-profile",
   async () => {
-    if (!user.value) return null;
+    if (!user.value?.id) return null;
     const { data } = await client
       .from("profiles")
       .select("*")

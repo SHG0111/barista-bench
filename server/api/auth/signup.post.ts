@@ -55,5 +55,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'No confirmation URL returned' })
   }
 
+  await createNotification(event, {
+    type: 'user',
+    title: 'New user registered',
+    description: `${fullName} created an account`,
+    link: '/admin/users',
+  })
+
   return { success: true, user_id: data.user?.id }
 })

@@ -198,14 +198,15 @@ const userAvatar = computed(() => {
   );
 });
 
-const { data: profile } = await useAsyncData<any>("user-profile", async () => {
+const { data: profile } = useAsyncData<any>("user-profile", async () => {
   if (!user.value?.id) return null;
   const client = useSupabaseClient();
-  const { data } = await client
+  const { data, error } = await client
     .from("profiles")
     .select("role")
     .eq("id", user.value.id)
-    .single();
+    .maybeSingle();
+  if (error) return null;
   return data;
 });
 

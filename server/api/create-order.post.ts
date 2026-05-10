@@ -91,6 +91,14 @@ export default defineEventHandler(async (event) => {
     await supabase.from('cart_items').delete().eq('user_id', userId)
   }
 
+  const customerName = shippingInfo?.name || 'A customer'
+  await createNotification(event, {
+    type: 'order',
+    title: 'New order placed',
+    description: `Order ${orderNumber} — $${total.toFixed(2)} by ${customerName}`,
+    link: `/order/${order.id}`,
+  })
+
   return {
     success: true,
     orderId: order.id,

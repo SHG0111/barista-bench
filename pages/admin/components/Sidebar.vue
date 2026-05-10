@@ -131,6 +131,11 @@ const route = useRoute();
       icon: 'solar:user-broken',
     },
     {
+      name: "Notifications",
+      path: "/admin/notifications",
+      icon: 'solar:bell-broken',
+    },
+    {
       name: "Analytics",
       path: "/admin",
       icon: 'solar:graph-broken',

@@ -25,6 +25,11 @@ export default defineNuxtConfig({
     },
   },
   css: ["~/assets/css/main.css"],
+  vite: {
+    optimizeDeps: {
+      include: ["axios", "zod"],
+    },
+  },
   app: {
     head: {
       title: "Barista Bench — Precision Tools for Meticulous Rituals",

@@ -23,17 +23,23 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-border/50">
-          <tr v-if="loading" class="animate-pulse">
-            <td v-for="(header, n) in headers" :key="n" class="px-8 py-5">
-              <div class="h-4 bg-surface-2 rounded-lg w-full"></div>
-            </td>
-          </tr>
-          <tr v-else-if="items.length === 0">
-            <td :colspan="headers?.length || 1" class="px-8 py-12 text-center text-text-3 font-medium text-sm">
-              <slot name="empty">No results found.</slot>
-            </td>
-          </tr>
-          <slot v-else name="default" :items="paginatedItems" />
+          <template v-if="loading">
+            <tr class="animate-pulse">
+              <td v-for="(header, n) in headers" :key="n" class="px-8 py-5">
+                <div class="h-4 bg-surface-2 rounded-lg w-full"></div>
+              </td>
+            </tr>
+          </template>
+          <template v-else-if="items.length === 0">
+            <tr>
+              <td :colspan="headers?.length || 1" class="px-8 py-12 text-center text-text-3 font-medium text-sm">
+                <slot name="empty">No results found.</slot>
+              </td>
+            </tr>
+          </template>
+          <template v-else>
+            <slot name="default" :items="paginatedItems" />
+          </template>
         </tbody>
       </table>
     </div>

@@ -58,7 +58,7 @@
           </div>
           <p class="text-sm font-semibold text-slate-900">Failed to load orders</p>
           <p class="text-xs text-slate-500 max-w-xs">{{ error }}</p>
-          <button @click="refresh" class="mt-2 px-4 py-2 bg-brand text-white rounded-lg text-sm font-semibold hover:bg-brand/90 transition-all">Retry</button>
+          <button @click="() => refresh()" class="mt-2 px-4 py-2 bg-brand text-white rounded-lg text-sm font-semibold hover:bg-brand/90 transition-all">Retry</button>
         </div>
       </div>
       <div v-else class="overflow-x-auto">
@@ -129,7 +129,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 definePageMeta({
   layout: 'admin',
   middleware: 'admin'
@@ -150,7 +150,7 @@ const statuses = [
   { value: 'returned', label: 'Returned' },
 ]
 
-const { data: orders, pending, error, refresh } = await useAsyncData('admin-orders-list', async () => {
+const { data: orders, pending, error, refresh } = await useAsyncData<any[]>('admin-orders-list', async () => {
   try {
     const { data, error: fetchError } = await client
       .from('orders')
@@ -158,20 +158,20 @@ const { data: orders, pending, error, refresh } = await useAsyncData('admin-orde
       .order('placed_at', { ascending: false })
     if (fetchError) throw new Error(fetchError.message)
     return data
-  } catch (err) {
+  } catch (err: any) {
     throw new Error(err.message || 'Failed to fetch orders')
   }
 })
 
-const { data: profiles } = await useAsyncData('admin-profiles-list', async () => {
+const { data: profiles } = await useAsyncData<any[]>('admin-profiles-list', async () => {
   const { data } = await client.from('profiles').select('id, full_name')
   return data || []
 })
 
 const allOrders = computed(() => {
   const raw = orders.value || []
-  const profileMap = {}
-  for (const p of profiles.value) {
+  const profileMap: Record<string, string> = {}
+  for (const p of profiles.value || []) {
     profileMap[p.id] = p.full_name
   }
   return raw.map(order => ({
@@ -212,7 +212,7 @@ const stats = computed(() => {
   ]
 })
 
-const statusClasses = {
+const statusClasses: Record<string, string> = {
   delivered: 'bg-emerald-100 text-emerald-700',
   processed: 'bg-blue-100 text-blue-700',
   in_transit: 'bg-amber-100 text-amber-700',
@@ -222,7 +222,15 @@ const statusClasses = {
   returned: 'bg-orange-100 text-orange-700'
 }
 
-const formatDate = (dateString) => {
+let ordersInterval: ReturnType<typeof setInterval> | null = null
+onMounted(() => {
+  ordersInterval = setInterval(() => refresh(), 30000)
+})
+onUnmounted(() => {
+  if (ordersInterval) clearInterval(ordersInterval)
+})
+
+const formatDate = (dateString: string | number | Date) => {
   return new Date(dateString).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
   })

@@ -30,9 +30,9 @@
           <div class="flex items-center justify-center w-12 h-12 rounded-full bg-accent-light group-hover:bg-accent/20 transition-colors">
             <Icon name="solar:user-broken" class="w-6 h-6 text-accent" />
           </div>
-          <div v-if="customerTrend !== null" class="flex items-center gap-1 text-green text-xs font-bold bg-green-bg px-2 py-1 rounded-lg">
+          <div v-if="stats.customerTrend !== null" class="flex items-center gap-1 text-green text-xs font-bold bg-green-bg px-2 py-1 rounded-lg">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-            {{ customerTrend }}%
+            {{ stats.customerTrend }}%
           </div>
         </div>
         <p class="text-text-3 text-xs font-bold uppercase tracking-widest mb-1">Total Customers</p>
@@ -78,7 +78,7 @@
     </div>
 
     <!-- Users Table -->
-    <AdminTable :headers="tableHeaders" :items="filteredUsers" :loading="!users" :pagination="{ default: 10, options: [10, 25, 50] }">
+    <AdminTable ref="adminTableRef" :headers="tableHeaders" :items="filteredUsers" :loading="!users" :pagination="{ default: 10, options: [10, 25, 50] }">
       <template #controls>
         <div class="flex items-center gap-6 overflow-x-auto w-full sm:w-auto">
           <button @click="activeTab = 'all'" :class="['font-bold text-sm relative py-2 transition-colors whitespace-nowrap', activeTab === 'all' ? 'text-accent after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-accent after:rounded-full' : 'text-text-3 hover:text-text']">All Users</button>
@@ -86,7 +86,7 @@
           <button @click="activeTab = 'suspended'" :class="['font-bold text-sm relative py-2 transition-colors whitespace-nowrap', activeTab === 'suspended' ? 'text-accent after:content-[\'\'] after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-accent after:rounded-full' : 'text-text-3 hover:text-text']">Suspended</button>
         </div>
         <div class="text-text-3 text-xs font-semibold whitespace-nowrap">
-          Showing <span class="text-text font-bold">{{ $refs.table?.paginationStart || 0 }}-{{ $refs.table?.paginationEnd || 0 }}</span> of {{ filteredUsers.length }}
+          Showing <span class="text-text font-bold">{{ adminTableRef?.paginationStart || 0 }}-{{ adminTableRef?.paginationEnd || 0 }}</span> of {{ filteredUsers.length }}
         </div>
       </template>
 
@@ -144,7 +144,7 @@
       </template>
 
       <template #default="{ items }">
-        <tr v-for="profile in $refs.table?.paginatedItems || items" :key="profile.id" class="hover:bg-slate-50 transition-colors group">
+        <tr v-for="profile in items" :key="profile.id" class="hover:bg-slate-50 transition-colors group">
           <td class="px-4 sm:px-8 py-4 sm:py-5">
             <div class="flex items-center gap-4">
               <div class="relative">
@@ -248,7 +248,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 definePageMeta({
   layout: 'admin',
   middleware: 'admin'
@@ -258,7 +258,8 @@ const client = useSupabaseClient()
 const api = useApi()
 const searchQuery = ref('')
 const activeTab = ref('all')
-const users = ref([])
+const users = ref<any[]>([])
+const adminTableRef = ref<any>(null)
 
 const loadUsers = async () => {
   try {
@@ -275,6 +276,14 @@ await loadUsers()
 const refreshUsers = async () => {
   await loadUsers()
 }
+
+let usersInterval: ReturnType<typeof setInterval> | null = null;
+onMounted(() => {
+  usersInterval = setInterval(() => refreshUsers(), 30000)
+})
+onUnmounted(() => {
+  if (usersInterval) clearInterval(usersInterval)
+})
 
 const totalUsers = computed(() => users.value?.length || 0)
 
@@ -340,21 +349,21 @@ const filteredUsers = computed(() => {
   return filtered
 })
 
-const getRandomColor = (name) => {
+const getRandomColor = (name?: string | null) => {
   const colors = ['#7221ED', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
   if (!name) return colors[0]
   const index = name.length % colors.length
   return colors[index]
 }
 
-const formatDate = (date) => {
+const formatDate = (date: Date) => {
   if (!date) return 'N/A'
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
 }
 
-const confirmModal = ref(null)
+const confirmModal = ref<any>(null)
 
-const verifyAccount = async (profile) => {
+const verifyAccount = async (profile: any) => {
   try {
     await api.post('/api/admin/users/update', { id: profile.id, status: 'active' })
     refreshUsers()
@@ -363,7 +372,7 @@ const verifyAccount = async (profile) => {
   }
 }
 
-const toggleSuspend = async (profile) => {
+const toggleSuspend = async (profile: any) => {
   const newStatus = profile.status === 'suspended' ? 'active' : 'suspended'
   try {
     await api.post('/api/admin/users/update', { id: profile.id, status: newStatus })
@@ -373,7 +382,7 @@ const toggleSuspend = async (profile) => {
   }
 }
 
-const deleteUser = async (profile) => {
+const deleteUser = async (profile: any) => {
   if (!confirmModal.value) return
   const confirmed = await confirmModal.value.open()
   if (!confirmed) return
