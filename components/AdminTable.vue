@@ -65,31 +65,27 @@
   </div>
 </template>
 
-<script setup>
-const props = defineProps({
-  headers: {
-    type: Array,
-    default: null
-  },
-  items: {
-    type: Array,
-    default: () => []
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  },
-  pagination: {
-    type: Object,
-    default: null
-  },
-  initialPage: {
-    type: Number,
-    default: 1
-  }
+<script setup lang="ts" generic="T extends Record<string, any>">
+import type { PropType } from 'vue'
+
+const props = withDefaults(defineProps<{
+  headers?: any[] | null
+  items?: T[]
+  loading?: boolean
+  pagination?: { default?: number, options?: number[] } | null
+  initialPage?: number
+}>(), {
+  headers: null,
+  items: () => [],
+  loading: false,
+  pagination: null,
+  initialPage: 1
 })
 
-const emit = defineEmits(['update:page', 'update:itemsPerPage'])
+const emit = defineEmits<{
+  (e: 'update:page', page: number): void
+  (e: 'update:itemsPerPage', itemsPerPage: number): void
+}>()
 
 const currentPage = ref(props.initialPage)
 const itemsPerPage = ref(props.pagination?.default || 10)
@@ -124,7 +120,7 @@ const visiblePages = computed(() => {
   return pages
 })
 
-const goToPage = (page) => {
+const goToPage = (page: number) => {
   currentPage.value = page
   emit('update:page', page)
 }

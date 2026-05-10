@@ -7,7 +7,7 @@ const paymentIntentSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig();
+  const config = useRuntimeConfig(event);
 
   if (!config.stripeSecretKey || config.stripeSecretKey.startsWith('sk_test_12345')) {
     throw createError({
@@ -39,9 +39,10 @@ export default defineEventHandler(async (event) => {
       clientSecret: paymentIntent.client_secret,
     };
   } catch (error: any) {
+    console.error('Stripe payment intent error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Payment processing failed. Please try again.',
+      statusMessage: error.message || 'Payment processing failed. Please try again.',
     });
   }
 });

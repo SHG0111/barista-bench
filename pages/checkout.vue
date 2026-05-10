@@ -129,8 +129,9 @@
                   <div class="mb-3.5">
                     <input
                       type="text"
-                      placeholder="Apartment, suite, etc. (optional)"
+                      placeholder="Apartment, suite, etc."
                       v-model="form.apartment"
+                      required
                       class="w-full bg-white border border-border rounded px-4 py-3.5 text-sm font-body text-text outline-none transition-all duration-200 focus:border-accent placeholder:text-[#a09d98]"
                     />
                   </div>
@@ -244,9 +245,10 @@
                           <span class="text-[13px] text-text-2">1-2 business days</span>
                         </div>
                       </div>
-                      <div class="text-[15px] font-semibold text-text">$15.00</div>
+                      <div class="text-[15px] font-semibold text-text">{{ formatPrice(expressBasePrice) }}</div>
                     </label>
-                  </div>
+
+                </div>
                 </section>
 
                 <div class="flex flex-col-reverse sm:flex-row justify-between items-center mt-8 pt-6 border-t border-border gap-5">
@@ -279,7 +281,7 @@
                     <div class="w-20 text-text-2 text-sm">Method</div>
                     <div class="flex-1 text-sm text-text">
                       {{ shippingMethod === "standard" ? "Standard Shipping" : "Express Priority" }}
-                      <span class="font-semibold"> · {{ shippingMethod === "standard" ? "Free" : "$15.00" }}</span>
+                      <span class="font-semibold"> · {{ shippingMethod === "standard" ? "Free" : formatPrice(expressBasePrice) }}</span>
                     </div>
                     <button class="bg-none border-none text-accent text-[12px] font-semibold cursor-pointer hover:underline" @click="setStep('shipping')">Change</button>
                   </div>
@@ -477,7 +479,7 @@ definePageMeta({ layout: "default" });
 
 const config = useRuntimeConfig();
 const { items, subtotal, discount, total, isBundle, fetchCart, clearCart, loading: cartLoading, userId } = useCart();
-const { formatPrice, convert, getStripeAmount: getStripeAmt, currency: selectedCurrency, setCurrency } = useCurrency();
+const { formatPrice, convert, currency: selectedCurrency, setCurrency } = useCurrency();
 const user = useSupabaseUser();
 const supabase: any = useSupabaseClient();
 const toast = useToast();
@@ -502,6 +504,7 @@ const checkoutSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   address: z.string().min(5, "Please enter a complete address"),
+  apartment: z.string().min(1, "Please enter your apartment, suite, or unit number"),
   city: z.string().min(2, "Please select or enter a city"),
   zip: z.string().min(4, "Please enter a valid ZIP code"),
   phone: z.string().min(8, "Please enter a valid phone number"),
@@ -569,6 +572,7 @@ watch(
 );
 
 const shippingMethod = ref("standard");
+const expressBasePrice = 1;
 const paymentMethod = ref("online");
 
 const availableCountriesList = [
@@ -604,7 +608,7 @@ onMounted(async () => {
 });
 
 const shippingCost = computed(() => {
-  return shippingMethod.value === "express" ? 15.0 : 0.0;
+  return shippingMethod.value === "express" ? expressBasePrice : 0.0;
 });
 
 const taxes = computed(() => {
@@ -648,23 +652,14 @@ const initializeStripe = async () => {
     return;
   }
 
-  const stripeAmount = getStripeAmt(finalTotal.value);
-  
   if (finalTotal.value <= 0) {
     stripeError.value = "Total must be greater than 0 for online payments.";
     stripeLoading.value = false;
     return;
   }
 
-  const restrictedCurrencies = ['KWD', 'BHD', 'JOD', 'OMR', 'LBP'];
-  const isRestricted = restrictedCurrencies.includes(selectedCurrency.value.toUpperCase());
-  
-  const processingCurrency = isRestricted ? 'usd' : selectedCurrency.value.toLowerCase();
-  let processingAmount = stripeAmount;
-
-  if (isRestricted) {
-    processingAmount = Math.round((finalTotal.value * 3.3) * 100); 
-  }
+  const processingCurrency = 'usd';
+  const processingAmount = Math.round(finalTotal.value * 100);
 
   try {
     const api = useApi()
@@ -749,6 +744,7 @@ const completeOrder = async () => {
     shippingCost: shippingCost.value,
     tax: taxes.value,
     total: finalTotal.value,
+    country: form.country,
   };
 
   if (paymentMethod.value === "cod") {
@@ -782,16 +778,7 @@ const completeOrder = async () => {
     return;
   }
 
-  try {
-    const api = useApi();
-    await api.post("/api/create-order", orderPayload);
-    await clearCart();
-  } catch (err: any) {
-    console.error("Order creation error:", err);
-    stripeError.value = err.response?.data?.statusMessage || "Failed to create order. Please try again.";
-    isProcessing.value = false;
-    return;
-  }
+  sessionStorage.setItem('pendingOrder', JSON.stringify(orderPayload));
 
   const { error } = await stripeApp.confirmPayment({
     elements: stripeElements,

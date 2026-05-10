@@ -64,11 +64,20 @@ export const useCart = () => {
     if (!userId.value) return
     if (quantity <= 0) return removeFromCart(productId)
 
+    const toast = useToast()
+    const item = items.value.find((i: any) => i.product_id === productId)
+    const prevQty = item?.quantity
+
+    if (item) item.quantity = quantity
+
     try {
       await api.post('/api/cart/update', { productId, quantity })
-      await fetchCart()
+      toast.success('Cart updated')
     } catch (err) {
       console.error("updateQuantity error:", err)
+      if (item && prevQty !== undefined) item.quantity = prevQty
+      toast.error('Failed to update quantity')
+      await fetchCart()
     }
   }
 

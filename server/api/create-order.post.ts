@@ -1,3 +1,14 @@
+const countryTimezone: Record<string, string> = {
+  AE: 'Asia/Dubai', SA: 'Asia/Riyadh', QA: 'Asia/Qatar',
+  KW: 'Asia/Kuwait', BH: 'Asia/Bahrain', OM: 'Asia/Muscat',
+  JO: 'Asia/Amman', LB: 'Asia/Beirut', EG: 'Africa/Cairo',
+}
+
+function toLocalISO(date: Date, tz: string): string {
+  const str = date.toLocaleString('sv-SE', { timeZone: tz, hour12: false })
+  return str.replace(' ', 'T') + '.000Z'
+}
+
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const config = useRuntimeConfig(event)
@@ -20,11 +31,15 @@ export default defineEventHandler(async (event) => {
     shippingCost,
     tax,
     total,
+    country,
   } = body
 
   if (!orderNumber || !items || items.length === 0) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid order data' })
   }
+
+  const tz = countryTimezone[country as string] || 'UTC'
+  const now = new Date()
 
   const orderData = {
     order_number: orderNumber,
@@ -37,8 +52,8 @@ export default defineEventHandler(async (event) => {
     shipping_cost: shippingCost || 0,
     tax: tax || 0,
     total,
-    placed_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    placed_at: toLocalISO(now, tz),
+    updated_at: toLocalISO(now, tz),
   }
 
   const { data: order, error: orderError } = await supabase

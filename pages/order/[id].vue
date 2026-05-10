@@ -144,6 +144,7 @@ const user = useSupabaseUser()
 const route = useRoute()
 const { success } = useToast()
 const { formatPrice } = useCurrency()
+const { clearCart } = useCart()
 
 const order = ref<any>(null)
 const lookupNum = ref((route.params.id as string) || '')
@@ -179,6 +180,63 @@ const statusClass = computed(() => {
   return map[order.value?.status] || 'status-default'
 })
 
+async function handleStripeRedirect(): Promise<boolean> {
+  const redirectStatus = route.query.redirect_status as string
+  const paymentIntentId = route.query.payment_intent as string
+
+  if (redirectStatus !== 'succeeded' || !paymentIntentId) {
+    lookupError.value = 'Payment was not successful. Please try again.'
+    return false
+  }
+
+  loading.value = true
+
+  try {
+    const api = useApi()
+    const { data: paymentData } = await api.get('/api/verify-payment', {
+      params: { payment_intent: paymentIntentId },
+    })
+
+    if (paymentData.status !== 'succeeded') {
+      lookupError.value = 'Payment verification failed. Please contact support.'
+      loading.value = false
+      return false
+    }
+  } catch (err) {
+    lookupError.value = 'Failed to verify payment. Please contact support.'
+    loading.value = false
+    return false
+  }
+
+  const pendingData = sessionStorage.getItem('pendingOrder')
+  if (!pendingData) {
+    lookupError.value = 'Order information not found. Please contact support.'
+    loading.value = false
+    return false
+  }
+
+  try {
+    const api = useApi()
+    const payload = JSON.parse(pendingData)
+    payload.status = 'processed'
+    const { data } = await api.post('/api/create-order', payload)
+
+    if (!data.success) {
+      throw new Error('Order creation failed')
+    }
+
+    await clearCart()
+    sessionStorage.removeItem('pendingOrder')
+    success('Payment confirmed! Your order has been placed.')
+  } catch (err) {
+    lookupError.value = 'Failed to create order after payment. Please contact support.'
+    loading.value = false
+    return false
+  }
+
+  return true
+}
+
 async function lookupOrder() {
   if (!lookupNum.value.trim()) return
   loading.value = true
@@ -208,11 +266,6 @@ async function lookupOrder() {
         product_name: item.product_name || item.products?.name || 'Unknown',
       }))
     }
-
-    if (route.query.payment === 'stripe' && route.query.redirect_status === 'succeeded') {
-      await (supabase.from('orders') as any).update({ status: 'processed' }).eq('order_number', lookupNum.value.trim().toUpperCase())
-      success('Payment confirmed!')
-    }
   }
   loading.value = false
 }
@@ -222,8 +275,15 @@ function copyOrder() {
   success('Order number copied')
 }
 
-onMounted(() => {
-  if (lookupNum.value) lookupOrder()
+onMounted(async () => {
+  if (lookupNum.value) {
+    const isStripeRedirect = route.query.payment === 'stripe'
+    if (isStripeRedirect) {
+      const handled = await handleStripeRedirect()
+      if (!handled) return
+    }
+    await lookupOrder()
+  }
 })
 </script>
 
